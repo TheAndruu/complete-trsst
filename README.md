@@ -3,6 +3,10 @@ completetrsst
 
 Implementation of the Trsst protocol
 
+System Requirements:
+---------
+Must have Java installed.
+
 To run:
 -------
 
