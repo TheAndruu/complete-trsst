@@ -12,7 +12,7 @@ At a terminal, and from the project's root directory, and execute:
 `./gradlew bootRun`
 
 ###Windows:
-Open a console and from the project's root directory, execute:
+Double-click on gradlew.bat, **or** open a console and from the project's root directory, execute:
 `gradlew.bat`
 
 To play:
