@@ -22,3 +22,4 @@ From the command prompt in the project's root directory, execute:
 To play:
 --------
 Pages will be accessible in a browser at http://localhost:8080/
+
