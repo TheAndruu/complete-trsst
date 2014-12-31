@@ -33,7 +33,6 @@ Examples:
 
 ##### Create a story on a feed with ID 123:
     POST: http://localhost:8080/createStory/123
-Message body:
     {
       "id": "asf",
       "title": "Title of story",
