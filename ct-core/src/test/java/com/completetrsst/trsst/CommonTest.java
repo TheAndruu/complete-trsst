@@ -1,22 +1,22 @@
-package com.completetrsst;
+package com.completetrsst.trsst;
+
+import static org.junit.Assert.*;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import org.apache.commons.codec.binary.StringUtils;
+import org.junit.Test;
 
-import com.completetrsst.trsst.Common;
+public class CommonTest {
 
-public class ShowCryptoUse {
-	public String sayHello() {
-		return "Hello world!";
-	}
-
+	@Test
 	public void showKeys() {
 		KeyPair pair = Common.generateSigningKeyPair();
 		PublicKey pubKey = pair.getPublic();
 		System.out.println("Format of public key: " + pubKey.getFormat());
+		assertEquals("X.509", pubKey.getFormat());
 		System.out.println("Algorithm of public key: " + pubKey.getAlgorithm());
 		System.out.println("raw bytes:" + StringUtils.newString(pubKey.getEncoded(), "UTF-8"));
 
@@ -31,4 +31,5 @@ public class ShowCryptoUse {
 		String id = Common.toFeedId(pubKey);
 		System.out.println("This id is: " + id);
 	}
+
 }
