@@ -12,7 +12,7 @@ buildscript {
 apply plugin: 'spring-boot'
 
 // needed when multiple 'main' classes are in project
-mainClassName = 'com.cuga.completetrsst.spring.Application'
+mainClassName = 'com.completetrsst.spring.Application'
 
 repositories {
     maven { url "https://repo.spring.io/libs-release" }

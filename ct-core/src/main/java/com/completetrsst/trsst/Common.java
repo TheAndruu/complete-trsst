@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.trsst;
+package com.completetrsst.trsst;
 
 /*
  * Copyright 2013 mpowers

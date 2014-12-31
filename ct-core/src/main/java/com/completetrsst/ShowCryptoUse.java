@@ -1,4 +1,4 @@
-package com.cuga.completetrsst;
+package com.completetrsst;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -6,7 +6,7 @@ import java.security.PublicKey;
 
 import org.apache.commons.codec.binary.StringUtils;
 
-import com.cuga.completetrsst.trsst.Common;
+import com.completetrsst.trsst.Common;
 
 public class ShowCryptoUse {
 	public String sayHello() {

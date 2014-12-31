@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.spring;
+package com.completetrsst.spring;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,8 +16,8 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 
-import com.cuga.completetrsst.operations.InMemoryStoryOps;
-import com.cuga.completetrsst.operations.StoryOperations;
+import com.completetrsst.operations.InMemoryStoryOps;
+import com.completetrsst.operations.StoryOperations;
 
 @Configuration
 @ComponentScan

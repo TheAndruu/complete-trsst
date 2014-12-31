@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.spring.controllers;
+package com.completetrsst.spring.controllers;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cuga.completetrsst.model.Story;
-import com.cuga.completetrsst.operations.StoryOperations;
+import com.completetrsst.model.Story;
+import com.completetrsst.operations.StoryOperations;
 
 @RestController
 public class RestfulStoryOperations implements StoryOperations {

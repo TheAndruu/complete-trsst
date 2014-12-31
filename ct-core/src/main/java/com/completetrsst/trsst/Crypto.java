@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.cuga.completetrsst.trsst;
+package com.completetrsst.trsst;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;

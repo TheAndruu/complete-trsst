@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.operations;
+package com.completetrsst.operations;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.cuga.completetrsst.model.Story;
+import com.completetrsst.model.Story;
 
 public class InMemoryStoryOps implements StoryOperations {
 

@@ -1,4 +1,4 @@
-package com.cuga.completetrsst;
+package com.completetrsst;
 
 public class RunCryptoPrintout {
 	public static void main(String[] args) {

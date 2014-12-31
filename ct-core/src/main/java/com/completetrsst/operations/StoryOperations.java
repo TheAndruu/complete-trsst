@@ -1,8 +1,8 @@
-package com.cuga.completetrsst.operations;
+package com.completetrsst.operations;
 
 import java.util.List;
 
-import com.cuga.completetrsst.model.Story;
+import com.completetrsst.model.Story;
 
 public interface StoryOperations {
 

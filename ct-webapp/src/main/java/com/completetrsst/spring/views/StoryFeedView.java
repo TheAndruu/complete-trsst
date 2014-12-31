@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.spring.views;
+package com.completetrsst.spring.views;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,7 +13,7 @@ import org.jdom2.Element;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.feed.AbstractAtomFeedView;
 
-import com.cuga.completetrsst.model.Story;
+import com.completetrsst.model.Story;
 import com.rometools.rome.feed.atom.Content;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;

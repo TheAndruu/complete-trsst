@@ -1,4 +1,4 @@
-package com.cuga.completetrsst.model;
+package com.completetrsst.model;
 
 import java.util.Date;
 
