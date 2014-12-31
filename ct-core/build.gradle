@@ -1,10 +1,17 @@
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.9'
-    testCompile 'org.slf4j:slf4j-simple:1.7.9'
+    testRuntime 'org.slf4j:slf4j-simple:1.7.9'
     // remove if don't need stringUtils
 	compile 'commons-codec:commons-codec:1.10'
 	// remove when done with lorem ipsum example
     compile 'de.sven-jacobs:loremipsum:1.0'
     // remove when done with crypto copied code from trsst
     compile 'org.bouncycastle:bcprov-jdk15on:1.51'
+}
+
+configurations {
+    // need to exclude slf4j-simple logger bindings at runtime, even though 
+    // we only specify them as testRuntime above, as they're still showing
+    // up on the runtime classpath.  gradle bug?
+    runtime.exclude group: 'org.slf4j', module: 'slf4j-simple'
 }
