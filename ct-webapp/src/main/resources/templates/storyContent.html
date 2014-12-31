@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Story HTML feed view</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+<div th:each="story : ${stories}">
+	<table>
+		<tr>
+			<td valign="top">Title:</td>
+			<td th:text="${story.title}"/>
+		</tr>
+		<tr>
+			<td valign="top">Date:</td>
+			<td th:text="${story.datePublished}"/>
+		</tr>
+		<tr>
+			<td valign="top">Content:</td>
+			<td th:text="${story.content}"/>
+		</tr>
+	</table>
+	<hr />
+</div>
+</body>
+</html>

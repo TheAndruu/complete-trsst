@@ -16,6 +16,9 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 
+import com.cuga.completetrsst.operations.InMemoryStoryOps;
+import com.cuga.completetrsst.operations.StoryOperations;
+
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -26,6 +29,11 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
+    @Bean
+    public StoryOperations storyOperations() {
+    	return new InMemoryStoryOps();
+    }
+    
 	/**
 	 * Create the CNVR. Get Spring to inject the ContentNegotiationManager
 	 * created by the configurer (see previous method).
