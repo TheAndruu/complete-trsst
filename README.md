@@ -26,22 +26,22 @@ Pages will be accessible in a browser at http://localhost:8080/
 Examples:
 ---------
 ##### Display a feed by a given id (example value 123):
-GET: http://localhost:8080/feed/123.atom
+    GET: http://localhost:8080/feed/123.atom
 
 ##### Display a feed by a given id (example value = 123) as HTML:
-GET: http://localhost:8080/feed/123.html
+    GET: http://localhost:8080/feed/123.html
 
 ##### Create a story on a feed with ID 123:
-POST: http://localhost:8080/createStory/123
+    POST: http://localhost:8080/createStory/123
 Message body:
-{
-    "id": "asf",
-    "title": "Title of story",
-    "content": "content foo here",
-    "contentType": "text/html",
-    "datePublished": 1419989166384
-}
+    {
+      "id": "asf",
+      "title": "Title of story",
+      "content": "content foo here",
+      "contentType": "text/html",
+      "datePublished": 1419989166384
+    }
 
 ##### View story JSON for a given publisher ID (value = 123):
-http://localhost:8080/viewPublisher/123
+    GET: http://localhost:8080/viewPublisher/123
 
