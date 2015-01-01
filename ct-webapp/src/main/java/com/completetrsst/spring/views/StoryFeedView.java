@@ -24,17 +24,14 @@ public class StoryFeedView extends AbstractAtomFeedView {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void buildFeedMetadata(Map<String, Object> model, Feed feed,
-			HttpServletRequest request) {
+	protected void buildFeedMetadata(Map<String, Object> model, Feed feed, HttpServletRequest request) {
 		List<Story> stories = (List<Story>) model.get("stories");
-		feed.setId("id: "
-				+ String.valueOf(UUID.randomUUID().getMostSignificantBits()));
+		feed.setId("id: " + UUID.randomUUID().toString());
 		feed.setTitle("Sample stories");
 
 		for (Story story : stories) {
 			Date date = story.getDatePublished();
-			if (feed.getUpdated() == null
-					|| date.compareTo(feed.getUpdated()) > 0) {
+			if (feed.getUpdated() == null || date.compareTo(feed.getUpdated()) > 0) {
 				feed.setUpdated(date);
 			}
 		}
@@ -42,9 +39,8 @@ public class StoryFeedView extends AbstractAtomFeedView {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected List<Entry> buildFeedEntries(Map<String, Object> model,
-			HttpServletRequest request, HttpServletResponse response)
-			throws Exception {
+	protected List<Entry> buildFeedEntries(Map<String, Object> model, HttpServletRequest request,
+	        HttpServletResponse response) throws Exception {
 		List<Story> stories = (List<Story>) model.get("stories");
 
 		List<Entry> entries = new ArrayList<Entry>(stories.size());

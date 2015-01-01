@@ -25,9 +25,7 @@ public class InMemoryStoryOps implements StoryOperations {
 	}
 
 	private String createUniqueId() {
-		UUID idOne = UUID.randomUUID();
-		String id = String.valueOf(idOne.getMostSignificantBits());
-		return id;
+		return UUID.randomUUID().toString();
 	}
 
 	private void sortByDateDescending(List<Story> existingStories) {

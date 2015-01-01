@@ -1,6 +1,6 @@
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.9'
-    testRuntime 'org.slf4j:slf4j-simple:1.7.9'
+    testRuntime 'ch.qos.logback:logback-classic:1.1.2'
     // remove if don't need stringUtils
 	compile 'commons-codec:commons-codec:1.10'
 	// remove when done with lorem ipsum example
