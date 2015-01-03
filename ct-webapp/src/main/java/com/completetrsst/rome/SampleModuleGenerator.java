@@ -6,15 +6,16 @@ import java.util.Set;
 
 import org.jdom2.Content;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.Text;
 
+import com.completetrsst.crypto.ElementUtils;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
 public class SampleModuleGenerator implements ModuleGenerator {
-	private static final Namespace SAMPLE_NS = Namespace.getNamespace("sample",
-			SampleModule.URI);
+	private static final Namespace SAMPLE_NS = Namespace.getNamespace("sample", SampleModule.URI);
 
 	private static final Set<Namespace> NAMESPACES;
 
@@ -45,14 +46,33 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		}
 		root.addNamespaceDeclaration(SAMPLE_NS);
 
+		ElementUtils.logJdomElement(element);
+
 		// TODO: This Element 'element' is what we want to encrypt-- a jdom2
 		// element, representing the 'entry' in atom
-		
+		org.w3c.dom.Element signedDomElement = null;
+		try {
+			// TODO: Think this convertToDom is giving trouble
+			signedDomElement = ElementUtils.convertToDOM(element);
+		} catch (JDOMException e1) {
+			throw new RuntimeException(e1);
+		}
+		ElementUtils.logDomElement(signedDomElement);
+
+		try {
+			ElementUtils.attachSignature(signedDomElement);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+		ElementUtils.logDomElement(signedDomElement);
+		// ElementUtils.toJdom(signedDomElement);
+
+		// TODO: What to add to our new module? a boolean for do encrypt? for do
+		// sign?
 		SampleModule fm = (SampleModule) module;
 		if (fm.getFoo() != null) {
-			
-			Element elementWhichWillLaterBeSecurity = generateSimpleElement("foo",
-					fm.getFoo());
+
+			Element elementWhichWillLaterBeSecurity = generateSimpleElement("foo", fm.getFoo());
 			element.addContent(elementWhichWillLaterBeSecurity);
 		}
 	}

@@ -1,4 +1,4 @@
-package com.cuga.completetrsst;
+package com.completetrsst;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
