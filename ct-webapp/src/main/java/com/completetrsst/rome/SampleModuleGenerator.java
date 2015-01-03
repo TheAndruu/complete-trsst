@@ -9,6 +9,8 @@ import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.Text;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.completetrsst.crypto.ElementUtils;
 import com.rometools.rome.feed.module.Module;
@@ -18,6 +20,8 @@ public class SampleModuleGenerator implements ModuleGenerator {
 	private static final Namespace SAMPLE_NS = Namespace.getNamespace("sample", SampleModule.URI);
 
 	private static final Set<Namespace> NAMESPACES;
+	
+	private static final Logger log = LoggerFactory.getLogger(SampleModuleGenerator.class);
 
 	static {
 		Set<Namespace> nss = new HashSet<Namespace>();
@@ -52,7 +56,6 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		// element, representing the 'entry' in atom
 		org.w3c.dom.Element signedDomElement = null;
 		try {
-			// TODO: Think this convertToDom is giving trouble
 			signedDomElement = ElementUtils.convertToDOM(element);
 		} catch (JDOMException e1) {
 			throw new RuntimeException(e1);
@@ -64,17 +67,29 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		ElementUtils.logDomElement(signedDomElement);
-		// ElementUtils.toJdom(signedDomElement);
+		Element newJdomWithSignature = ElementUtils.toJdom(signedDomElement);
 
+		ElementUtils.logJdomElement(newJdomWithSignature);
+		
+		// TODO: Now take the signature from the above jdom element and move it to the param version
+		log.info("new jdom content size: " + newJdomWithSignature.getContentSize());
+
+		// grab the signature element:
+		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace("http://www.w3.org/2000/09/xmldsig#"));
+		ElementUtils.logJdomElement(signatureElement);
+		
+		// attach to existing jdom element
+		signatureElement.detach();
+		element.addContent(signatureElement);
+		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
 		// sign?
-		SampleModule fm = (SampleModule) module;
-		if (fm.getFoo() != null) {
-
-			Element elementWhichWillLaterBeSecurity = generateSimpleElement("foo", fm.getFoo());
-			element.addContent(elementWhichWillLaterBeSecurity);
-		}
+//		SampleModule fm = (SampleModule) module;
+//		if (fm.getFoo() != null) {
+//
+//			Element elementWhichWillLaterBeSecurity = generateSimpleElement("foo", fm.getFoo());
+//			element.addContent(elementWhichWillLaterBeSecurity);
+//		}
 	}
 
 	protected Element generateSimpleElement(String name, Foo foo) {
