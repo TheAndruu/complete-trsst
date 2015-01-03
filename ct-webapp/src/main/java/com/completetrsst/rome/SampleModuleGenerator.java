@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.crypto.dsig.XMLSignature;
+
 import org.jdom2.Content;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -75,7 +77,7 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		log.info("new jdom content size: " + newJdomWithSignature.getContentSize());
 
 		// grab the signature element:
-		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace("http://www.w3.org/2000/09/xmldsig#"));
+		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace(XMLSignature.XMLNS));
 		ElementUtils.logJdomElement(signatureElement);
 		
 		// attach to existing jdom element
