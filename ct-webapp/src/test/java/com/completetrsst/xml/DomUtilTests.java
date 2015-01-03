@@ -1,17 +1,27 @@
-package com.completetrsst.crypto;
+package com.completetrsst.xml;
 
+import static com.completetrsst.xml.TestUtils.PLAIN_ATOM_ENTRY;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.w3c.dom.Element;
 
-import com.completetrsst.xml.TestUtils;
-import com.completetrsst.xml.XmlUtil;
+import com.completetrsst.crypto.SignatureUtil;
 import com.rometools.rome.feed.atom.Entry;
-
-public class XmlDigitalSignatureTests {
-
+public class DomUtilTests {
+	
 	@Test
+	public void xmlFromFileEqualsExpected() throws Exception {
+		Element entryElement = DomUtil.readDomFromFile(PLAIN_ATOM_ENTRY);
+		String asXmlString = XmlUtil.toString(entryElement);
+		String straightFromFile = TestUtils.readFile(PLAIN_ATOM_ENTRY);
+		assertEquals(straightFromFile, asXmlString);
+	}
+
+	
+	
+		@Test
 	public void validate() throws Exception {
 		Entry entry = TestUtils.createSimpleEntry();
 		Element element = XmlUtil.toW3cElement(entry);
@@ -22,7 +32,6 @@ public class XmlDigitalSignatureTests {
 		boolean result = SignatureUtil.verifySignature(element);
 		assertTrue(result);
 	}
-
 
 	// *********************************************
 	// ******************************************888
@@ -37,8 +46,5 @@ public class XmlDigitalSignatureTests {
 
 		XmlUtil.logDomElement(element);
 	}
-
-	
-
 
 }

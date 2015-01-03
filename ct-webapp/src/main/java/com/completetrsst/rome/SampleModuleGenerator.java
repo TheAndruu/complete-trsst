@@ -14,7 +14,8 @@ import org.jdom2.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.completetrsst.crypto.ElementUtils;
+import com.completetrsst.crypto.SignatureUtil;
+import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
@@ -52,38 +53,48 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		}
 		root.addNamespaceDeclaration(SAMPLE_NS);
 
-		ElementUtils.logJdomElement(element);
+		
+		log.info("Logging the original element to work with:");
+		XmlUtil.logJdomElement(element);
 
 		// TODO: This Element 'element' is what we want to encrypt-- a jdom2
 		// element, representing the 'entry' in atom
 		org.w3c.dom.Element signedDomElement = null;
 		try {
-			signedDomElement = ElementUtils.convertToDOM(element);
+			signedDomElement = XmlUtil.convertToDOM(element);
 		} catch (JDOMException e1) {
 			throw new RuntimeException(e1);
 		}
-		ElementUtils.logDomElement(signedDomElement);
+		XmlUtil.logDomElement(signedDomElement);
 
 		try {
-			ElementUtils.attachSignature(signedDomElement);
+			SignatureUtil.attachSignature(signedDomElement);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		Element newJdomWithSignature = ElementUtils.toJdom(signedDomElement);
+		Element newJdomWithSignature = XmlUtil.toJdom(signedDomElement);
 
-		ElementUtils.logJdomElement(newJdomWithSignature);
+		XmlUtil.logJdomElement(newJdomWithSignature);
 		
 		// TODO: Now take the signature from the above jdom element and move it to the param version
 		log.info("new jdom content size: " + newJdomWithSignature.getContentSize());
 
 		// grab the signature element:
 		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace(XMLSignature.XMLNS));
-		ElementUtils.logJdomElement(signatureElement);
+		XmlUtil.logJdomElement(signatureElement);
 		
 		// attach to existing jdom element
 		signatureElement.detach();
 		element.addContent(signatureElement);
 		
+		try {
+			//log.info("Element valid? " + ElementUtils.verifySignature(ElementUtils.toDom(element)));
+//			log.info("new jdom valid? " + ElementUtils.verifySignature(ElementUtils.toDom(newJdomWithSignature)));
+//			log.info("Original signed dom valid? " + ElementUtils.verifySignature(signedDomElement));
+	        
+        } catch (Exception e) {
+	        log.error(e.getMessage());
+        }
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
 		// sign?
 //		SampleModule fm = (SampleModule) module;
