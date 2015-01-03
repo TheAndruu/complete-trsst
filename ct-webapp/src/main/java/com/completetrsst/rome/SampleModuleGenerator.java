@@ -53,48 +53,32 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		}
 		root.addNamespaceDeclaration(SAMPLE_NS);
 
-		
-		log.info("Logging the original element to work with:");
-		XmlUtil.logJdomElement(element);
-
 		// TODO: This Element 'element' is what we want to encrypt-- a jdom2
 		// element, representing the 'entry' in atom
 		org.w3c.dom.Element signedDomElement = null;
 		try {
 			signedDomElement = XmlUtil.convertToDOM(element);
 		} catch (JDOMException e1) {
+			log.error(e1.getMessage());
 			throw new RuntimeException(e1);
 		}
-		XmlUtil.logDomElement(signedDomElement);
 
 		try {
 			SignatureUtil.attachSignature(signedDomElement);
 		} catch (Exception e) {
+			log.error(e.getMessage());
 			throw new RuntimeException(e);
 		}
 		Element newJdomWithSignature = XmlUtil.toJdom(signedDomElement);
 
-		XmlUtil.logJdomElement(newJdomWithSignature);
-		
-		// TODO: Now take the signature from the above jdom element and move it to the param version
-		log.info("new jdom content size: " + newJdomWithSignature.getContentSize());
-
 		// grab the signature element:
 		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace(XMLSignature.XMLNS));
-		XmlUtil.logJdomElement(signatureElement);
 		
 		// attach to existing jdom element
 		signatureElement.detach();
 		element.addContent(signatureElement);
 		
-		try {
-			//log.info("Element valid? " + ElementUtils.verifySignature(ElementUtils.toDom(element)));
-//			log.info("new jdom valid? " + ElementUtils.verifySignature(ElementUtils.toDom(newJdomWithSignature)));
-//			log.info("Original signed dom valid? " + ElementUtils.verifySignature(signedDomElement));
-	        
-        } catch (Exception e) {
-	        log.error(e.getMessage());
-        }
+		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
 		// sign?
 //		SampleModule fm = (SampleModule) module;
