@@ -19,17 +19,17 @@ import org.xml.sax.SAXException;
 
 import com.rometools.rome.feed.atom.Entry;
 
-public class TestUtils {
+public class TestUtil {
 
 	public static final String PLAIN_ATOM_ENTRY;
 	static {
-		PLAIN_ATOM_ENTRY = TestUtils.class.getResource("plainAtomEntry.xml").getPath();
+		PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
 	}
 
 	public static String readFile(String path) throws IOException {
 		return new String(readAllBytes(get(path)));
 	}
-	
+
 	public static org.jdom2.Element readJDomFromFile(String filePath) throws JDOMException, IOException {
 		SAXBuilder builder = new SAXBuilder();
 		org.jdom2.Document doc = builder.build(filePath);
