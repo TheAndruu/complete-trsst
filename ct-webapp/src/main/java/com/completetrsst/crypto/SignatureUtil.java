@@ -118,7 +118,7 @@ public class SignatureUtil {
 	 * Gets the validation context from an element, necessary for extracting the
 	 * signature
 	 */
-	private static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
+	static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
 		Document doc = element.getOwnerDocument();
 
 		// specify the signature to validate
@@ -131,7 +131,8 @@ public class SignatureUtil {
 		return new DOMValidateContext(new KeyValueKeySelector(), nl.item(0));
 	}
 
-	protected static KeyPair generateInsecureKeyPair() throws NoSuchAlgorithmException {
+	// TODO: Replace this with parameters
+	private static KeyPair generateInsecureKeyPair() throws NoSuchAlgorithmException {
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
 		kpg.initialize(512);
 		KeyPair kp = kpg.generateKeyPair();

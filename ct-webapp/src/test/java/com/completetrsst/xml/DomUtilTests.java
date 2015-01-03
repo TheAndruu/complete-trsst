@@ -13,7 +13,7 @@ public class DomUtilTests {
 	
 	@Test
 	public void xmlFromFileEqualsExpected() throws Exception {
-		Element entryElement = DomUtil.readDomFromFile(PLAIN_ATOM_ENTRY);
+		Element entryElement = TestUtils.readDomFromFile(PLAIN_ATOM_ENTRY);
 		String asXmlString = XmlUtil.toString(entryElement);
 		String straightFromFile = TestUtils.readFile(PLAIN_ATOM_ENTRY);
 		assertEquals(straightFromFile, asXmlString);
