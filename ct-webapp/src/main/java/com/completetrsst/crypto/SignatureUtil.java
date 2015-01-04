@@ -1,5 +1,6 @@
 package com.completetrsst.crypto;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +24,6 @@ import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
 
-import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +37,14 @@ public class SignatureUtil {
 	private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
 
 	/**
-	 * Signs a JDOM Element containing a single Atom Entry. Parameter will be
-	 * updated to include Xml Digital Signature on the object.
+	 * Signs a JDOM Element, such as one containing a single Atom Entry.
+	 * Parameter will be updated to include XML Digital Signature on the object.
 	 */
-	public static void signEntry(org.jdom2.Element element) {
-		// TODO: This Element 'element' is what we want to encrypt-- a jdom2
-		// element, representing the 'entry' in atom
+	public static void signElement(org.jdom2.Element element) {
 		org.w3c.dom.Element signedDomElement = null;
 		try {
-			signedDomElement = XmlUtil.convertToDOM(element);
-		} catch (JDOMException e1) {
+			signedDomElement = XmlUtil.toDom(element);
+		} catch (IOException e1) {
 			log.error(e1.getMessage());
 			throw new RuntimeException(e1);
 		}
@@ -63,7 +61,7 @@ public class SignatureUtil {
 		org.jdom2.Element signatureElement = newJdomWithSignature.getChild("Signature",
 		        Namespace.getNamespace(XMLSignature.XMLNS));
 
-		// attach to existing jdom element
+		// attach to original jdom element
 		signatureElement.detach();
 		element.addContent(signatureElement);
 	}

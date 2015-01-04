@@ -53,7 +53,7 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		}
 		root.addNamespaceDeclaration(SAMPLE_NS);
 
-		SignatureUtil.signEntry(element);
+		SignatureUtil.signElement(element);
 		
 		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do

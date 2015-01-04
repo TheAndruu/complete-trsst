@@ -18,21 +18,15 @@ public class SignatureUtilTests {
 	@Test
 	public void validateSignEntry() throws Exception {
 		Entry entry = TestUtil.createSimpleEntry();
-		org.jdom2.Element element = XmlUtil.toJdom(entry);
-		
-		log.info("Initial jdom");
-		log.info("\n" + XmlUtil.serialize(element));
-		
-		SignatureUtil.signEntry(element);
-		
-		log.info("Signed jdom");
-		log.info("\n" + XmlUtil.serialize(element));
-		
+		org.jdom2.Element element = TestUtil.toJdom(entry);
+
+		SignatureUtil.signElement(element);
+
 		// now convert element to DOM and verify
-		Element signedAsDom = XmlUtil.convertToDOM(element);
-		
+		Element signedAsDom = XmlUtil.toDom(element);
+
 		log.info("Signed dom");
-		log.info("\n" + XmlUtil.serialize(element));
+		log.info("\n" + TestUtil.serialize(element));
 		
 		boolean isValid = SignatureUtil.verifySignature(signedAsDom);
 		assertTrue(isValid);
@@ -42,7 +36,7 @@ public class SignatureUtilTests {
 	@Test
 	public void validateSignatureAttachedToDomElement() throws Exception {
 		Entry entry = TestUtil.createSimpleEntry();
-		Element element = XmlUtil.toDom(entry);
+		Element element = TestUtil.toDom(entry);
 
 		SignatureUtil.attachSignature(element);
 
