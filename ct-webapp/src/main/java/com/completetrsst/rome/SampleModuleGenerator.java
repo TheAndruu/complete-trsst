@@ -4,18 +4,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.crypto.dsig.XMLSignature;
-
 import org.jdom2.Content;
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.completetrsst.crypto.SignatureUtil;
-import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
@@ -68,7 +64,7 @@ public class SampleModuleGenerator implements ModuleGenerator {
 
 	
 
-	protected Element generateSimpleElement(String name, Foo foo) {
+	private Element generateSimpleElement(String name, Foo foo) {
 		// TODO: Move these into a new Class (Foo extends Element, etc) with
 		// hardcoded NS, etc
 		// and even deep cloning

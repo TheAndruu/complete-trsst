@@ -16,7 +16,7 @@ public class SignatureUtilTests {
 	private static final Logger log = LoggerFactory.getLogger(SignatureUtilTests.class);
 	
 	@Test
-	public void validateSignEntry() throws Exception {
+	public void signElement() throws Exception {
 		Entry entry = TestUtil.createSimpleEntry();
 		org.jdom2.Element element = TestUtil.toJdom(entry);
 
@@ -26,7 +26,7 @@ public class SignatureUtilTests {
 		Element signedAsDom = XmlUtil.toDom(element);
 
 		log.info("Signed dom");
-		log.info("\n" + TestUtil.serialize(element));
+		log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
 		
 		boolean isValid = SignatureUtil.verifySignature(signedAsDom);
 		assertTrue(isValid);
@@ -34,7 +34,7 @@ public class SignatureUtilTests {
 
 	/** Asserts proper verification of attached enveloped XML Digital Signature */
 	@Test
-	public void validateSignatureAttachedToDomElement() throws Exception {
+	public void attachSignature() throws Exception {
 		Entry entry = TestUtil.createSimpleEntry();
 		Element element = TestUtil.toDom(entry);
 

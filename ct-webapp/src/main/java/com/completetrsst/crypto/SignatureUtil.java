@@ -67,7 +67,7 @@ public class SignatureUtil {
 	}
 
 	/** Attaches a signature to the given DOM element */
-	public static void attachSignature(Element element) throws Exception {
+	static void attachSignature(Element element) throws Exception {
 		// document builder for building the xml
 		// Document doc = builder.parse(element);
 
@@ -104,12 +104,8 @@ public class SignatureUtil {
 		// grab the signature from the document
 		XMLSignature signature = extractSignature(valContext);
 
-		// and finally validate:
-		boolean coreValidity = signature.validate(valContext);
-
-		// did any of the elements fail to validate?
-		areElementsValid(valContext, signature);
-		return coreValidity;
+		// validation on the referenced nodes
+		return signature.validate(valContext);
 	}
 
 	/**

@@ -4,6 +4,7 @@ import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.completetrsst.rome.Bar;
@@ -163,4 +168,29 @@ public class TestUtil {
 		return writer.toString();
 	}
 
+	public static String format(String xml) {
+		try {
+			final InputSource src = new InputSource(new StringReader(xml));
+			final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
+			        .getDocumentElement();
+			final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
+
+			// May need this:
+			// System.setProperty(DOMImplementationRegistry.PROPERTY,"com.sun.org.apache.xerces.internal.dom.DOMImplementationSourceImpl");
+
+			final DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+			final DOMImplementationLS impl = (DOMImplementationLS) registry.getDOMImplementation("LS");
+			final LSSerializer writer = impl.createLSSerializer();
+
+			// Set this to true if the output needs to be beautified.
+			writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+
+			// Set this to true if the declaration is needed to be outputted.
+			writer.getDomConfig().setParameter("xml-declaration", keepDeclaration);
+
+			return writer.writeToString(document);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
