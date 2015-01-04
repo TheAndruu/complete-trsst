@@ -11,6 +11,7 @@ import org.jdom2.input.DOMBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class XmlUtil {
@@ -28,19 +29,16 @@ public class XmlUtil {
 	}
 
 	public static org.w3c.dom.Element toDom(org.jdom2.Element element) throws IOException {
-		return toDom(element.getDocument()).getDocumentElement();
-	}
-
-	private static org.w3c.dom.Document toDom(org.jdom2.Document doc) throws IOException {
 		try {
 			XMLOutputter xmlOutputter = new XMLOutputter();
 			StringWriter writer = new StringWriter();
-			xmlOutputter.output(doc, writer);
+			xmlOutputter.output(element, writer);
 			byte[] xmlBytes = writer.toString().getBytes();
 			writer.close();
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			dbf.setNamespaceAware(true);
-			return dbf.newDocumentBuilder().parse(new ByteArrayInputStream(xmlBytes));
+			Document domDoc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(xmlBytes));
+			return domDoc.getDocumentElement();
 		} catch (IOException e) {
 			String message = "IO exception" + e.getMessage();
 			log.error(message);
