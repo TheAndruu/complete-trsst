@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.xml.XmlUtil;
+import com.completetrsst.crypto.xml.XmlUtil;
 
 public class SignatureUtil {
 	private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
@@ -40,10 +40,10 @@ public class SignatureUtil {
 	 * Signs a JDOM Element, such as one containing a single Atom Entry.
 	 * Parameter will be updated to include XML Digital Signature on the object.
 	 */
-	public static void signElement(org.jdom2.Element element) {
+	public static void signElement(org.jdom2.Element jdomElement) {
 		org.w3c.dom.Element signedDomElement = null;
 		try {
-			signedDomElement = XmlUtil.toDom(element);
+			signedDomElement = XmlUtil.toDom(jdomElement);
 		} catch (IOException e1) {
 			log.error(e1.getMessage());
 			throw new RuntimeException(e1);
@@ -63,11 +63,11 @@ public class SignatureUtil {
 
 		// attach to original jdom element
 		signatureElement.detach();
-		element.addContent(signatureElement);
+		jdomElement.addContent(signatureElement);
 	}
 
 	/** Attaches a signature to the given DOM element */
-	static void attachSignature(Element element) throws Exception {
+	static void attachSignature(Element domElement) throws Exception {
 		// document builder for building the xml
 		// Document doc = builder.parse(element);
 
@@ -75,7 +75,7 @@ public class SignatureUtil {
 		// TODO: Replace this with a keyPair being passed in, move
 		// insecureKeyPair to tests
 		KeyPair kp = generateInsecureKeyPair();
-		DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), element);
+		DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), domElement);
 		XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
 
 		// reference indicates which xml node will be signed
@@ -99,8 +99,8 @@ public class SignatureUtil {
 	}
 
 	/** Verifies the XML digital signature on a DOM element */
-	public static boolean verifySignature(Element element) throws XMLSignatureException {
-		DOMValidateContext valContext = extractValidationContext(element);
+	public static boolean verifySignature(Element domElement) throws XMLSignatureException {
+		DOMValidateContext valContext = extractValidationContext(domElement);
 		// grab the signature from the document
 		XMLSignature signature = extractSignature(valContext);
 

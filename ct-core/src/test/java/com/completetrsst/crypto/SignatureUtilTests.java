@@ -7,9 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import com.completetrsst.xml.TestUtil;
-import com.completetrsst.xml.XmlUtil;
-import com.rometools.rome.feed.atom.Entry;
+import com.completetrsst.crypto.xml.TestUtil;
+import com.completetrsst.crypto.xml.XmlUtil;
 
 public class SignatureUtilTests {
 
@@ -17,8 +16,7 @@ public class SignatureUtilTests {
 	
 	@Test
 	public void signElement() throws Exception {
-		Entry entry = TestUtil.createSimpleEntry();
-		org.jdom2.Element element = TestUtil.toJdom(entry);
+		org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
 		SignatureUtil.signElement(element);
 
@@ -35,8 +33,7 @@ public class SignatureUtilTests {
 	/** Asserts proper verification of attached enveloped XML Digital Signature */
 	@Test
 	public void attachSignature() throws Exception {
-		Entry entry = TestUtil.createSimpleEntry();
-		Element element = TestUtil.toDom(entry);
+		Element element = TestUtil.readDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
 		SignatureUtil.attachSignature(element);
 

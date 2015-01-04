@@ -1,4 +1,4 @@
-package com.completetrsst.xml;
+package com.completetrsst.crypto.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

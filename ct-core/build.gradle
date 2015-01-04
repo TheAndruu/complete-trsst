@@ -1,10 +1,10 @@
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.9'
     testRuntime 'ch.qos.logback:logback-classic:1.1.2'
+    compile 'org.jdom:jdom2:2.0.5'
+    
     // remove if don't need stringUtils
 	compile 'commons-codec:commons-codec:1.10'
-	// remove when done with lorem ipsum example
-    compile 'de.sven-jacobs:loremipsum:1.0'
     // remove when done with crypto copied code from trsst
     compile 'org.bouncycastle:bcprov-jdk15on:1.51'
 }
