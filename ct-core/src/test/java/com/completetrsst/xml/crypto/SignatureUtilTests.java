@@ -1,4 +1,4 @@
-package com.completetrsst.crypto;
+package com.completetrsst.xml.crypto;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
-import com.completetrsst.crypto.xml.TestUtil;
-import com.completetrsst.crypto.xml.XmlUtil;
+import com.completetrsst.xml.TestUtil;
+import com.completetrsst.xml.XmlUtil;
+import com.completetrsst.xml.crypto.SignatureUtil;
 
 public class SignatureUtilTests {
 

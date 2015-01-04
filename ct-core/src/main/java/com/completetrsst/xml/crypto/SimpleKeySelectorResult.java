@@ -1,4 +1,4 @@
-package com.completetrsst.crypto;
+package com.completetrsst.xml.crypto;
 
 import java.security.Key;
 

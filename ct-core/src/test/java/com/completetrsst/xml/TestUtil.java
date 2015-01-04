@@ -1,4 +1,4 @@
-package com.completetrsst.crypto.xml;
+package com.completetrsst.xml;
 
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;

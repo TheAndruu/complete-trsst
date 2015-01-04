@@ -1,6 +1,6 @@
-package com.completetrsst.crypto.xml;
+package com.completetrsst.xml;
 
-import static com.completetrsst.crypto.xml.TestUtil.PLAIN_ATOM_ENTRY;
+import static com.completetrsst.xml.TestUtil.PLAIN_ATOM_ENTRY;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;

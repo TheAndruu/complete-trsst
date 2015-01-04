@@ -1,4 +1,4 @@
-package com.completetrsst.crypto;
+package com.completetrsst.xml.crypto;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -31,7 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.crypto.xml.XmlUtil;
+import com.completetrsst.xml.XmlUtil;
 
 public class SignatureUtil {
 	private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);

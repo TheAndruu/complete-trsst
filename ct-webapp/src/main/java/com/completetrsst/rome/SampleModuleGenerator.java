@@ -11,7 +11,7 @@ import org.jdom2.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.completetrsst.crypto.SignatureUtil;
+import com.completetrsst.xml.crypto.SignatureUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
