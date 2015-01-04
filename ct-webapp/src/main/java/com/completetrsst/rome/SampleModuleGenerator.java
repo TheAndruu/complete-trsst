@@ -43,11 +43,11 @@ public class SampleModuleGenerator implements ModuleGenerator {
 
 		// this is not necessary, it is done to avoid the namespace definition
 		// in every item.
-		Element root = element;
-		while (root.getParent() != null && root.getParent() instanceof Element) {
-			root = (Element) element.getParent();
-		}
-		root.addNamespaceDeclaration(SAMPLE_NS);
+//		Element root = element;
+//		while (root.getParent() != null && root.getParent() instanceof Element) {
+//			root = (Element) element.getParent();
+//		}
+//		root.addNamespaceDeclaration(SAMPLE_NS);
 
 		SignatureUtil.signElement(element);
 		

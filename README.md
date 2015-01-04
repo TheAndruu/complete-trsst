@@ -38,15 +38,13 @@ Examples:
     GET: http://localhost:8080/feed/123.atom
 
     <?xml version="1.0" encoding="UTF-8"?>
-    <feed 
-        xmlns="http://www.w3.org/2005/Atom">
+    <feed xmlns="http://www.w3.org/2005/Atom">
         <title>Sample stories</title>
-        <id>id: 5a78350d-63e9-4590-9cdf-1a21c44ab253</id>
+        <id>id: 3af2031e-dd26-4368-b319-c9a3d5699395</id>
         <updated>2014-12-31T01:26:06Z</updated>
-        <entry 
-            xmlns:sample="http://rome.dev.java.net/module/sample/1.0">
+        <entry>
             <title>First post published</title>
-            <id>08306b50-1db7-4725-ac2b-c8b51ea5e815</id>
+            <id>33b6c922-a650-4ec1-932d-5c1d3a1c91d1</id>
             <updated>2014-12-31T01:26:06Z</updated>
             <published>2014-12-31T01:26:06Z</published>
             <Signature 
@@ -59,10 +57,10 @@ Examples:
                             <Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
                         </Transforms>
                         <DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-                        <DigestValue>gk1EviFXm2p4Kz2o8Ye/XSo2tjc=</DigestValue>
+                        <DigestValue>ZAcSnGToFHkpgf9yRB0Y/wwNpsY=</DigestValue>
                     </Reference>
                 </SignedInfo>
-                <SignatureValue>X5XIlSoj5wpO5YenqaKcN1sJAANiX14CGmbNAo5cV4wBPEuX3s4wrg==</SignatureValue>
+                <SignatureValue>gFqcF66+RNQocoEK8r8zLj3qflNlw5NqYkgGNMq2ceLa4mJNpUfwWg==</SignatureValue>
                 <KeyInfo>
                     <KeyValue>
                         <DSAKeyValue>
@@ -71,14 +69,15 @@ Examples:
                             <Q>li7dzDacuo67Jg7mtqEm2TRuOMU=</Q>
                             <G>Z4Rxsnqc9E7pGknFFH2xqaryRPBaQ01khpMdLRQnG541Awtx/XPaF5Bpsy4pNWMOHCBiNU0Nogps
     QW5QvnlMpA==</G>
-                            <Y>A+ZcwSl6uEbQpjM1XibN1cigrZG7N4flJJQCDiHlgLmFSRvG2jnq6C8SEb6r6udH4t9zBu8H35ul
-    ZBfwC/febw==</Y>
+                            <Y>4aUPzueQhZHlejqheRmWzi1XHiO0V993vr8kJRsJYgZxciQh2U53LZLlNjYIDI/GqZ855aPQm/08
+    SxJLTjM1jw==</Y>
                         </DSAKeyValue>
                     </KeyValue>
                 </KeyInfo>
             </Signature>
         </entry>
     </feed>
+
 
 
 
