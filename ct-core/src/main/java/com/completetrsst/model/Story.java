@@ -5,32 +5,23 @@ import java.util.Date;
 public class Story {
 	private String id;
 	private String title;
-	private String content;
-	private String contentType;
 	private Date datePublished;
-	
+	private Date dateUpdated;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getTitle() {
 		return title;
 	}
 
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
 	}
 
 	public Date getDatePublished() {
@@ -41,12 +32,12 @@ public class Story {
 		this.datePublished = datePublished;
 	}
 
-	public String getId() {
-		return id;
+	public Date getDateUpdated() {
+		return dateUpdated;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setDateUpdated(Date dateUpdated) {
+		this.dateUpdated = dateUpdated;
 	}
 
 }
