@@ -13,10 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.feed.AbstractAtomFeedView;
 
 import com.completetrsst.model.Story;
-import com.completetrsst.rome.Bar;
-import com.completetrsst.rome.Foo;
-import com.completetrsst.rome.SampleModule;
-import com.completetrsst.rome.SampleModuleImpl;
+import com.completetrsst.rome.TrsstModule;
+import com.completetrsst.rome.TrsstSignatureModule;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 import com.rometools.rome.feed.module.Module;
@@ -59,14 +57,9 @@ public class StoryFeedView extends AbstractAtomFeedView {
 			entry.setUpdated(story.getDateUpdated());
 			entry.setPublished(story.getDatePublished());
 
-			// TODO: Refactor this module to be more sensible
-			// have the trsst namespace, whether encrypted or signed
-			SampleModule module = new SampleModuleImpl();
-			Foo foo = new Foo();
-			Bar bar = new Bar();
-			bar.setItem("bar item");
-			foo.setBar(bar);
-			module.setFoo(foo);
+			// TODO: add logic here for whether to encrypt as well
+			TrsstModule module = new TrsstSignatureModule();
+			module.setIsSigned(true);
 			List<Module> modules = new ArrayList<Module>();
 			modules.add(module);
 			entry.setModules(modules);

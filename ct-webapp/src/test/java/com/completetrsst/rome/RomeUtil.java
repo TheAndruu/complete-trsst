@@ -10,13 +10,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.completetrsst.rome.Bar;
-import com.completetrsst.rome.Foo;
-import com.completetrsst.rome.SampleModule;
-import com.completetrsst.rome.SampleModuleImpl;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
-import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.WireFeedOutput;
 import com.rometools.rome.io.impl.Atom10Generator;
 
@@ -29,18 +24,6 @@ public class RomeUtil {
 		entry.setUpdated(new Date());
 		entry.setPublished(new Date());
 		return entry;
-	}
-
-	private static List<Module> createModules() {
-		SampleModule module = new SampleModuleImpl();
-		Foo foo = new Foo();
-		Bar bar = new Bar();
-		bar.setItem("bar item");
-		foo.setBar(bar);
-		module.setFoo(foo);
-		List<Module> modules = new ArrayList<Module>();
-		modules.add(module);
-		return modules;
 	}
 
 	private static org.jdom2.Element toJdom(Entry entry) throws Exception {
