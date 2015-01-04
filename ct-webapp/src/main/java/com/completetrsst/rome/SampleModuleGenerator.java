@@ -53,30 +53,7 @@ public class SampleModuleGenerator implements ModuleGenerator {
 		}
 		root.addNamespaceDeclaration(SAMPLE_NS);
 
-		// TODO: This Element 'element' is what we want to encrypt-- a jdom2
-		// element, representing the 'entry' in atom
-		org.w3c.dom.Element signedDomElement = null;
-		try {
-			signedDomElement = XmlUtil.convertToDOM(element);
-		} catch (JDOMException e1) {
-			log.error(e1.getMessage());
-			throw new RuntimeException(e1);
-		}
-
-		try {
-			SignatureUtil.attachSignature(signedDomElement);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			throw new RuntimeException(e);
-		}
-		Element newJdomWithSignature = XmlUtil.toJdom(signedDomElement);
-
-		// grab the signature element:
-		Element signatureElement = newJdomWithSignature.getChild("Signature", Namespace.getNamespace(XMLSignature.XMLNS));
-		
-		// attach to existing jdom element
-		signatureElement.detach();
-		element.addContent(signatureElement);
+		SignatureUtil.signEntry(element);
 		
 		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
@@ -88,6 +65,8 @@ public class SampleModuleGenerator implements ModuleGenerator {
 //			element.addContent(elementWhichWillLaterBeSecurity);
 //		}
 	}
+
+	
 
 	protected Element generateSimpleElement(String name, Foo foo) {
 		// TODO: Move these into a new Class (Foo extends Element, etc) with

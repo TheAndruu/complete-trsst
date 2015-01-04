@@ -12,7 +12,7 @@ public class XmlUtilTest {
 	@Test
 	public void domXmlElementFromFileEqualsExpected() throws Exception {
 		Element entryElement = TestUtil.readDomFromFile(PLAIN_ATOM_ENTRY);
-		String asXmlString = XmlUtil.toString(entryElement);
+		String asXmlString = XmlUtil.serialize(entryElement);
 		String straightFromFile = TestUtil.readFile(PLAIN_ATOM_ENTRY);
 		assertEquals(straightFromFile, asXmlString);
 	}

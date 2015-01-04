@@ -67,14 +67,13 @@ public class XmlUtil {
 		}
 	}
 
-	public static org.w3c.dom.Element toDom(org.jdom2.Element element) {
-		return toDom(element.getDocument()).getDocumentElement();
+	public static org.w3c.dom.Element toDom(org.jdom2.Element jdomElement) {
+		return toDom(jdomElement.getDocument()).getDocumentElement();
 	}
 
 	public static org.w3c.dom.Element convertToDOM(org.jdom2.Element jdomElement) throws JDOMException {
 		DOMOutputter outputter = new DOMOutputter();
 		org.w3c.dom.Element element = outputter.output(jdomElement);
-		logDomElement(element);
 		return element;
 	}
 
@@ -96,8 +95,28 @@ public class XmlUtil {
 		modules.add(module);
 		return modules;
 	}
+	
+	public static org.jdom2.Element toJdom(Entry entry) throws Exception {
+		// Note: This is from Atom10Generator.serializeEntry()
+		// it also has .generate(WireFeed) which returns a jdom2 element
 
-	public static Element toW3cElement(Entry entry) throws Exception {
+		// Build a feed containing only the entry
+		final List<Entry> entries = new ArrayList<Entry>();
+		entries.add(entry);
+		final Feed feed1 = new Feed();
+		feed1.setFeedType("atom_1.0");
+		feed1.setEntries(entries);
+
+		// Get Rome to output feed as a JDOM document
+		final WireFeedOutput wireFeedOutput = new WireFeedOutput();
+		org.jdom2.Document feedDoc = wireFeedOutput.outputJDom(feed1);
+
+        // Grab entry element from feed and get JDOM to serialize it
+        final org.jdom2.Element entryElement = feedDoc.getRootElement().getChildren().get(0);
+		return entryElement;
+	}
+
+	public static Element toDom(Entry entry) throws Exception {
 		// Note: This is from Atom10Generator.serializeEntry()
 		// it also has .generate(WireFeed) which returns a jdom2 element
 
@@ -117,57 +136,42 @@ public class XmlUtil {
 		return (Element) node;
 	}
 
-	public static void logJdomElement(org.jdom2.Element node) {
+	public static String serialize(org.jdom2.Element jdomElement) {
 		StringWriter writer = new StringWriter();
 		final XMLOutputter outputter = new XMLOutputter();
 		try {
-			outputter.output(node, writer);
+			outputter.output(jdomElement, writer);
 			writer.close();
 		} catch (IOException e) {
 			log.error(e.getMessage());
 		}
-		logXml(format(writer.toString()));
+		return writer.toString();
 	}
 
-	public static void logDomElement(Element node) {
-		String str = toString(node);
-		logXml(format(str));
-	}
 
-	public static String toString(Element node) throws TransformerFactoryConfigurationError {
+	public static String serialize(Element domElement) throws TransformerFactoryConfigurationError {
 		StringWriter buffer = null;
 		try {
 			TransformerFactory transFactory = TransformerFactory.newInstance();
 			Transformer transformer = transFactory.newTransformer();
 			buffer = new StringWriter();
 			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-			transformer.transform(new DOMSource(node), new StreamResult(buffer));
+			transformer.transform(new DOMSource(domElement), new StreamResult(buffer));
 			buffer.close();
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
-		String str = buffer.toString();
-		return str;
+		return buffer.toString();
 	}
 
-	public static void printEntry(Entry entry) throws Exception {
+	private static String serialize(Entry entry) throws Exception {
 		StringWriter writer = new StringWriter();
 		Atom10Generator.serializeEntry(entry, writer);
-
 		writer.close();
-		String xml = writer.toString();
-
-		logXml(xml);
+		return writer.toString();
 	}
 
-	// "This was giving trouble with doubel namespaces")
-	public static void logXml(String unformattedXml) {
-		log.info("\n" + unformattedXml);
-	}
-
-	// was this giving trouble or was the xml it was being given bad?
 	public static String format(String xml) {
-
 		try {
 			final InputSource src = new InputSource(new StringReader(xml));
 			final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
