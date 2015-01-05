@@ -1,9 +1,8 @@
-package com.completetrsst.xml.crypto;
+package com.completetrsst.crypto;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 import java.util.Collections;
 import java.util.Iterator;
 
@@ -40,19 +39,19 @@ public class SignatureUtil {
 	 * Signs a JDOM Element, such as one containing a single Atom Entry.
 	 * Parameter will be updated to include XML Digital Signature on the object.
 	 */
-	public static void signElement(org.jdom2.Element jdomElement) {
+	public static void signElement(org.jdom2.Element jdomElement, KeyPair keyPair) {
 		org.w3c.dom.Element signedDomElement = null;
 		try {
 			signedDomElement = XmlUtil.toDom(jdomElement);
 		} catch (IOException e1) {
-			log.error(e1.getMessage());
+			log.error("Error signing element: " + e1.getMessage());
 			throw new RuntimeException(e1);
 		}
 
 		try {
-			SignatureUtil.attachSignature(signedDomElement);
+			SignatureUtil.attachSignature(signedDomElement, keyPair);
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error("Error attaching signature" + e.getMessage());
 			throw new RuntimeException(e);
 		}
 		org.jdom2.Element newJdomWithSignature = XmlUtil.toJdom(signedDomElement);
@@ -67,15 +66,12 @@ public class SignatureUtil {
 	}
 
 	/** Attaches a signature to the given DOM element */
-	static void attachSignature(Element domElement) throws Exception {
+	static void attachSignature(Element domElement, KeyPair keyPair) throws Exception {
 		// document builder for building the xml
 		// Document doc = builder.parse(element);
 
 		// key pair to use in signing
-		// TODO: Replace this with a keyPair being passed in, move
-		// insecureKeyPair to tests
-		KeyPair kp = generateInsecureKeyPair();
-		DOMSignContext dsc = new DOMSignContext(kp.getPrivate(), domElement);
+		DOMSignContext dsc = new DOMSignContext(keyPair.getPrivate(), domElement);
 		XMLSignatureFactory fac = XMLSignatureFactory.getInstance("DOM");
 
 		// reference indicates which xml node will be signed
@@ -90,7 +86,8 @@ public class SignatureUtil {
 		// generate the key info, which will put the public key in the xml so
 		// ppl can decrypt it
 		KeyInfoFactory kif = fac.getKeyInfoFactory();
-		KeyValue kv = kif.newKeyValue(kp.getPublic());
+		PublicKey key = keyPair.getPublic();
+		KeyValue kv = kif.newKeyValue(keyPair.getPublic());
 		KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
 
 		// actually sign the xml
@@ -159,14 +156,6 @@ public class SignatureUtil {
 
 		// context for validation -- incl selector to extract key from the XML
 		return new DOMValidateContext(new KeyValueKeySelector(), nl.item(0));
-	}
-
-	// TODO: Replace this with parameters
-	private static KeyPair generateInsecureKeyPair() throws NoSuchAlgorithmException {
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
-		kpg.initialize(512);
-		KeyPair kp = kpg.generateKeyPair();
-		return kp;
 	}
 
 }

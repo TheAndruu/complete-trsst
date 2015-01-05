@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.feed.AbstractAtomFeedView;
 
+import com.completetrsst.crypto.KeyCommander;
 import com.completetrsst.model.Story;
 import com.completetrsst.rome.TrsstModule;
 import com.completetrsst.rome.TrsstSignatureModule;
@@ -60,6 +61,9 @@ public class StoryFeedView extends AbstractAtomFeedView {
 			// TODO: add logic here for whether to encrypt as well
 			TrsstModule module = new TrsstSignatureModule();
 			module.setIsSigned(true);
+			// TODO: This is where we can get and set the keypair to use, ideally stored on controller
+			// also set 'isSigned' on controller and get it from model
+			module.setKeyPair(KeyCommander.getKeyPair());
 			List<Module> modules = new ArrayList<Module>();
 			modules.add(module);
 			entry.setModules(modules);

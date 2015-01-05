@@ -1,4 +1,4 @@
-package com.completetrsst.xml.crypto;
+package com.completetrsst.crypto;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,9 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import com.completetrsst.crypto.SignatureUtil;
 import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
-import com.completetrsst.xml.crypto.SignatureUtil;
 
 public class SignatureUtilTests {
 
@@ -19,7 +19,7 @@ public class SignatureUtilTests {
 	public void signElement() throws Exception {
 		org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
-		SignatureUtil.signElement(element);
+		SignatureUtil.signElement(element, KeyCommander.getKeyPair());
 
 		// now convert element to DOM and verify
 		Element signedAsDom = XmlUtil.toDom(element);
@@ -33,10 +33,10 @@ public class SignatureUtilTests {
 
 	/** Asserts proper verification of attached enveloped XML Digital Signature */
 	@Test
-	public void attachSignature() throws Exception {
+	public void getKeyPair() throws Exception {
 		Element element = TestUtil.readDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
-		SignatureUtil.attachSignature(element);
+		SignatureUtil.attachSignature(element, KeyCommander.getKeyPair());
 
 		boolean result = SignatureUtil.verifySignature(element);
 		assertTrue(result);

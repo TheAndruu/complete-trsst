@@ -54,6 +54,7 @@ import org.bouncycastle.util.encoders.Hex;
  * @author mpowers
  */
 public class Common {
+	
     public static final String ROOT_ALIAS = "home";
     public static final String ACCOUNT_PREFIX = "acct:";
     public static final String ACCOUNT_URN_PREFIX = "urn:acct:";
@@ -405,6 +406,7 @@ public class Common {
     }
 
     public static final KeyPair generateSigningKeyPair() {
+    	// TODO: Refactor this so it doesn't return null
         try {
             KeyPairGenerator kpg;
             // kpg = KeyPairGenerator.getInstance("EC", "BC");

@@ -1,4 +1,4 @@
-package com.completetrsst.xml.crypto;
+package com.completetrsst.crypto;
 
 import java.security.KeyException;
 import java.security.PublicKey;
