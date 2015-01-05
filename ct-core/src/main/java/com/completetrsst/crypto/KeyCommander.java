@@ -28,8 +28,8 @@ public class KeyCommander {
 
 	private static final Logger log = LoggerFactory.getLogger(KeyCommander.class);
 
+	// TODO: What would it take to use Curve255519?
 	public static final String CURVE_256K1 = "secp256k1";
-	public static final String CURVE_25519 = "curve25519";
 	
 
 	static {
@@ -44,19 +44,20 @@ public class KeyCommander {
 	public static final KeyPair getKeyPair() {
 		try {
 	        return getKeyPairOrig();
-//	        return generateSigningKeyPair();
+	        // TODO: Toggle me below
+//	        return generateBcKeyPair();
         } catch (Exception e) {
         	throw new RuntimeException(e);
         }
 	}
 
-	public static final KeyPair generateSigningKeyPairBC() {
+	public static final KeyPair generateBcKeyPair() {
 		try {
 			// "prime192v1");
 			// best? Curve25519
 			// TODO: Discover the best curve to use
 //			Curve25519.
-			ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_25519);
+			ECParameterSpec ecSpec = ECNamedCurveTable.getParameterSpec(CURVE_256K1);
 			KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", "BC");
 			g.initialize(ecSpec, new SecureRandom());
 			return g.generateKeyPair();

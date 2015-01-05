@@ -35,6 +35,8 @@ import com.completetrsst.xml.XmlUtil;
 public class SignatureUtil {
 	private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
 
+//	private final static String XML_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
+	
 	/**
 	 * Signs a JDOM Element, such as one containing a single Atom Entry.
 	 * Parameter will be updated to include XML Digital Signature on the object.
