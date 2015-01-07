@@ -1,15 +1,11 @@
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.9'
+    // eclipse bug pretty much locks us to this for logging in tests,
+    // else it conflicts with dependencies during IDE test debugging 
+    // (doesn't occur on command line, as is expected)
     testRuntime 'ch.qos.logback:logback-classic:1.1.2'
     compile 'org.jdom:jdom2:2.0.5'
-    compile 'com.rometools:rome:1.5.0'
-    
-    // remove if don't need stringUtils
-	compile 'commons-codec:commons-codec:1.10'
-    // remove when done with crypto copied code from trsst
     compile 'org.bouncycastle:bcprov-jdk15on:1.51'
-    // this necessary below?
-    compile 'org.bouncycastle:bcpkix-jdk15on:1.51'
     
     // needed for EC xml signatures?
     compile 'org.apache.santuario:xmlsec:2.0.2'
