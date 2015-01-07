@@ -7,6 +7,9 @@ dependencies {
     compile 'org.jdom:jdom2:2.0.5'
     compile 'org.bouncycastle:bcprov-jdk15on:1.51'
     
-    // needed for EC xml signatures?
+    // needed for sun security EC parameters
     compile 'org.apache.santuario:xmlsec:2.0.2'
+
+    // has stringutils, base64 encoding, etc    
+    //compile 'commons-codec:commons-codec:1.10'
 }
