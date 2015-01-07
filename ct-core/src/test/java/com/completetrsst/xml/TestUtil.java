@@ -6,10 +6,6 @@ import static java.nio.file.Paths.get;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -40,10 +36,11 @@ public class TestUtil {
 	private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
 	public static final String PLAIN_ATOM_ENTRY;
+	
 	static {
 		PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
 	}
-
+	
 	public static String readFile(String path) throws IOException {
 		return new String(readAllBytes(get(path)));
 	}
@@ -75,7 +72,7 @@ public class TestUtil {
 		return writer.toString();
 	}
 
-	static String serialize(Element domElement) throws TransformerFactoryConfigurationError {
+	public static String serialize(Element domElement) throws TransformerFactoryConfigurationError {
 		StringWriter buffer = null;
 		try {
 			TransformerFactory transFactory = TransformerFactory.newInstance();

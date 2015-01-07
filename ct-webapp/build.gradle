@@ -30,8 +30,3 @@ dependencies {
     testCompile("junit:junit")
     compile project(':ct-core')
 }
-
-//task wrapper(type: Wrapper) {
-//    gradleVersion = '2.2.1'
-//}
-

@@ -9,7 +9,7 @@ import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.completetrsst.crypto.SignatureUtil;
+import com.completetrsst.crypto.xml.SignatureUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
