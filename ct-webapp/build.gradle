@@ -29,6 +29,5 @@ dependencies {
     compile 'org.springframework:spring-webmvc:4.1.3.RELEASE'
     compile 'com.rometools:rome:1.5.0'
     testCompile("junit:junit")
-    compile project(':ct-atom')
     compile project(':ct-core')
 }

@@ -2,8 +2,10 @@ package com.completetrsst.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class XmlUtil {
@@ -57,6 +60,21 @@ public class XmlUtil {
             log.error(message);
             throw new IOException(message, e);
         }
+    }
+    
+    // TODO: Test me
+    public static org.w3c.dom.Element toDom(String xmlString) throws IOException {
+    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setNamespaceAware(true);
+        Document doc;
+        try {
+        	DocumentBuilder builder = factory.newDocumentBuilder();
+	        doc = builder.parse(new InputSource(new StringReader(xmlString)));
+        } catch (SAXException | IOException | ParserConfigurationException e) {
+	        log.error(e.getMessage(), e);
+	        throw new IOException(e);
+        }
+        return doc.getDocumentElement();
     }
 
     // TODO: Test me?

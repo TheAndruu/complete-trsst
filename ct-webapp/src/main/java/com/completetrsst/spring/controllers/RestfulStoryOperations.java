@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.w3._2005.atom.EntryType;
 
 import com.completetrsst.model.Story;
 import com.completetrsst.operations.StoryOperations;
@@ -45,7 +44,7 @@ public class RestfulStoryOperations implements StoryOperations {
     /** Expects an already-signed or already-encrypted Atom entry */
     @RequestMapping(value = "/publish/{publisherId}", method = RequestMethod.POST, headers = "Accept=application/xml")
     @Override
-    public String publishEntry(@PathVariable String publisherId, @RequestBody EntryType entryElement) {
+    public String publishEntry(@PathVariable String publisherId, @RequestBody String entryElement) {
         log.info("Publish entry");
         return storyOperations.publishEntry(publisherId, entryElement);
     }

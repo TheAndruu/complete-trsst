@@ -1,6 +1,5 @@
 dependencies {
     // For atom schema jaxb bindings
-    compile project(':ct-atom')
     compile 'org.slf4j:slf4j-api:1.7.9'
     // eclipse bug pretty much locks us to this for logging in tests,
     // else it conflicts with dependencies during IDE test debugging 
