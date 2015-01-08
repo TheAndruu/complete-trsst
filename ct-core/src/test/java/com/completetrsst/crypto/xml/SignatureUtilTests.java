@@ -115,8 +115,6 @@ public class SignatureUtilTests {
     public void verifyStoredSignedXmlReadAsDom() throws Exception {
         org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.SIGNED_ATOM_ENTRY);
 
-        log.info("Write back out:\n"+TestUtil.serialize(element));
-
         boolean isValid = SignatureUtil.verifySignature(element);
         assertTrue(isValid);
     }
