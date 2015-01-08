@@ -1,7 +1,6 @@
-<entry xmlns="http://www.w3.org/2005/Atom" xmlns:sample="http://rome.dev.java.net/module/sample/1.0">
+<entry xmlns="http://www.w3.org/2005/Atom">
     <title>Title of story</title>
     <id>a397d6c5-8ffc-4f9c-967d-1979cf99e93a</id>
     <updated>2014-12-31T01:26:06Z</updated>
     <summary type="html">content foo here</summary>
-    <stamp xmlns="http://trsst.com/spec/0.1">signature go here?</stamp>
 </entry>

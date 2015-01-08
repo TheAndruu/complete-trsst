@@ -35,9 +35,10 @@ public class SignatureUtilTests {
         // now convert element to DOM and verify
         Element signedAsDom = XmlUtil.toDom(element);
 
-        log.info("Signed dom");
-        log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
-
+        log.info("JDOM Serialized:\n"+TestUtil.serialize(element));
+        
+        log.info("DOM Serialized:\n"+TestUtil.serialize(signedAsDom));
+        
         boolean isValid = SignatureUtil.verifySignature(signedAsDom);
         assertTrue(isValid);
     }
@@ -74,5 +75,44 @@ public class SignatureUtilTests {
 
         boolean result = SignatureUtil.verifySignature(element);
         assertFalse(result);
+    }
+
+    /** Reads an already-signed element and verifies its signature, with the read-as-JDOM method */
+    @Test
+    public void verifyStoredSignedXmlReadAsJdom() throws Exception {
+        org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.SIGNED_ATOM_ENTRY);
+
+        // now convert element to DOM and verify
+        Element signedAsDom = XmlUtil.toDom(element);
+
+        boolean isValid = SignatureUtil.verifySignature(signedAsDom);
+        assertTrue(isValid);
+    }
+    
+    /** Reads an already-signed element and verifies its signature, with the read-as-JDOM method */
+    @Test
+    public void verifyStoredTamperedXmlFails() throws Exception {
+        org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.TAMPERED_ATOM_ENTRY);
+
+        // now convert element to DOM and verify
+        Element signedAsDom = XmlUtil.toDom(element);
+
+//        log.info("Signed dom");
+//        log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
+
+        boolean isValid = SignatureUtil.verifySignature(signedAsDom);
+        assertFalse(isValid);
+    }
+    
+    /** Reads an already-signed element and verifies its signature, with the read-as-JDOM method */
+    @Test
+    public void verifyStoredSignedXmlReadAsDom() throws Exception {
+        org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.SIGNED_ATOM_ENTRY);
+
+//        log.info("Signed dom");
+//        log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
+
+        boolean isValid = SignatureUtil.verifySignature(element);
+        assertTrue(isValid);
     }
 }

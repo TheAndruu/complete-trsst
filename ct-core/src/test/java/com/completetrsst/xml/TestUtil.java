@@ -36,9 +36,13 @@ public class TestUtil {
 	private static final Logger log = LoggerFactory.getLogger(TestUtil.class);
 
 	public static final String PLAIN_ATOM_ENTRY;
+	public static final String SIGNED_ATOM_ENTRY;
+	public static final String TAMPERED_ATOM_ENTRY;
 	
 	static {
 		PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
+		SIGNED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry.xml").getPath();
+		TAMPERED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry-Tampered.xml").getPath();
 	}
 	
 	public static String readFile(String path) throws IOException {
@@ -78,7 +82,7 @@ public class TestUtil {
 			TransformerFactory transFactory = TransformerFactory.newInstance();
 			Transformer transformer = transFactory.newTransformer();
 			buffer = new StringWriter();
-			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+//			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 			transformer.transform(new DOMSource(domElement), new StreamResult(buffer));
 			buffer.close();
 		} catch (Exception e) {

@@ -28,8 +28,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3._2005.atom.EntryType;
+import org.w3._2005.atom.FeedType;
+import org.w3._2005.atom.ObjectFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.model.Story;
@@ -77,49 +80,23 @@ public class InMemoryStoryOps implements StoryOperations {
         // TODO: need DOM element, and then verify it
         log.info("Got to in memory ops!");
         
-        String asXml = "";
+        String asXml;
         try {
-            asXml = getString(entryElement);
+        	asXml = getString(entryElement);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+	        log.error(e.getMessage(), e);
+	        asXml = e.getMessage();
         }
         
-        log.info("Parsed: " + asXml);
-        
-        boolean result;
-        try {
-            result = isValidSignature(entryElement);
-        } catch (Exception e1) {
-            log.error(e1.getMessage(), e1);
-            return "problem, see log";
-        }
-        log.info("result of validation: " + result);
-        return "is valid? " + result + " " + asXml;
-//        
-//        
+        return asXml;
 //        try {
-//            String result = marshalElement(entryElement);
-//            log.info("XML: " + result);
-//
-//            log.info("Num content: " + entryElement.getAuthorOrCategoryOrContent().size());
-//
-//            log.info("Base: " + entryElement.getBase());
-//            Document doc = null;
-//            Element newEntry = null;
-//            
-//            for (Object node : entryElement.getAuthorOrCategoryOrContent()) {
-//                if (node instanceof org.w3c.dom.Element) {
-//                    Element nodeElement = (Element) node;
-//                    String asString = XmlUtil.serializeDom(nodeElement);
-//                    log.info("Entry: " + asString);
-//                }
-//                // ElementNSImpl element = (ElementNSImpl) node;
-//            }
-//            return result;
-//        } catch (JAXBException | IOException e) {
-//            log.error("Error marshalling to string", e);
-//            throw new RuntimeException(e);
+//            result = isValidSignature(entryElement);
+//        } catch (Exception e1) {
+//            log.error(e1.getMessage(), e1);
+//            return "problem, see log";
 //        }
+//        log.info("result of validation: " + result);
+//        return "is valid? " + result + " " + asXml;
     }
 
     private static Element createEntry(List<Object> authOrCatOrContent) throws ParserConfigurationException {
@@ -136,6 +113,42 @@ public class InMemoryStoryOps implements StoryOperations {
         }
         return rootElement;
     }
+    
+
+private static String getString(FeedType entryType) throws Exception {
+        
+        // TODO: i think marshallers are threadsafe and can be static variables
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document doc = db.newDocument();
+
+        JAXBContext jaxbContext = JAXBContext.newInstance(FeedType.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        
+        ObjectFactory obj = new ObjectFactory();
+        JAXBElement <FeedType> feed = obj.createFeed(entryType);
+        
+        StringWriter writer = new StringWriter();
+        marshaller.marshal(feed, writer);
+        writer.close();
+        return writer.toString();
+        
+        
+//        
+//        logNodes(doc);
+//        
+//        Element docElement = (Element)doc.getDocumentElement().getChildNodes().item(0);
+//        
+//        return XmlUtil.serializeDom(docElement);
+    }
+
+private static void logNodes(Document doc) {
+	NodeList nodes = doc.getDocumentElement().getChildNodes();
+	for (int i = 0; i < nodes.getLength(); i++) {
+		log.info("Node: " + nodes.item(i).getNodeName());
+	}
+}
 
     
     @XmlRootElement
@@ -155,21 +168,24 @@ public class InMemoryStoryOps implements StoryOperations {
     
 private static String getString(EntryType entryType) throws Exception {
         
-        EntryHolder holder = new EntryHolder();
-        holder.setEntry(entryType);
-        
         // TODO: i think marshallers are threadsafe and can be static variables
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
+//        dbf.setNamespaceAware(true);
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.newDocument();
 
         JAXBContext jaxbContext = JAXBContext.newInstance(EntryHolder.class);
         Marshaller marshaller = jaxbContext.createMarshaller();
+
+        ObjectFactory obj = new ObjectFactory();
+        JAXBElement <EntryType> feed = obj.createEntry(entryType);
         
-        marshaller.marshal(holder, doc );
+        marshaller.marshal(feed, doc);
         
-        Element docElement = (Element)doc.getDocumentElement().getChildNodes().item(0);
+        Element docElement = doc.getDocumentElement();
+        
+        boolean result = SignatureUtil.verifySignature(docElement);
+        log.info("Result of verify: " + result);
         
         return XmlUtil.serializeDom(docElement);
     }
