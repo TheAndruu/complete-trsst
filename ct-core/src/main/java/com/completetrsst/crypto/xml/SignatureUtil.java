@@ -141,7 +141,7 @@ public class SignatureUtil {
         DOMValidateContext valContext = extractValidationContext(domElement);
         // grab the signature from the document
         XMLSignature signature = extractSignature(valContext);
-
+        
         // validation on the referenced nodes
         return signature.validate(valContext);
     }
@@ -156,6 +156,7 @@ public class SignatureUtil {
     @SuppressWarnings("rawtypes")
     static void areElementsValid(DOMValidateContext valContext, XMLSignature signature) throws XMLSignatureException {
         Iterator i = signature.getSignedInfo().getReferences().iterator();
+        log.info("About to iterate over nodes");
         for (int j = 0; i.hasNext(); j++) {
             boolean refValid = ((Reference) i.next()).validate(valContext);
             log.info("ref[" + j + "] validity status: " + refValid);
