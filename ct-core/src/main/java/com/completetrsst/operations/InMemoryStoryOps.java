@@ -170,7 +170,7 @@ private static String getString(EntryType entryType) throws Exception {
         
         // TODO: i think marshallers are threadsafe and can be static variables
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//        dbf.setNamespaceAware(true);
+        dbf.setNamespaceAware(true);
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.newDocument();
 
