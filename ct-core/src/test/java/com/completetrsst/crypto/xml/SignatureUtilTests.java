@@ -91,16 +91,22 @@ public class SignatureUtilTests {
     
     /** Reads an already-signed element and verifies its signature, with the read-as-JDOM method */
     @Test
-    public void verifyStoredTamperedXmlFails() throws Exception {
+    public void verifyStoredTamperedAsJDomXmlFails() throws Exception {
         org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.TAMPERED_ATOM_ENTRY);
 
         // now convert element to DOM and verify
         Element signedAsDom = XmlUtil.toDom(element);
 
-//        log.info("Signed dom");
-//        log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
-
         boolean isValid = SignatureUtil.verifySignature(signedAsDom);
+        assertFalse(isValid);
+    }
+    
+    /** Reads an already-signed element and verifies its signature, with the read-as-DOM method */
+    @Test
+    public void verifyStoredTamperedAsDomXmlFails() throws Exception {
+        org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.TAMPERED_ATOM_ENTRY);
+
+        boolean isValid = SignatureUtil.verifySignature(element);
         assertFalse(isValid);
     }
     
@@ -109,8 +115,7 @@ public class SignatureUtilTests {
     public void verifyStoredSignedXmlReadAsDom() throws Exception {
         org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.SIGNED_ATOM_ENTRY);
 
-//        log.info("Signed dom");
-//        log.info("\n" + TestUtil.format(TestUtil.serialize(element)));
+        log.info("Write back out:\n"+TestUtil.serialize(element));
 
         boolean isValid = SignatureUtil.verifySignature(element);
         assertTrue(isValid);

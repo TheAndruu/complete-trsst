@@ -58,6 +58,7 @@ public class TestUtil {
 	public static Element readDomFromFile(String filePath) throws ParserConfigurationException, SAXException,
 	        IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
 		DocumentBuilder builder = dbf.newDocumentBuilder();
 		Document doc = builder.parse(filePath);
 		Element entryElement = (Element) doc.getDocumentElement();
