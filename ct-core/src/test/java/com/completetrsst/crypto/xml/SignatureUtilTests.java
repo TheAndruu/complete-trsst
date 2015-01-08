@@ -48,7 +48,7 @@ public class SignatureUtilTests {
     public void attachSignature() throws Exception {
         Element element = TestUtil.readDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
-        SignatureUtil.attachSignature(element, keyCreator.createKeyPair());
+        SignatureUtil.signElement(element, keyCreator.createKeyPair());
 
         boolean result = SignatureUtil.verifySignature(element);
         assertTrue(result);
@@ -62,7 +62,7 @@ public class SignatureUtilTests {
     public void verifyTamperedXmlFailsSignature() throws Exception {
         Element element = TestUtil.readDomFromFile(TestUtil.PLAIN_ATOM_ENTRY);
 
-        SignatureUtil.attachSignature(element, keyCreator.createKeyPair());
+        SignatureUtil.signElement(element, keyCreator.createKeyPair());
 
         // Convert to jdom so we can edit it easier
         org.jdom2.Element asJdom = XmlUtil.toJdom(element);

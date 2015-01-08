@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
+
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
@@ -49,7 +51,11 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
 
 		TrsstModule fm = (TrsstModule)module;
 		if (fm.getIsSigned()) {
-			SignatureUtil.signElement(element, fm.getKeyPair());
+			try {
+	            SignatureUtil.signElement(element, fm.getKeyPair());
+            } catch (XMLSignatureException e) {
+	            log.error(e.getMessage(), e);
+            }
 		}
 		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
