@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.completetrsst.model.Story;
+import com.completetrsst.model.CtEntry;
 import com.completetrsst.operations.StoryOperations;
 
 @RestController
@@ -24,14 +24,14 @@ public class RestfulStoryOperations implements StoryOperations {
 
     @RequestMapping(value = "/createStory/{publisherId}", method = RequestMethod.POST)
     @Override
-    public void create(@PathVariable String publisherId, @RequestBody Story story) {
+    public void create(@PathVariable String publisherId, @RequestBody CtEntry story) {
         log.info("Got create handler");
         storyOperations.create(publisherId, story);
     }
 
     @RequestMapping(value = "/viewPublisher/{publisherId}", method = RequestMethod.GET)
     @Override
-    public List<Story> getStories(@PathVariable String publisherId) {
+    public List<CtEntry> getStories(@PathVariable String publisherId) {
         log.info("Got viewPublisher handler with id: " + publisherId);
         return storyOperations.getStories(publisherId);
     }

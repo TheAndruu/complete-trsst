@@ -2,13 +2,13 @@ package com.completetrsst.operations;
 
 import java.util.List;
 
-import com.completetrsst.model.Story;
+import com.completetrsst.model.CtEntry;
 
 public interface StoryOperations {
 
-    public void create(String publisherId, Story story);
+    public void create(String publisherId, CtEntry story);
 
-    public List<Story> getStories(String publisherId);
+    public List<CtEntry> getStories(String publisherId);
 
     public String publishEntry(String publisherId, String xml);
 }
