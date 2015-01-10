@@ -30,7 +30,7 @@ Examples:
 
 ##### Post a signed atom element for storage under feed with ID 123:
     POST: http://localhost:8080/publish/123
-    Content-type: application/xml
+
     Payload: 
     <entry xmlns="http://www.w3.org/2005/Atom">
         <title>Title of story</title>

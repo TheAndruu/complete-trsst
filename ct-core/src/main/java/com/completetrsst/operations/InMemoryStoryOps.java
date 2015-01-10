@@ -35,7 +35,6 @@ public class InMemoryStoryOps implements StoryOperations {
         return UUID.randomUUID().toString();
     }
 
-    // TODO: Refactor this with Java 8 lambdas!
     @Override
     public String readFeed(String publisherId) {
         List<SignedEntry> entries = publishersToStories.get(publisherId);
@@ -52,10 +51,11 @@ builder.append("\"<title>Example Feed</title>");
     builder.append("<name>John Deere</name>");
   builder.append("</author>");
   builder.append("<id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>");
-        for (SignedEntry entry : entries) {
-        	builder.append(entry.getRawXml());
-        }
-        builder.append("</feed>");
+  
+  	// First Java 8 Lambda!
+  	entries.forEach(entry -> builder.append(entry.getRawXml()));
+
+  	builder.append("</feed>");
         return builder.toString();
     }
 
