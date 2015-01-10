@@ -39,6 +39,9 @@ public class InMemoryStoryOps implements StoryOperations {
     @Override
     public String readFeed(String publisherId) {
         List<SignedEntry> entries = publishersToStories.get(publisherId);
+        if (entries == null) {
+        	return "No entries to view on feed " + publisherId;
+        }
         StringBuilder builder = new StringBuilder();
         for (SignedEntry entry : entries) {
         	builder.append(entry.getRawXml());
