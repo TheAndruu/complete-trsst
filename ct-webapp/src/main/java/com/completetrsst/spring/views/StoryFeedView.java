@@ -23,7 +23,7 @@ import com.rometools.rome.feed.atom.Feed;
 import com.rometools.rome.feed.module.Module;
 
 // This 'value' matches up with the name of the 'view' specified by the controller
-@Component(value = "storyContent")
+//@Component(value = "storyContent")
 public class StoryFeedView extends AbstractAtomFeedView {
 
     @Autowired

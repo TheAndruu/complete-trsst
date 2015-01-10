@@ -37,14 +37,13 @@ public class InMemoryStoryOps implements StoryOperations {
 
     // TODO: Refactor this with Java 8 lambdas!
     @Override
-    public List<String> getStories(String publisherId) {
+    public String readFeed(String publisherId) {
         List<SignedEntry> entries = publishersToStories.get(publisherId);
-        // List<String> justXml = storyOperations.getStories(publisherId).stream().filter(u -> u. > 30).collect(Collectors.toList());
-        List<String> justXml = new ArrayList<String>();
+        StringBuilder builder = new StringBuilder();
         for (SignedEntry entry : entries) {
-            justXml.add(entry.getRawXml());
+        	builder.append(entry.getRawXml());
         }
-        return justXml;
+        return builder.toString();
     }
 
     // TODO: Only verify if signature is present

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.completetrsst.operations.StoryOperations;
 
-@Controller
+//@Controller
 public class StoryFeedController {
 
 	private final static Logger log = LoggerFactory
@@ -24,8 +24,8 @@ public class StoryFeedController {
 	public ModelAndView getContent(@PathVariable String publisherId) {
 		log.info("Got request to show feed by storyFeedController");
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("storyContent");
-		mav.addObject("stories", storyOperations.getStories(publisherId));
+//		mav.setViewName("storyContent");
+//		mav.addObject("stories", storyOperations.getStories(publisherId));
 		return mav;
 	}
 }
