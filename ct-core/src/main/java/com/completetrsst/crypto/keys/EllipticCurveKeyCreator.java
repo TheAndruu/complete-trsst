@@ -44,5 +44,4 @@ public class EllipticCurveKeyCreator implements KeyCreator {
             throw new RuntimeException(e);
         }
     }
-
 }
