@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.completetrsst.operations.StoryOperations;
 
 @Controller
-public class RestfulEntryOperations {
+public class SignedEntryOperations {
 
-    private final static Logger log = LoggerFactory.getLogger(RestfulEntryOperations.class);
+    private final static Logger log = LoggerFactory.getLogger(SignedEntryOperations.class);
 
     @Autowired
     private StoryOperations storyOperations;
@@ -32,7 +32,7 @@ public class RestfulEntryOperations {
     // TODO: Get this URL showing just the entries
     // http://localhost:8080/viewPublisher/1
     @RequestMapping(value = "/feed/{publisherId}", method = RequestMethod.GET)
-    public ResponseEntity<String> readFeed(@PathVariable String publisherId) {
+    public @ResponseBody ResponseEntity<String> readFeed(@PathVariable String publisherId) {
         log.info("Got viewPublisher handler with id: " + publisherId);
         String xmlEntities = storyOperations.readFeed(publisherId);
         // TODO: Add feed xml
