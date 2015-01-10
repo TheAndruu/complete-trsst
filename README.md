@@ -30,7 +30,9 @@ Examples:
     POST: http://localhost:8080/publish/123
     Content-type: application/xml
     Payload:
-    (Since formatting matters in verifying signed xml, see an example of an acceptable response payload in https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/signedAtomEntry.xml)
+    (Since formatting matters in verifying signed xml, and markdown
+    wiki syntax forces a change in the format, see example of valid input  in:
+    <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/signedAtomEntry.xml">signedAtomEntry.xml</a>)
 
     Response: 201 (Created)
     -or-
