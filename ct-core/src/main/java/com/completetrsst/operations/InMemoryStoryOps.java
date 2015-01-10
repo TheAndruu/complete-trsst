@@ -43,9 +43,19 @@ public class InMemoryStoryOps implements StoryOperations {
         	return "No entries to view on feed " + publisherId;
         }
         StringBuilder builder = new StringBuilder();
+        
+        builder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
+builder.append("\"<title>Example Feed</title>");
+  builder.append("<updated>2014-12-13T18:30:02Z</updated>");
+  builder.append("<author>");
+    builder.append("<name>John Deere</name>");
+  builder.append("</author>");
+  builder.append("<id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>");
         for (SignedEntry entry : entries) {
         	builder.append(entry.getRawXml());
         }
+        builder.append("</feed>");
         return builder.toString();
     }
 
