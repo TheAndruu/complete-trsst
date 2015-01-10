@@ -3,7 +3,6 @@ package com.completetrsst.operations;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,61 +13,118 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.xml.SignatureUtil;
-import com.completetrsst.model.CtEntry;
+import com.completetrsst.model.SignedEntry;
 import com.completetrsst.xml.XmlUtil;
 
 public class InMemoryStoryOps implements StoryOperations {
 
-	private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
 
-	private Map<String, List<CtEntry>> publishersToStories = new HashMap<String, List<CtEntry>>();
+    private Map<String, List<SignedEntry>> publishersToStories = new HashMap<String, List<SignedEntry>>();
 
-	@Override
-	public void create(String publisherId, CtEntry story) {
-		List<CtEntry> existingStories = getStories(publisherId);
-		story.setId(createUniqueId());
-		existingStories.add(story);
+    @Override
+    public void create(String publisherId, SignedEntry story) {
+        addEntry(publisherId, story);
+    }
 
-		Collections.sort(existingStories);
+    // TODO: Move this to a utility class -- our clients will want to use it
+    private String createUniqueId() {
+        return UUID.randomUUID().toString();
+    }
 
-		publishersToStories.put(publisherId, existingStories);
-	}
+    // TODO: Refactor this with Java 8 lambdas!
+    @Override
+    public List<String> getStories(String publisherId) {
+        List<SignedEntry> entries = publishersToStories.get(publisherId);
+        // List<String> justXml = storyOperations.getStories(publisherId).stream().filter(u -> u. > 30).collect(Collectors.toList());
+        List<String> justXml = new ArrayList<String>();
+        for (SignedEntry entry : entries) {
+            justXml.add(entry.getRawXml());
+        }
+        return justXml;
+    }
 
-	private String createUniqueId() {
-		return UUID.randomUUID().toString();
-	}
+    // TODO: Only verify if signature is present
+    // add other validations and responses, like "required
+    // entry/title/published' nodes
+    /** Takes in raw signed XML to add it to an atom feed */
+    @Override
+    public String publishSignedEntry(String publisherId, String signedXml) throws XMLSignatureException,
+            IllegalArgumentException {
+        log.info("Received signed XML to publish!");
 
-	@Override
-	public List<CtEntry> getStories(String publisherId) {
-		List<CtEntry> stories = publishersToStories.get(publisherId);
-		return stories == null ? new ArrayList<CtEntry>() : stories;
-	}
+        Element domElement;
+        try {
+            domElement = XmlUtil.toDom(signedXml);
+        } catch (IOException e) {
+            log.debug(e.getMessage());
+            throw new IllegalArgumentException(e);
+        }
+        boolean isValid = SignatureUtil.verifySignature(domElement);
+        if (!isValid) {
+            throw new XMLSignatureException("Proper XML, but signature doesn't validate!");
+        }
 
-	// TODO: Only verify if signature is present
-	// add other validations and responses, like "required entry/title/published' nodes
-	/** Takes in raw signed XML to add it to an atom feed */
-	@Override
-	public String publishEntry(String publisherId, String xml) {
-		log.info("Got to in memory ops!");
+        SignedEntry entry = createSignedEntry(domElement, signedXml);
+        addEntry(publisherId, entry);
+        return "Stored verified signed entry on feed: " + publisherId;
+    }
 
-		Element domElement;
-		try {
-			domElement = XmlUtil.toDom(xml);
-		} catch (IOException e) {
-			log.error(e.getMessage(), e);
-			return "oops: " + e.getMessage();
-		}
-		boolean isValid;
-		try {
-			isValid = SignatureUtil.verifySignature(domElement);
-		} catch (XMLSignatureException e) {
-			log.error(e.getMessage(), e);
-			return "oops: " + e.getMessage();
-		}
+    // TODO: Move these to a helper class
+    private SignedEntry createSignedEntry(Element domElement, String signedXml) throws IllegalArgumentException {
+        String title = getTitle(domElement);
+        String id = getId(domElement);
+        String dateUpdated = getDateUpdated(domElement);
+        SignedEntry entry = new SignedEntry();
+        entry.setTitle(title);
+        entry.setId(id);
+        entry.setDateUpdated(dateUpdated);
+        entry.setRawXml(signedXml);
+        return entry;
+    }
 
-		return "Valid? " + isValid + " " + xml;
-	}
+    private String getDateUpdated(Element domElement) {
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "updated");
+        if (nl.getLength() == 0) {
+            log.debug("Atom entries must have an <updated> element");
+            throw new IllegalArgumentException("Atom entries must have a <updated> element");
+        } else {
+            return nl.item(0).getTextContent();
+        }
+    }
+
+    private String getId(Element domElement) {
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id");
+        if (nl.getLength() == 0) {
+            log.debug("Atom entries must have an <id> element");
+            throw new IllegalArgumentException("Atom entries must have a <id> element");
+        } else {
+            return nl.item(0).getTextContent();
+        }
+    }
+
+    private String getTitle(Element domElement) {
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "title");
+        if (nl.getLength() == 0) {
+            log.debug("Atom entries must have an <entry> element");
+            throw new IllegalArgumentException("Atom entries must have a <title> element");
+        } else {
+            return nl.item(0).getTextContent();
+        }
+    }
+
+    private void addEntry(String publisherId, SignedEntry story) {
+        List<SignedEntry> existingStories = publishersToStories.get(publisherId);
+        if (existingStories == null) {
+            existingStories = new ArrayList<SignedEntry>();
+        }
+        existingStories.add(story);
+        Collections.sort(existingStories);
+
+        publishersToStories.put(publisherId, existingStories);
+    }
 
 }

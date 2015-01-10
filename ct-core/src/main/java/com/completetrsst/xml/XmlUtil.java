@@ -11,7 +11,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -49,30 +48,30 @@ public class XmlUtil {
             return domDoc.getDocumentElement();
         } catch (IOException e) {
             String message = "IO exception" + e.getMessage();
-            log.error(message);
+            log.debug(message);
             throw new IOException(message, e);
         } catch (ParserConfigurationException e) {
             String message = "Parser exception" + e.getMessage();
-            log.error(message);
+            log.debug(message);
             throw new IOException(message, e);
         } catch (SAXException e) {
             String message = "Sax exception" + e.getMessage();
-            log.error(message);
+            log.debug(message);
             throw new IOException(message, e);
         }
     }
-    
+
     // TODO: Test me
     public static org.w3c.dom.Element toDom(String xmlString) throws IOException {
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         Document doc;
         try {
-        	DocumentBuilder builder = factory.newDocumentBuilder();
-	        doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            doc = builder.parse(new InputSource(new StringReader(xmlString)));
         } catch (SAXException | IOException | ParserConfigurationException e) {
-	        log.error(e.getMessage(), e);
-	        throw new IOException(e);
+            log.debug(e.getMessage());
+            throw new IOException(e);
         }
         return doc.getDocumentElement();
     }
@@ -86,7 +85,7 @@ public class XmlUtil {
         return xmlString;
     }
 
-    public static String serializeDom(Element domElement) throws TransformerFactoryConfigurationError {
+    public static String serializeDom(Element domElement) throws IOException {
         StringWriter buffer = null;
         try {
             TransformerFactory transFactory = TransformerFactory.newInstance();
@@ -96,7 +95,8 @@ public class XmlUtil {
             transformer.transform(new DOMSource(domElement), new StreamResult(buffer));
             buffer.close();
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.debug(e.getMessage());
+            throw new IOException(e);
         }
         return buffer.toString();
     }

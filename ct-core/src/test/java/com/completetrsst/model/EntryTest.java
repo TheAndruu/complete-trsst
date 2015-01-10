@@ -15,11 +15,11 @@ import org.junit.Test;
 public class EntryTest {
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-	private CtEntry entry;
+	private SignedEntry entry;
 
 	@Before
 	public void init() {
-		entry = new CtEntry();
+		entry = new SignedEntry();
 	}
 
 	@Test
@@ -53,13 +53,13 @@ public class EntryTest {
 		String first = "2015-01-08T21:59:13.71-05:00";
 		String second = "2015-01-08T21:59:13.71-06:00";
 		String third = "2015-01-08T21:59:13.71-07:00";
-		CtEntry e1 = new CtEntry();
+		SignedEntry e1 = new SignedEntry();
 		e1.setDateUpdated(first);
-		CtEntry e2 = new CtEntry();
+		SignedEntry e2 = new SignedEntry();
 		e2.setDateUpdated(second);
-		CtEntry e3 = new CtEntry();
+		SignedEntry e3 = new SignedEntry();
 		e3.setDateUpdated(third);
-		List<CtEntry> entries = Arrays.asList(e1, e2, e3);
+		List<SignedEntry> entries = Arrays.asList(e1, e2, e3);
 		
 		// order is first second third in the list, earliest first
 		assertTrue(entries.get(0).getDateUpdated().isBefore(entries.get(1).getDateUpdated()));

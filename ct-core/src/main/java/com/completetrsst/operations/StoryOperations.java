@@ -2,13 +2,15 @@ package com.completetrsst.operations;
 
 import java.util.List;
 
-import com.completetrsst.model.CtEntry;
+import javax.xml.crypto.dsig.XMLSignatureException;
+
+import com.completetrsst.model.SignedEntry;
 
 public interface StoryOperations {
 
-    public void create(String publisherId, CtEntry story);
+    public void create(String publisherId, SignedEntry story);
 
-    public List<CtEntry> getStories(String publisherId);
+    public List<String> getStories(String publisherId);
 
-    public String publishEntry(String publisherId, String xml);
+    public String publishSignedEntry(String publisherId, String signedXml) throws XMLSignatureException, IllegalArgumentException;
 }
