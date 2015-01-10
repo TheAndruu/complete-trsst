@@ -23,7 +23,7 @@ To play:
 --------
 Pages will be accessible in a browser at http://localhost:8080/, at least for GET requests.
 
-For POST operations, consider using Postman until the client is delivered.  Available as a Chrome browser app: <a href="https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en">Postman app</a>.  
+For POST operations, consider using Postman until the client is delivered, a free Chrome browser app: <a href="https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en">Postman in Chrome</a>.  
 
 Examples:
 ---------
