@@ -40,6 +40,8 @@ Examples:
     Response: 201 (Created) Stored verified signed entry on feed: 123
     -or-
     Response: 406 (Not acceptable) if a signature is not present or invalid
+Note: Since formatting matters in verifying XML signatures, if the above payload is having difficulty verifying when pasted from this readme, a workable example payload can be found in:<a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/signedAtomEntry.xml">signedAtomEntry.xml</a>
+
 
 ##### Display a feed of signed entries by a given id (example value 123):
     GET: http://localhost:8080/feed/123
