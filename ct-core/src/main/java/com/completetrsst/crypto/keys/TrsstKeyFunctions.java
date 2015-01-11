@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class TrsstKeyFunctions {
 	private static final Logger log = LoggerFactory.getLogger(TrsstKeyFunctions.class);
 
+	public static final String FEED_URN_PREFIX = "urn:feed:";
 	private static final char[] b58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
 	private static final int[] r58 = new int[256];
 	static {
@@ -34,6 +35,9 @@ public class TrsstKeyFunctions {
 	}
 
 	/**
+	 * While the feed's identifier, not the actual <id> node of a Feed.
+	 * For that, use {@link #toFeedUrn(String) toFeedUrn}
+	 * 
 	 * Hashes an elliptic curve public key into a shortened "satoshi-style"
 	 * string that we use for a publicly-readable account id. Borrowed from
 	 * bitsofproof and mpowers.
@@ -51,6 +55,16 @@ public class TrsstKeyFunctions {
 		System.arraycopy(check, 0, addressBytes, keyDigest.length, 4);
 		return toBase58(addressBytes);
 	}
+	
+	/** The actual value to go into the Feed's <id> tag, prefixed with a URN */
+    public static final String toFeedUrn(String feedId) {
+        if (feedId != null) {
+            if (!feedId.startsWith(FEED_URN_PREFIX)) {
+                feedId = FEED_URN_PREFIX + feedId;
+            }
+        }
+        return feedId;
+    }
 
 	/**
 	 * Uses the checksum in the last 4 bytes of the decoded data to verify the

@@ -1,4 +1,4 @@
-package com.completetrsst.rome;
+package com.completetrsst.rome.modules;
 
 import java.security.KeyPair;
 

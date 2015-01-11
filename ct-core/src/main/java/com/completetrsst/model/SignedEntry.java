@@ -25,6 +25,7 @@ public class SignedEntry implements Comparable<SignedEntry> {
     
     // Signature validation precludes us from wanting to edit any of these
     // values on the server once they're signed
+    // TODO: Use urn:uuid prefix: <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
     private String id;
     private String title;
     // Required ISO 8601.1988 compliant

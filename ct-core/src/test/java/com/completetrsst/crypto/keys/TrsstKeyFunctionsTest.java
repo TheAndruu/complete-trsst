@@ -20,7 +20,21 @@ public class TrsstKeyFunctionsTest {
 		// This verifies the above id.  Returns null if invalid
 		byte [] result = TrsstKeyFunctions.decodeChecked(feedId);
 		assertNotNull(result);
-		System.out.println(new String(result));
+	}
+	
+	/** Verifies the feed urn is properly prefixed, etc */
+	@Test
+	public void toFeedUrn() {
+		String feedId = TrsstKeyFunctions.toFeedId(key);
+		
+		// URN should be added to this feed
+		String urn = TrsstKeyFunctions.toFeedUrn(feedId);
+		assertTrue(urn.length() > 33);
+		assertTrue(urn.startsWith(TrsstKeyFunctions.FEED_URN_PREFIX));
+		
+		// urn should be unchanged if we send it what's already a urn
+		String urn2 = TrsstKeyFunctions.toFeedUrn(urn);
+		assertEquals(urn, urn2);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.completetrsst.rome;
+package com.completetrsst.rome.modules;
 
 import java.security.KeyPair;
 
@@ -15,5 +15,5 @@ public interface TrsstModule extends Module, CopyFrom {
 
 	// TODO: Do these belong in the module or elsewhere?
 	public KeyPair getKeyPair();
-	void setKeyPair(KeyPair keyPair);
+	public void setKeyPair(KeyPair keyPair);
 }

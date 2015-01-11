@@ -16,8 +16,8 @@ import org.springframework.web.servlet.view.feed.AbstractAtomFeedView;
 
 import com.completetrsst.crypto.keys.KeyManager;
 import com.completetrsst.model.SignedEntry;
-import com.completetrsst.rome.TrsstModule;
-import com.completetrsst.rome.TrsstSignatureModule;
+import com.completetrsst.rome.modules.TrsstModule;
+import com.completetrsst.rome.modules.TrsstSignatureModule;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 import com.rometools.rome.feed.module.Module;
