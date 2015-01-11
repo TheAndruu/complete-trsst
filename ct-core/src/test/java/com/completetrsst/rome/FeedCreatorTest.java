@@ -25,6 +25,8 @@ public class FeedCreatorTest {
 		String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
 		assertEquals(expectedId, feed.getId());
 		assertTrue(feed.getUpdated().before(new Date()));
+		assertEquals("atom_1.0", feed.getFeedType());
+		
 		List<Module> modules = feed.getModules();
 		assertTrue(modules.size() == 1);
 		TrsstModule module = (TrsstModule) modules.get(0);
