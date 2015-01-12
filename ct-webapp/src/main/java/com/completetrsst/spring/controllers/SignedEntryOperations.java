@@ -29,7 +29,6 @@ public class SignedEntryOperations {
     @Autowired
     private StoryOperations storyOperations;
 
-    // TODO: Get this URL showing just the entries
     // http://localhost:8080/viewPublisher/1
     @RequestMapping(value = "/feed/{publisherId}", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> readFeed(@PathVariable String publisherId) {
@@ -53,5 +52,17 @@ public class SignedEntryOperations {
             throws XMLSignatureException, IllegalArgumentException {
         log.info("Publish entry");
         return storyOperations.publishSignedEntry(publisherId, signedXml);
+    }
+
+    /**
+     * Ping to assert the server is running
+     * 
+     * @throws IOException
+     */
+    @RequestMapping(value = "/ping", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    public @ResponseBody String ping() {
+        log.info("Ping called");
+        return "pong";
     }
 }

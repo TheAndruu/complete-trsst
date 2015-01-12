@@ -15,8 +15,6 @@ public class FileSystemKeyManager implements KeyManager {
 
     private KeyCreator keyCreator;
 
-    // TODO: Other operations, like create new key, save key, etc
-
     static {
         KEY_HOME = Paths.get("").toAbsolutePath().getParent();
         log.info("KEY_HOME path: " + KEY_HOME.toString());
@@ -30,7 +28,6 @@ public class FileSystemKeyManager implements KeyManager {
     /** Generates a EC keypair for signing */
     @Override
     public final KeyPair getKeyPair() {
-        // TODO:
         // if current is null, create key pair, at least for now
         // later will have someone log in/ out
         // on startup, have it set the keypair from file, if exists

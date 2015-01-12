@@ -75,7 +75,6 @@ public class FeedCreator {
 
         // Return the signed feed, with entries added back in
         return domFeed;
-
     }
 
     /**

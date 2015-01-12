@@ -23,7 +23,7 @@ public class TrsstSignatureParser implements ModuleParser {
 	public Module parse(Element dcRoot, Locale locale) {
 		TrsstModule fm = null;
 
-		// TODO: Here detect if the given element is encrypted or not
+		// Here detect if the given element is encrypted or not
 		// look for an element by node or ns, whatever is used in the publishing
 		// ex: <content type="application/xenc+xml">
 		// need to do encryption publishing first to figure out what to use

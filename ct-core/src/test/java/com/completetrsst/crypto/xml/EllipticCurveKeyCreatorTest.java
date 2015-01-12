@@ -1,6 +1,7 @@
 package com.completetrsst.crypto.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -22,9 +23,6 @@ public class EllipticCurveKeyCreatorTest {
     private KeyCreator keyCreator;
 
     private KeyPair keyPair;
-
-    // TODO: Try this at home before java 8 jdk
-    // http://www.java2s.com/Tutorial/Java/0490__Security/DSAwithEllipticCurve.htm
 
     @Before
     public void init() {

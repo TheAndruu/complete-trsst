@@ -60,8 +60,6 @@ public class FeedCreatorTest {
         assertTrue(rawXml.contains(ENTRY_TITLE));
     }
 
-    // TODO: change the canonilization method used in creating signatures?
-    // exclusive means nodes are detachable and signable
     @Test
     public void signedFeedValidates() throws Exception {
         Element signedFeed = FeedCreator.signFeed(feed, keyPair);

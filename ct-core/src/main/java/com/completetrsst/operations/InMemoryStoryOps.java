@@ -31,6 +31,7 @@ public class InMemoryStoryOps implements StoryOperations {
     }
 
     // TODO: Move this to a utility class -- our clients will want to use it
+    // for Entry, not feeds
     private String createUniqueId() {
         return UUID.randomUUID().toString();
     }
@@ -39,30 +40,27 @@ public class InMemoryStoryOps implements StoryOperations {
     public String readFeed(String publisherId) {
         List<SignedEntry> entries = publishersToStories.get(publisherId);
         if (entries == null) {
-        	return "No entries to view on feed " + publisherId;
+            return "No entries to view on feed " + publisherId;
         }
         StringBuilder builder = new StringBuilder();
-        
-        builder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
-builder.append("\"<title>Example Feed</title>");
-  builder.append("<updated>2014-12-13T18:30:02Z</updated>");
-  builder.append("<author>");
-    builder.append("<name>John Deere</name>");
-  builder.append("</author>");
-  builder.append("<id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>");
-  
-  	// First Java 8 Lambda!
-  	entries.forEach(entry -> builder.append(entry.getRawXml()));
 
-  	builder.append("</feed>");
+        builder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+        builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
+        builder.append("\"<title>Example Feed</title>");
+        builder.append("<updated>2014-12-13T18:30:02Z</updated>");
+        builder.append("<author>");
+        builder.append("<name>John Deere</name>");
+        builder.append("</author>");
+        builder.append("<id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>");
+
+        // First Java 8 Lambda!
+        entries.forEach(entry -> builder.append(entry.getRawXml()));
+
+        builder.append("</feed>");
         return builder.toString();
     }
 
-    // TODO: Only verify if signature is present
-    // add other validations and responses, like "required
-    // entry/title/published' nodes
-    /** Takes in raw signed XML to add it to an atom feed */
+    /** Takes in raw signed XML and creates new or adds to existing Atom feed */
     @Override
     public String publishSignedEntry(String publisherId, String signedXml) throws XMLSignatureException,
             IllegalArgumentException {
@@ -80,6 +78,7 @@ builder.append("\"<title>Example Feed</title>");
             throw new XMLSignatureException("Proper XML, but signature doesn't validate!");
         }
 
+        // TODO: Need to update this to extract feed and entry separately
         SignedEntry entry = createSignedEntry(domElement, signedXml);
         addEntry(publisherId, entry);
         return "Stored verified signed entry on feed: " + publisherId;

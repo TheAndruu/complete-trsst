@@ -17,6 +17,7 @@ import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
+// Likely get rid of all this module stuff
 public class TrsstSignatureGenerator implements ModuleGenerator {
 	private static final Namespace SAMPLE_NS = Namespace.getNamespace("trsst", TrsstModule.URI);
 
@@ -71,8 +72,6 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
 			log.error(e.getMessage(),e);
 		}
 		
-		// TODO: What to add to our new module? a boolean for do encrypt? for do
-		// sign?
 //		SampleModule fm = (SampleModule) module;
 //		if (fm.getFoo() != null) {
 //
@@ -82,17 +81,4 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
 	}
 
 	
-
-//	private Element generateSimpleElement(String name, Foo foo) {
-//		// TODO: Move these into a new Class (Foo extends Element, etc) with
-//		// hardcoded NS, etc
-//		// and even deep cloning
-//		Element fooElement = new Element(name, SAMPLE_NS);
-//		Element barElement = new Element("bar", SAMPLE_NS);
-//		barElement.setContent(itemContent);
-//		fooElement.setContent(barElement);
-//
-//		return fooElement;
-//	}
-
 }
