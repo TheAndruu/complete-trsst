@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.StringWriter;
 import java.security.KeyPair;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.junit.Test;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.rome.modules.TrsstModule;
+import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.WireFeedOutput;
@@ -37,8 +39,11 @@ public class FeedCreatorTest {
 	}
 	
 	@Test
-	public void feedWriting() throws Exception {
+	public void feedWritingAndSigning() throws Exception {
 		Feed feed = FeedCreator.createFor(keyPair);
+		Entry entry = new Entry();
+		entry.setTitle("foo bar");
+		feed.setEntries(Arrays.asList(entry));
 		WireFeedOutput outputter = new WireFeedOutput();
 		StringWriter writer = new StringWriter();
 		outputter.output(feed, writer);
@@ -49,5 +54,6 @@ public class FeedCreatorTest {
 		String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
 		assertTrue(rawXml.contains(expectedId));
 		assertTrue(rawXml.contains("<feed xmlns=\"http://www.w3.org/2005/Atom\">"));
+		assertTrue(rawXml.contains("foo bar"));
 	}
 }

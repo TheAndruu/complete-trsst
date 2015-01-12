@@ -50,6 +50,8 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
 //		root.addNamespaceDeclaration(SAMPLE_NS);
 
 		TrsstModule fm = (TrsstModule)module;
+		
+		// Here can check if type is feed or entry, if necessary
 		if (fm.getIsSigned()) {
 			try {
 	            SignatureUtil.signElement(element, fm.getKeyPair());
