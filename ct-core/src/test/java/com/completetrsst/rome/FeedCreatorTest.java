@@ -4,114 +4,95 @@ import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedId;
 import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedUrn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.security.KeyPair;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.model.SignedEntry;
-import com.completetrsst.rome.modules.TrsstModule;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
-import com.rometools.rome.feed.module.Module;
-import com.rometools.rome.io.FeedException;
-import com.rometools.rome.io.WireFeedOutput;
 import com.rometools.rome.io.impl.Atom10Generator;
 
 public class FeedCreatorTest {
-	private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
+    private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
 
-	private static Feed feed;
+    private static Feed feed;
 
-	@Before
-	public void init() {
-		feed = FeedCreator.createFor(keyPair);
-		Entry entry = new Entry();
-		entry.setTitle("foo bar");
-		feed.setEntries(Arrays.asList(entry));
-	}
+    private static final String ENTRY_TITLE = "foo bar entry title";
 
-	@Test
-	public void testCreateFeed() {
-		String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
-		assertEquals(expectedId, feed.getId());
-		assertEquals("atom_1.0", feed.getFeedType());
+    @Before
+    public void init() {
+        feed = FeedCreator.createFor(keyPair);
+        Entry entry = new Entry();
+        entry.setTitle(ENTRY_TITLE);
+        feed.setEntries(Arrays.asList(entry));
+    }
 
-		List<Module> modules = feed.getModules();
-		assertTrue(modules.size() == 1);
-		TrsstModule module = (TrsstModule) modules.get(0);
-		assertTrue(module.getIsSigned());
-		assertEquals(keyPair, module.getKeyPair());
-		assertTrue(feed.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
-	}
+    @Test
+    public void createFeedRequiredFields() {
+        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
+        assertEquals(expectedId, feed.getId());
+        assertEquals("atom_1.0", feed.getFeedType());
+        assertTrue(feed.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
+    }
 
-	@Test
-	public void feedWritingAndSigning() throws Exception {
-		String rawXml = serializeToString();
-		assertTrue(rawXml.contains("SignatureValue"));
-		assertTrue(rawXml.contains("http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"));
-		String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
-		assertTrue(rawXml.contains(expectedId));
-		assertTrue(rawXml.contains("<feed xmlns=\"http://www.w3.org/2005/Atom\">"));
-		assertTrue(rawXml.contains("foo bar"));
-	}
+    @Test
+    public void feedSerializationContainsExpected() throws Exception {
+        Atom10Generator generator = new Atom10Generator();
+        org.jdom2.Document doc = generator.generate(feed);
+        String rawXml = XmlUtil.serializeJdom(doc.getRootElement());
 
-	// TODO: change the canonilization method used in creating signatures?
-	// exclusive means nodes are detachable and signable
-	@Ignore
-	@Test
-	public void signedFeedValidates() throws Exception {
-		Element signedFeed = serializeFeed();
-		
-		// Fails because entry attached - we want feeds signed without entries
-		assertFalse(SignatureUtil.verifySignature(signedFeed));
+        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
+        assertTrue(rawXml.contains(expectedId));
+        // Entry we added to it
+        assertTrue(rawXml.contains("<feed xmlns=\"http://www.w3.org/2005/Atom\">"));
+        assertTrue(rawXml.contains(ENTRY_TITLE));
+    }
 
-		NodeList entries = signedFeed.getElementsByTagNameNS(SignedEntry.XMLNS, "entry");
-		// we know there's only one entry on this feed
-		Node node = entries.item(0);
-		assertNotNull(node);
-		signedFeed.removeChild(node);
-		
-//		System.out.println("Here goes:");
-//		System.out.println(rawXml);
-//		System.out.println(XmlUtil.serializeDom(signedFeed));
-		
-		// Should pass now
-		assertTrue(SignatureUtil.verifySignature(signedFeed));
-	}
+    // TODO: change the canonilization method used in creating signatures?
+    // exclusive means nodes are detachable and signable
+    @Test
+    public void signedFeedValidates() throws Exception {
+        Element signedFeed = FeedCreator.signFeed(feed, keyPair);
 
-	private static String serializeToString() throws Exception {
-		WireFeedOutput outputter = new WireFeedOutput();
-		StringWriter writer = new StringWriter();
-		outputter.output(feed, writer);
-		writer.close();
-		return writer.toString();
-	}
-	
-	private Element serializeFeed() throws IOException, FeedException {
-		WireFeedOutput outputter = new WireFeedOutput();
-//		StringWriter writer = new StringWriter();
-		Document doc = outputter.outputW3CDom(feed);
-		return doc.getDocumentElement();
-//		outputter.output(feed, writer);
-//		writer.close();
-//		return writer.toString();
+        // Fail -- we want entries removed prior to signature addition
+        assertFalse(SignatureUtil.verifySignature(signedFeed));
 
-	}
+        List<Node> removedEntries = FeedCreator.removeEntryNodes(signedFeed);
+        assertTrue(removedEntries.size() > 0);
+
+        // Should pass now
+        assertTrue(SignatureUtil.verifySignature(signedFeed));
+    }
+
+    @Test
+    public void testRemoveEntryNodes() throws Exception {
+        Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+        String rawXmlWithEntries = XmlUtil.serializeDom(signedFeed);
+
+        // The signed XML has our entry title in it
+        assertTrue(rawXmlWithEntries.contains(ENTRY_TITLE));
+
+        List<Node> removedEntries = FeedCreator.removeEntryNodes(signedFeed);
+        rawXmlWithEntries = XmlUtil.serializeDom(signedFeed);
+        // Signed feed no longer contains entry title
+        assertFalse(rawXmlWithEntries.contains(ENTRY_TITLE));
+
+        assertTrue(removedEntries.size() == 1);
+        Element entry = (Element) removedEntries.get(0);
+        Node titleNode = entry.getElementsByTagNameNS(SignedEntry.XMLNS, "title").item(0);
+        assertEquals(ENTRY_TITLE, titleNode.getTextContent());
+    }
+
 }

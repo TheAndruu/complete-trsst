@@ -1,5 +1,6 @@
 package com.completetrsst.rome.modules;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.completetrsst.crypto.xml.SignatureUtil;
+import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleGenerator;
 
@@ -58,6 +60,15 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
             } catch (XMLSignatureException e) {
 	            log.error(e.getMessage(), e);
             }
+		}
+		
+		// This is too early to sign the element -- it's got all kinds of namespaces, etc
+		// Don't use modules, at least for generation.  Use rome and toDom /jDom directly
+		log.info("Inside generator");
+		try {
+			log.info(XmlUtil.serializeJdom(element));
+		} catch (IOException e) {
+			log.error(e.getMessage(),e);
 		}
 		
 		// TODO: What to add to our new module? a boolean for do encrypt? for do
