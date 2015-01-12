@@ -85,6 +85,7 @@ public class XmlUtil {
         return xmlString;
     }
 
+    // TODO: Make private 
     public static String serializeDom(Element domElement) throws IOException {
         StringWriter buffer = null;
         try {
