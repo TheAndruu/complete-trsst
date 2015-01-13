@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
@@ -25,6 +26,7 @@ public class EntryCreator {
     
     private static final Logger log = LoggerFactory.getLogger(EntryCreator.class);
 
+    static final String ENTRY_ID_PREFIX = "urn:uuid:";
     /**
      * Creates an entry with the given text, simple use case for now.
      */
@@ -32,6 +34,10 @@ public class EntryCreator {
         // Add title?
         Entry entry = new Entry();
         return entry;
+    }
+    
+    static String newEntryId() {
+        return ENTRY_ID_PREFIX + UUID.randomUUID().toString();
     }
 
     /**
