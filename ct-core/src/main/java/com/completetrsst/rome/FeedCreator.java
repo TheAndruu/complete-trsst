@@ -1,5 +1,7 @@
 package com.completetrsst.rome;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.PublicKey;
@@ -61,7 +63,7 @@ public class FeedCreator {
 		}
 		List<Node> removedNodes = removeEntryNodes(domFeed);
 
-		// Actually sign the feed
+		// Actually sign the feed, including individual entry nodes separately
 		try {
 			SignatureUtil.signElement(domFeed, keyPair);
 			// eclipse bug prevents a closure from being applied below
@@ -73,12 +75,10 @@ public class FeedCreator {
 			throw new XMLSignatureException("Trouble when actually signing the feed", e);
 		}
 
-		// TODO: Sign each Entry node
-
-		// Add the removed entity nodes back
+		// Add the removed, now-signed entity nodes back
 		addEntries(domFeed, removedNodes);
 
-		// Return the signed feed, with entries added back in
+		// Return the signed feed, with signed entries added back in
 		return domFeed;
 	}
 
@@ -96,16 +96,16 @@ public class FeedCreator {
 	}
 
 	/**
-	 * Verifies the given feed and returns true if the signature validates. Feed
-	 * validation involves removing all Atom Entry nodes to do validation, so
-	 * this method helps by handling that. Entries added back prior to
-	 * returning.
+	 * Verifies the given feed and returns true if the signature validates,
+	 * including verification for each entry on the feed. Feed validation
+	 * involves removing all Atom Entry nodes to do validation, and testing each
+	 * one individually. Entries added back prior to returning.
 	 * 
 	 * @throws XmlSignatureException
 	 *             for errors parsing signature or if signature not found
 	 * 
 	 * @param feed
-	 *            The feed to validate, represented as a DOM Element
+	 *            feed to validate, including entries represented as DOM Element
 	 * 
 	 * @return true if the signature validates the feed, false otherwise
 	 * @throws XmlSignatureException
@@ -114,10 +114,15 @@ public class FeedCreator {
 	public static boolean isVerified(Element domFeed) throws XMLSignatureException {
 		List<Node> removedEntries = removeEntryNodes(domFeed);
 		boolean isVerified = SignatureUtil.verifySignature(domFeed);
+
+		log.debug("Feed itself is verified " + isVerified);
+		for (Node node : removedEntries) {
+			boolean entryVerified = (SignatureUtil.verifySignature((Element) node));
+			log.debug("...feed entry also verified: " + entryVerified);
+			isVerified = isVerified && entryVerified;
+		}
 		addEntries(domFeed, removedEntries);
 
-		// TODO: Also verify all the entries on this feed!
-		
 		return isVerified;
 	}
 

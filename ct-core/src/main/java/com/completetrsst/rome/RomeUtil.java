@@ -26,7 +26,7 @@ public class RomeUtil {
 		return entry;
 	}
 
-	private static org.jdom2.Element toJdom(Entry entry) throws Exception {
+	public static org.jdom2.Element toJdom(Entry entry) throws Exception {
 		// Note: This is from Atom10Generator.serializeEntry()
 		// it also has .generate(WireFeed) which returns a jdom2 element
 

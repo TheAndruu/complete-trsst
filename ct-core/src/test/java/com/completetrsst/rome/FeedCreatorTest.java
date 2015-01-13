@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.security.KeyPair;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -83,7 +84,6 @@ public class FeedCreatorTest {
 
 		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
 
-		// Fail -- we want entries removed prior to signature addition
 		assertTrue(FeedCreator.isVerified(signedFeed));
 
 		// Pop off each entry and try validating them individually
@@ -96,6 +96,25 @@ public class FeedCreatorTest {
 		for (Node node : entries) {
 			assertTrue(SignatureUtil.verifySignature((Element) node));
 		}
+	}
+
+	@Test
+	public void verificationFailsIfEntryNotSigned() throws Exception {
+		feed.setEntries(Collections.emptyList());
+		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+
+		Entry unsignedEntry = EntryCreator.create("unsigned entry title");
+		// Use jdom for ease of attaching
+		org.jdom2.Element jdomUnsignedEntry = RomeUtil.toJdom(unsignedEntry);
+		org.jdom2.Element jdomSignedFeed = XmlUtil.toJdom(signedFeed);
+		jdomUnsignedEntry.detach();
+		jdomSignedFeed.addContent(jdomUnsignedEntry);
+		
+		Element signedFeedWithUnsignedEntry = XmlUtil.toDom(jdomSignedFeed);
+		// Fail -- feed is signed but attached entry isn't
+		System.out.println("Foobarfoo");
+		System.out.println(XmlUtil.serializeDom(signedFeedWithUnsignedEntry));
+		assertFalse(FeedCreator.isVerified(signedFeedWithUnsignedEntry));
 	}
 
 	@Test
