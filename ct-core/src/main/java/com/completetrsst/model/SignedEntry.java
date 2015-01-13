@@ -6,8 +6,6 @@ import java.time.format.DateTimeFormatter;
 /**
  * <pre>
  * Represents an Atom 'entry' to a 'feed'.
- * Note: We diverge from the Atom Protocol RFC in certain ways:
- * -- server cannot change values (such as ID) on any signed entries, since this would break the XML signature
  * 
  * Required Entry fields:
  * -- id
@@ -21,62 +19,61 @@ import java.time.format.DateTimeFormatter;
  */
 public class SignedEntry implements Comparable<SignedEntry> {
 
-    public static final String XMLNS = "http://www.w3.org/2005/Atom";
-    
-    // Signature validation precludes us from wanting to edit any of these
-    // values on the server once they're signed
-    // TODO: Use urn:uuid prefix: <id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
-    private String id;
-    private String title;
-    // Required ISO 8601.1988 compliant
-    private OffsetDateTime dateUpdated;
-    private String rawXml;
+	public static final String XMLNS = "http://www.w3.org/2005/Atom";
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	// Signature validation precludes us from wanting to edit any of these
+	// values on the server once they're signed
+	private String id;
+	private String title;
+	// Required ISO 8601.1988 compliant
+	private OffsetDateTime dateUpdated;
+	private String rawXml;
 
-    public String getId() {
-        return id;
-    }
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public OffsetDateTime getDateUpdated() {
-        return dateUpdated;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public void setDateUpdated(OffsetDateTime dateUpdated) {
-        this.dateUpdated = dateUpdated;
-    }
+	public OffsetDateTime getDateUpdated() {
+		return dateUpdated;
+	}
 
-    public String getDateUpdatedIso() {
-        return formatter.format(dateUpdated);
-    }
+	public void setDateUpdated(OffsetDateTime dateUpdated) {
+		this.dateUpdated = dateUpdated;
+	}
 
-    public void setDateUpdated(String isoString) {
-        setDateUpdated(OffsetDateTime.parse(isoString));
-    }
+	public String getDateUpdatedIso() {
+		return formatter.format(dateUpdated);
+	}
 
-    public String getRawXml() {
-        return rawXml;
-    }
+	public void setDateUpdated(String isoString) {
+		setDateUpdated(OffsetDateTime.parse(isoString));
+	}
 
-    public void setRawXml(String rawXml) {
-        this.rawXml = rawXml;
-    }
+	public String getRawXml() {
+		return rawXml;
+	}
 
-    /** Returns the latest/newest first by date updated (descending order) */
-    @Override
-    public int compareTo(SignedEntry other) {
-        return other.getDateUpdated().compareTo(getDateUpdated());
-    }
+	public void setRawXml(String rawXml) {
+		this.rawXml = rawXml;
+	}
+
+	/** Returns the latest/newest first by date updated (descending order) */
+	@Override
+	public int compareTo(SignedEntry other) {
+		return other.getDateUpdated().compareTo(getDateUpdated());
+	}
 }

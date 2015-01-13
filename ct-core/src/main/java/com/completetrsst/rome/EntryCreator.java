@@ -3,6 +3,7 @@ package com.completetrsst.rome;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +31,11 @@ public class EntryCreator {
     /**
      * Creates an entry with the given text, simple use case for now.
      */
-    public static Entry create() {
-        // Add title?
+    public static Entry create(String title) {
         Entry entry = new Entry();
+        entry.setTitle(title);
+        entry.setUpdated(new Date());
+        entry.setId(newEntryId());
         return entry;
     }
     
