@@ -7,6 +7,7 @@ import java.net.ConnectException;
 import java.security.KeyPair;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class ServiceInvocationIntegrationTest {
         }
     }
 
+    @Ignore
     @Test
     public void testPublishSignedEntry() throws Exception {
         KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
