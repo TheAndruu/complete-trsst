@@ -25,12 +25,6 @@ import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.impl.Atom10Generator;
 
 public class EntryCreator {
-
-    // make this a 'has a ' relationship with Entrys
-    // and oo (non static) fields)
-    // such that it has methods like sign() and .verify()
-    // include rawXml field to back this obj?
-    
     
     private static final Logger log = LoggerFactory.getLogger(EntryCreator.class);
 

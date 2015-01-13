@@ -48,8 +48,7 @@ public class FeedCreator {
 	 * element.
 	 */
 	public static Element signFeed(Feed feed, KeyPair keyPair) throws XMLSignatureException {
-		
-		
+
 		org.jdom2.Element jdomFeed = toJdom(feed);
 
 		// Remove all Entry nodes prior to signing, as required
@@ -78,7 +77,7 @@ public class FeedCreator {
 	}
 
 	static org.jdom2.Element toJdom(Feed feed) throws XMLSignatureException {
-	    Atom10Generator generator = new Atom10Generator();
+		Atom10Generator generator = new Atom10Generator();
 		org.jdom2.Element jdomFeed;
 		try {
 			org.jdom2.Document doc = generator.generate(feed);
@@ -87,23 +86,21 @@ public class FeedCreator {
 			log.error(e.getMessage());
 			throw new XMLSignatureException("Couldn't get feed element as Jdom", e);
 		}
-	    return jdomFeed;
-    }
+		return jdomFeed;
+	}
 
 	/**
-	 * Verifies the given feed and returns true if the signature validates.
-	 * Returns false if the signature doesn't validate or the content doesn't
-	 * match signed content.
-	 * 
-	 * Verification is done by removing all Atom Entries prior to testing the
-	 * signature. Entries are placed back on the feed element prior to returning
+	 * Verifies the given feed and returns true if the signature validates. Feed
+	 * validation involves removing all Atom Entry nodes to do validation, so
+	 * this method helps by handling that. Entries added back prior to
+	 * returning.
 	 * 
 	 * @throws XmlSignatureException
-	 *             if there is an error parsing the signature, or if none is
-	 *             found
+	 *             for errors parsing signature or if signature not found
 	 * 
 	 * @param feed
 	 *            The feed to validate, represented as a DOM Element
+	 * 
 	 * @return true if the signature validates the feed, false otherwise
 	 * @throws XmlSignatureException
 	 *             if there's an error encountered parsing or verifying the feed
@@ -134,7 +131,8 @@ public class FeedCreator {
 			Node node = nodeList.item(i);
 			removedNodes.add(node);
 		}
-		// Need to do the actual removal in a 2nd loop, else as we remove by index,
+		// Need to do the actual removal in a 2nd loop, else as we remove by
+		// index,
 		// above, the removals will shift down the location of the next node
 		// thereby not actually removing all the nodes we want
 		removedNodes.forEach(node -> domFeed.removeChild(node));

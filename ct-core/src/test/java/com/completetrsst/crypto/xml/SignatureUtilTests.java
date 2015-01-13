@@ -35,10 +35,6 @@ public class SignatureUtilTests {
         // now convert element to DOM and verify
         Element signedAsDom = XmlUtil.toDom(element);
 
-        log.info("JDOM Serialized:\n"+TestUtil.serialize(element));
-        
-        log.info("DOM Serialized:\n"+TestUtil.serialize(signedAsDom));
-        
         boolean isValid = SignatureUtil.verifySignature(signedAsDom);
         assertTrue(isValid);
     }
@@ -71,7 +67,6 @@ public class SignatureUtilTests {
         asJdom.addContent(anything);
         // back to w3 dom
         element = XmlUtil.toDom(asJdom);
-        log.info(TestUtil.format(TestUtil.serialize(element)));
 
         boolean result = SignatureUtil.verifySignature(element);
         assertFalse(result);
