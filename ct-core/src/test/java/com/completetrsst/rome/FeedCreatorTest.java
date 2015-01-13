@@ -5,6 +5,7 @@ import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedUrn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.security.KeyPair;
 import java.util.Arrays;
@@ -12,6 +13,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
+
+import org.jdom2.Namespace;
 import org.jdom2.Text;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,12 +113,57 @@ public class FeedCreatorTest {
 		org.jdom2.Element jdomSignedFeed = XmlUtil.toJdom(signedFeed);
 		jdomUnsignedEntry.detach();
 		jdomSignedFeed.addContent(jdomUnsignedEntry);
-		
+
 		Element signedFeedWithUnsignedEntry = XmlUtil.toDom(jdomSignedFeed);
 		// Fail -- feed is signed but attached entry isn't
 		System.out.println("Foobarfoo");
 		System.out.println(XmlUtil.serializeDom(signedFeedWithUnsignedEntry));
-		assertFalse(FeedCreator.isVerified(signedFeedWithUnsignedEntry));
+		try {
+			FeedCreator.isVerified(signedFeedWithUnsignedEntry);
+			fail("An XMLSignatureException should be thrown bc attached Entry has no signature");
+		} catch (XMLSignatureException e) {
+			// expected
+		}
+	}
+
+	@Test
+	public void verificationFailsIfEntrySignedButInvalidAndFeedValidSignature() throws Exception {
+		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+
+		org.jdom2.Element jdomSignedFeed = XmlUtil.toJdom(signedFeed);
+		org.jdom2.Element jdomEntry = jdomSignedFeed.getChild("entry", Namespace.getNamespace(SignedEntry.XMLNS));
+		jdomEntry.addContent(new Text("i don't belong here"));
+		signedFeed = XmlUtil.toDom(jdomSignedFeed);
+
+		// false b/c entry is invalid now
+		assertFalse(FeedCreator.isVerified(signedFeed));
+
+		// but assert that the feed still validates without the entry, proving
+		// it was the entry as the cause
+		jdomSignedFeed.removeChild("entry", Namespace.getNamespace(SignedEntry.XMLNS));
+		signedFeed = XmlUtil.toDom(jdomSignedFeed);
+		assertTrue(FeedCreator.isVerified(signedFeed));
+	}
+
+	@Test
+	public void verificationOfEntryPassesThenFeedAlteredAndFeedFailsVerification() throws Exception {
+		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+
+		// assert that the entry validates
+		Element entryElement = (Element) FeedCreator.removeEntryNodes(signedFeed).get(0);
+		assertTrue(SignatureUtil.verifySignature(entryElement));
+
+		org.jdom2.Element jdomSignedFeed = XmlUtil.toJdom(signedFeed);
+		org.jdom2.Element feedId = jdomSignedFeed.getChild("id", Namespace.getNamespace(SignedEntry.XMLNS));
+		feedId.setText("new id");
+		signedFeed = XmlUtil.toDom(jdomSignedFeed);
+
+		// false b/c feed is invalid now
+		assertFalse(FeedCreator.isVerified(signedFeed));
+
+		// Note: this test is a little interesting.
+		// Entries validate prior to feed alteration, but after feed alteration,
+		// entries no longer validate.
 	}
 
 	@Test

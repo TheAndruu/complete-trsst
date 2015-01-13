@@ -1,7 +1,5 @@
 package com.completetrsst.rome;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.PublicKey;

@@ -180,10 +180,7 @@ public class SignatureUtil {
      * signature
      */
     static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
-        Document doc = element.getOwnerDocument();
-
-        // specify the signature to validate
-        NodeList nl = doc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+        NodeList nl = element.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl.getLength() == 0) {
             log.debug("Could not find XML signature element");
             throw new XMLSignatureException("Could not find XML Signature element");
