@@ -2,9 +2,7 @@ package com.completetrsst.rome;
 
 import java.io.IOException;
 import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -15,7 +13,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.model.SignedEntry;
 import com.completetrsst.xml.XmlUtil;

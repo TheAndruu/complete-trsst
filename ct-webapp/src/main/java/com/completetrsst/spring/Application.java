@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.accept.MappingMediaTypeFileExtensionResolver;
 import org.springframework.web.accept.MediaTypeFileExtensionResolver;
-import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;

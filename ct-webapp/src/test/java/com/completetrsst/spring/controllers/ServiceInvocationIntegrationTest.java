@@ -5,7 +5,6 @@ import static org.junit.Assume.assumeNoException;
 
 import java.net.ConnectException;
 import java.security.KeyPair;
-import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,7 +18,6 @@ import org.w3c.dom.Element;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.rome.FeedCreator;
 import com.completetrsst.xml.XmlUtil;
-import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 
 /** Integration tests which only run if the local server is running */

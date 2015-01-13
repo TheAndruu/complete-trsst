@@ -1,8 +1,11 @@
 package com.completetrsst.crypto.keys;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.security.KeyPair;
 import java.security.PublicKey;
-import static org.junit.Assert.*;
 
 import org.junit.Test;
 
