@@ -76,6 +76,29 @@ public class FeedCreatorTest {
 	}
 
 	@Test
+	public void entriesAlsoSignedOnSignedFeed() throws Exception {
+		Entry entry1 = EntryCreator.create("first entry");
+		Entry entry2 = EntryCreator.create("second entry");
+		feed.setEntries(Arrays.asList(entry1, entry2));
+
+		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+
+		// Fail -- we want entries removed prior to signature addition
+		assertTrue(FeedCreator.isVerified(signedFeed));
+
+		// Pop off each entry and try validating them individually
+		// removeEntryNodes tested below so we know it works correctly
+		List<Node> entries = FeedCreator.removeEntryNodes(signedFeed);
+
+		assertTrue(SignatureUtil.verifySignature(signedFeed));
+		assertEquals(2, entries.size());
+		// Again eclipse preventing lambda bc of exception bug in eclipse
+		for (Node node : entries) {
+			assertTrue(SignatureUtil.verifySignature((Element) node));
+		}
+	}
+
+	@Test
 	public void testRemoveEntryNodes() throws Exception {
 		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
 		String rawXmlWithEntries = XmlUtil.serializeDom(signedFeed);
@@ -104,7 +127,7 @@ public class FeedCreatorTest {
 		assertTrue(rawXml.contains("first entry"));
 		assertTrue(rawXml.contains("second entry"));
 		assertTrue(rawXml.contains(ENTRY_TITLE));
-		
+
 		Element domFeed = XmlUtil.toDom(jdomFeed);
 		List<Node> removedNodes = FeedCreator.removeEntryNodes(domFeed);
 
@@ -112,7 +135,7 @@ public class FeedCreatorTest {
 		assertFalse(rawXml.contains("first entry"));
 		assertFalse(rawXml.contains("second entry"));
 		assertFalse(rawXml.contains(ENTRY_TITLE));
-		
+
 		// 3 nodes = 2 we added in this test and original with ENTRY_TITLE in it
 		assertEquals(3, removedNodes.size());
 		removedNodes.forEach(node -> assertTrue(node.getFirstChild().getTextContent().contains("entry")));

@@ -46,9 +46,9 @@ public class RomeUtil {
 		return entryElement;
 	}
 
-	private static Element toDom(Entry entry) throws Exception {
+	// TODO: test me
+	public static Element toDom(Entry entry) throws Exception {
 		// Note: This is from Atom10Generator.serializeEntry()
-		// it also has .generate(WireFeed) which returns a jdom2 element
 
 		// Build a feed containing only the entry
 		final List<Entry> entries = new ArrayList<Entry>();
@@ -60,7 +60,6 @@ public class RomeUtil {
 		// Get Rome to output feed as a JDOM document
 		final WireFeedOutput wireFeedOutput = new WireFeedOutput();
 		Document feedDoc = wireFeedOutput.outputW3CDom(feed1);
-		// org.jdom2.
 		// Grab the entry element from the feed
 		Node node = feedDoc.getDocumentElement().getFirstChild();
 		return (Element) node;

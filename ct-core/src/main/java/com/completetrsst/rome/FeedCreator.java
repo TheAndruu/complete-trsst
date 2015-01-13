@@ -42,10 +42,10 @@ public class FeedCreator {
 	}
 
 	/**
-	 * Takes a Rome feed to sign, removing all entries prior to signing, so that
-	 * feeds are signed containing only feed-specific elements (no
-	 * entry/content, etc) Re-attaches entries prior to returning signed feed
-	 * element.
+	 * Takes a Rome feed to sign. Does this by removing all Entries and signing
+	 * the feed by itself. Then also signs each individual Entry. Reattaches all
+	 * entries prior to returning DOM elment representing the signed Feed
+	 * containing signed Entry nodes.
 	 */
 	public static Element signFeed(Feed feed, KeyPair keyPair) throws XMLSignatureException {
 
@@ -64,10 +64,16 @@ public class FeedCreator {
 		// Actually sign the feed
 		try {
 			SignatureUtil.signElement(domFeed, keyPair);
+			// eclipse bug prevents a closure from being applied below
+			for (Node entry : removedNodes) {
+				SignatureUtil.signElement((Element) entry, keyPair);
+			}
 		} catch (XMLSignatureException e) {
 			log.error(e.getMessage());
 			throw new XMLSignatureException("Trouble when actually signing the feed", e);
 		}
+
+		// TODO: Sign each Entry node
 
 		// Add the removed entity nodes back
 		addEntries(domFeed, removedNodes);
@@ -110,6 +116,8 @@ public class FeedCreator {
 		boolean isVerified = SignatureUtil.verifySignature(domFeed);
 		addEntries(domFeed, removedEntries);
 
+		// TODO: Also verify all the entries on this feed!
+		
 		return isVerified;
 	}
 
