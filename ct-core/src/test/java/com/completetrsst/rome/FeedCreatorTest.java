@@ -149,16 +149,6 @@ public class FeedCreatorTest {
 		Node feedNode = entryElement.getParentNode();
 		feedNode.removeChild(entryElement);
 		assertTrue(SignatureUtil.verifySignature((Element)feedNode));
-		
-//		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
-////		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-////		doc.adoptNode(entryElement);
-//		
-//		assertTrue(SignatureUtil.verifySignature(entryElement));
-//		// Have to remove the entry from the parent Feed node to test the feed's signature
-////		feedNode.removeChild(entryElement);
-		
-		assertTrue(FeedCreator.isVerified(element));
 	}
 
 	

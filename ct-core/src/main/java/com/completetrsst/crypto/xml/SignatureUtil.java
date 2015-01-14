@@ -81,12 +81,25 @@ public class SignatureUtil {
 				transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
 				transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS,
 				        (TransformParameterSpec) null));
-
 				ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
+				
 			} else {
-				ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null),
-				        Collections.singletonList(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null)), null,
-				        null);
+				List<Transform> transforms = new ArrayList<Transform>(3);
+				Map<String, String> namespaces = new HashMap<String, String>(1);
+				namespaces.put("atom", SignedEntry.XMLNS);
+				// To select the entry itself
+				// xpath: any entry with id = this entry's id, no matter where
+				// it is in the document
+				// id is a required entry, so no fear in accessing it by index
+				Node entryIdNode = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id").item(0);
+				String feedId = entryIdNode.getTextContent();
+				XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:feed[atom:id='" + feedId
+				        + "']", namespaces);
+				transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
+				transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
+				transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS,
+				        (TransformParameterSpec) null));
+				ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
 			}
 		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
 			log.debug("Problem constructing XML reference to sign", e);
