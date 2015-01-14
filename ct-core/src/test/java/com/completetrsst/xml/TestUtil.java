@@ -38,11 +38,15 @@ public class TestUtil {
 	public static final String PLAIN_ATOM_ENTRY;
 	public static final String SIGNED_ATOM_ENTRY;
 	public static final String TAMPERED_ATOM_ENTRY;
+	public static final String SIGNED_FEED_TAMPERED_ENTRY;
+	public static final String VALID_FEED_AND_ENTRY;
 
 	static {
 		PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
 		SIGNED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry.xml").getPath();
-		TAMPERED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry-Tampered.xml").getPath();
+		TAMPERED_ATOM_ENTRY = TestUtil.class.getResource("tampered/signedAtomEntry-Tampered.xml").getPath();
+		SIGNED_FEED_TAMPERED_ENTRY = TestUtil.class.getResource("tampered/feedValidEntryTampered.xml").getPath();
+		VALID_FEED_AND_ENTRY =  TestUtil.class.getResource("feedValidEntryValid.xml").getPath();
 	}
 
 	public static String readFile(String path) throws IOException {

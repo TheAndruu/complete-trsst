@@ -46,150 +46,150 @@ import com.completetrsst.model.SignedEntry;
 import com.completetrsst.xml.XmlUtil;
 
 public class SignatureUtil {
-    private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
+	private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
 
-    static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
+	static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
 
-    
-    /**
-     * Attaches a signature to the given DOM element, in place.
-     * 
-     * This should be the favored mechanism, as the XML Digital Signature APIs
-     * operate on DOM elements, thusly it'd be more efficient than the JDOM
-     * variant, which uses this anyway and eliminates the need for converting
-     * between types
-     * */
-    public static void signElement(Element domElement, KeyPair keyPair) throws XMLSignatureException {
-        // key pair to use in signing
-        DOMSignContext dsc = new DOMSignContext(keyPair.getPrivate(), domElement);
-        XMLSignatureFactory fac = DOMXMLSignatureFactory.getInstance("DOM", new XMLDSigRI());
-        // reference indicates which xml node will be signed
-        Reference ref;
-        try {
-            if (domElement.getNodeName().equalsIgnoreCase("entry")) {
-                List<Transform> transforms = new ArrayList<Transform>(3);
-                Map<String, String> namespaces = new HashMap<String, String>(1);
-                namespaces.put("atom", SignedEntry.XMLNS);
-                // To select the entry itself
-                // xpath: any entry with id = this entry's id, no matter where it is in the document
-                // id is a required entry, so no fear in accessing it by index
-                Node entryIdNode = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id").item(0);
-                String entryId = entryIdNode.getTextContent();
-                XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:entry[atom:id='"+entryId+"']", namespaces);
-                transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
-                transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
-                transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE, (TransformParameterSpec) null));
+	/**
+	 * Attaches a signature to the given DOM element, in place.
+	 * 
+	 * This should be the favored mechanism, as the XML Digital Signature APIs
+	 * operate on DOM elements, thusly it'd be more efficient than the JDOM
+	 * variant, which uses this anyway and eliminates the need for converting
+	 * between types
+	 * */
+	public static void signElement(Element domElement, KeyPair keyPair) throws XMLSignatureException {
+		// key pair to use in signing
+		DOMSignContext dsc = new DOMSignContext(keyPair.getPrivate(), domElement);
+		XMLSignatureFactory fac = DOMXMLSignatureFactory.getInstance("DOM", new XMLDSigRI());
+		// reference indicates which xml node will be signed
+		Reference ref;
+		try {
+			if (domElement.getNodeName().equalsIgnoreCase("entry")) {
+				List<Transform> transforms = new ArrayList<Transform>(3);
+				Map<String, String> namespaces = new HashMap<String, String>(1);
+				namespaces.put("atom", SignedEntry.XMLNS);
+				// To select the entry itself
+				// xpath: any entry with id = this entry's id, no matter where
+				// it is in the document
+				// id is a required entry, so no fear in accessing it by index
+				Node entryIdNode = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id").item(0);
+				String entryId = entryIdNode.getTextContent();
+				XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:entry[atom:id='" + entryId
+				        + "']", namespaces);
+				transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
+				transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
+				transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS,
+				        (TransformParameterSpec) null));
 
-                ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
-            } else {
-                ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null),
-                        Collections.singletonList(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null)), null,
-                        null);    
-            }
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
-            log.debug("Problem constructing XML reference to sign", e);
-            throw new XMLSignatureException(e);
-        }
+				ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
+			} else {
+				ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null),
+				        Collections.singletonList(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null)), null,
+				        null);
+			}
+		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
+			log.debug("Problem constructing XML reference to sign", e);
+			throw new XMLSignatureException(e);
+		}
 
-        // The object that'll actually be signed (contains the reference above)
-        SignedInfo si;
-        try {
-            si = fac.newSignedInfo(fac.newCanonicalizationMethod(DOMCanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
-                    (XMLStructure) null), fac.newSignatureMethod(ECDSA_SHA1, null), Collections.singletonList(ref));
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
-            log.error("Problem configuring signature information", e);
-            throw new XMLSignatureException(e);
-        }
+		// The object that'll actually be signed (contains the reference above)
+		SignedInfo si;
+		try {
+			si = fac.newSignedInfo(fac.newCanonicalizationMethod(DOMCanonicalizationMethod.INCLUSIVE_WITH_COMMENTS,
+			        (XMLStructure) null), fac.newSignatureMethod(ECDSA_SHA1, null), Collections.singletonList(ref));
+		} catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
+			log.error("Problem configuring signature information", e);
+			throw new XMLSignatureException(e);
+		}
 
-        // generate the key info, which will put the public key in the xml so
-        // ppl can decrypt it
-        log.info(fac.getMechanismType());
-        KeyInfoFactory kif = fac.getKeyInfoFactory();
-        PublicKey publicKey = keyPair.getPublic();
+		// generate the key info, which will put the public key in the xml so
+		// ppl can decrypt it
+		KeyInfoFactory kif = fac.getKeyInfoFactory();
+		PublicKey publicKey = keyPair.getPublic();
 
-        // prints key algo: ECDSA
-        log.info("key algo: " + publicKey.getAlgorithm());
+		KeyValue kv;
+		try {
+			kv = kif.newKeyValue(publicKey);
+		} catch (KeyException e) {
+			log.debug("Problem constructing KeyInfo XML from public key", e);
+			throw new XMLSignatureException(e);
+		}
+		KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
 
-        KeyValue kv;
-        try {
-            kv = kif.newKeyValue(publicKey);
-        } catch (KeyException e) {
-            log.debug("Problem constructing KeyInfo XML from public key", e);
-            throw new XMLSignatureException(e);
-        }
-        KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
+		// actually sign the xml
+		XMLSignature signature = fac.newXMLSignature(si, ki);
+		try {
+			signature.sign(dsc);
+		} catch (MarshalException | XMLSignatureException e) {
+			log.debug("Problem signing xml with signature", e);
+			throw new XMLSignatureException(e);
+		}
+	}
 
-        // actually sign the xml
-        XMLSignature signature = fac.newXMLSignature(si, ki);
-        try {
-            signature.sign(dsc);
-        } catch (MarshalException | XMLSignatureException e) {
-            log.debug("Problem signing xml with signature", e);
-            throw new XMLSignatureException(e);
-        }
-    }
+	static XMLSignature extractSignature(DOMValidateContext valContext) throws XMLSignatureException {
+		XMLSignatureFactory factory = DOMXMLSignatureFactory.getInstance("DOM", new XMLDSigRI());
+		XMLSignature signature;
+		try {
+			signature = factory.unmarshalXMLSignature(valContext);
+		} catch (MarshalException e) {
+			log.debug("Could not unmarshall XML Signature");
+			throw new XMLSignatureException("Could not unmarshall XML Signature");
+		}
+		return signature;
+	}
 
-    static XMLSignature extractSignature(DOMValidateContext valContext) throws XMLSignatureException {
-        XMLSignatureFactory factory = DOMXMLSignatureFactory.getInstance("DOM", new XMLDSigRI());
-        XMLSignature signature;
-        try {
-            signature = factory.unmarshalXMLSignature(valContext);
-        } catch (MarshalException e) {
-            log.debug("Could not unmarshall XML Signature");
-            throw new XMLSignatureException("Could not unmarshall XML Signature");
-        }
-        return signature;
-    }
+	/** Verifies the XML digital signature on a DOM element */
+	public static boolean verifySignature(Element domElement) throws XMLSignatureException {
+		DOMValidateContext valContext = extractValidationContext(domElement);
+		// grab the signature from the document
+		XMLSignature signature = extractSignature(valContext);
 
-    /** Verifies the XML digital signature on a DOM element */
-    public static boolean verifySignature(Element domElement) throws XMLSignatureException {
-        DOMValidateContext valContext = extractValidationContext(domElement);
-        // grab the signature from the document
-        XMLSignature signature = extractSignature(valContext);
+		// validation on the referenced nodes
+		return signature.validate(valContext);
+	}
 
-        // validation on the referenced nodes
-        return signature.validate(valContext);
-    }
+	/**
+	 * Determines whether any referenced elements in the XML document are
+	 * invalid.
+	 * 
+	 * @return True if all the elements are valid. False if any are invalid.
+	 *         Logs the index of any invalid elements
+	 */
+	@SuppressWarnings("rawtypes")
+	static void areElementsValid(DOMValidateContext valContext, XMLSignature signature) throws XMLSignatureException {
+		Iterator i = signature.getSignedInfo().getReferences().iterator();
+		log.info("About to iterate over nodes");
+		for (int j = 0; i.hasNext(); j++) {
+			boolean refValid = ((Reference) i.next()).validate(valContext);
+			log.info("ref[" + j + "] validity status: " + refValid);
+		}
+	}
 
-    /**
-     * Determines whether any referenced elements in the XML document are
-     * invalid.
-     * 
-     * @return True if all the elements are valid. False if any are invalid.
-     *         Logs the index of any invalid elements
-     */
-    @SuppressWarnings("rawtypes")
-    static void areElementsValid(DOMValidateContext valContext, XMLSignature signature) throws XMLSignatureException {
-        Iterator i = signature.getSignedInfo().getReferences().iterator();
-        log.info("About to iterate over nodes");
-        for (int j = 0; i.hasNext(); j++) {
-            boolean refValid = ((Reference) i.next()).validate(valContext);
-            log.info("ref[" + j + "] validity status: " + refValid);
-        }
-    }
+	/**
+	 * Determines where a signature is cryptologically valid -- i.e. is the
+	 * signature good
+	 */
+	static boolean isCryptologicallyValid(DOMValidateContext valContext, XMLSignature signature)
+	        throws XMLSignatureException {
+		return signature.getSignatureValue().validate(valContext);
+	}
 
-    /**
-     * Determines where a signature is cryptologically valid -- i.e. is the
-     * signature good
-     */
-    static boolean isCryptologicallyValid(DOMValidateContext valContext, XMLSignature signature)
-            throws XMLSignatureException {
-        return signature.getSignatureValue().validate(valContext);
-    }
+	/**
+	 * Gets the validation context from an element, necessary for extracting the
+	 * signature
+	 */
+	static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
+		NodeList nl = element.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
+		if (nl.getLength() == 0) {
+			log.debug("Could not find XML signature element");
+			throw new XMLSignatureException("Could not find XML Signature element");
+		}
 
-    /**
-     * Gets the validation context from an element, necessary for extracting the
-     * signature
-     */
-    static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
-        NodeList nl = element.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
-        if (nl.getLength() == 0) {
-            log.debug("Could not find XML signature element");
-            throw new XMLSignatureException("Could not find XML Signature element");
-        }
-
-        // context for validation -- incl selector to extract key from the XML
-        return new DOMValidateContext(new KeyValueKeySelector(), nl.item(0));
-    }
+		log.debug("Number of signatures found: " + nl.getLength());
+		
+		// context for validation -- incl selector to extract key from the XML
+		return new DOMValidateContext(new KeyValueKeySelector(), nl.item(0));
+	}
 
 }

@@ -14,17 +14,19 @@ import java.util.Date;
 import java.util.List;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.jdom2.Namespace;
-import org.jdom2.Text;
 import org.junit.Before;
 import org.junit.Test;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.model.SignedEntry;
+import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
@@ -69,6 +71,7 @@ public class FeedCreatorTest {
 	public void signedFeedValidates() throws Exception {
 		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
 
+		System.out.println("Signed feed exclusive: " + XmlUtil.serializeDom(signedFeed));
 		// Fail -- we want entries removed prior to signature addition
 		assertFalse(SignatureUtil.verifySignature(signedFeed));
 
@@ -127,23 +130,38 @@ public class FeedCreatorTest {
 
 	@Test
 	public void verificationFailsIfEntrySignedButInvalidAndFeedValidSignature() throws Exception {
-		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
-
-		org.jdom2.Element jdomSignedFeed = XmlUtil.toJdom(signedFeed);
-		org.jdom2.Element jdomEntry = jdomSignedFeed.getChild("entry", Namespace.getNamespace(SignedEntry.XMLNS));
-		jdomEntry.addContent(new Text("i don't belong here"));
-		signedFeed = XmlUtil.toDom(jdomSignedFeed);
-
-		// false b/c entry is invalid now
-		assertFalse(FeedCreator.isVerified(signedFeed));
-
-		// but assert that the feed still validates without the entry, proving
-		// it was the entry as the cause
-		jdomSignedFeed.removeChild("entry", Namespace.getNamespace(SignedEntry.XMLNS));
-		signedFeed = XmlUtil.toDom(jdomSignedFeed);
-		assertTrue(FeedCreator.isVerified(signedFeed));
+		Element element = TestUtil.readDomFromFile(TestUtil.SIGNED_FEED_TAMPERED_ENTRY);
+		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
+		assertFalse(SignatureUtil.verifySignature(entryElement));
+		// Have to remove the entry from the parent Feed node to test the feed's signature
+		Node feedNode = entryElement.getParentNode();
+		feedNode.removeChild(entryElement);
+		assertTrue(SignatureUtil.verifySignature((Element)feedNode));
 	}
 
+	@Test
+	public void validFeedAndEntryBothValidate() throws Exception {
+		Element element = TestUtil.readDomFromFile(TestUtil.VALID_FEED_AND_ENTRY);
+		
+		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
+		assertTrue(SignatureUtil.verifySignature(entryElement));
+		// Have to remove the entry from the parent Feed node to test the feed's signature
+		Node feedNode = entryElement.getParentNode();
+		feedNode.removeChild(entryElement);
+		assertTrue(SignatureUtil.verifySignature((Element)feedNode));
+		
+//		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
+////		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+////		doc.adoptNode(entryElement);
+//		
+//		assertTrue(SignatureUtil.verifySignature(entryElement));
+//		// Have to remove the entry from the parent Feed node to test the feed's signature
+////		feedNode.removeChild(entryElement);
+		
+		assertTrue(FeedCreator.isVerified(element));
+	}
+
+	
 	@Test
 	public void verificationOfEntryPassesThenFeedAlteredAndFeedFailsVerification() throws Exception {
 		Element signedFeed = FeedCreator.signFeed(feed, keyPair);
@@ -210,7 +228,7 @@ public class FeedCreatorTest {
 
 	private org.jdom2.Element createJdomEntry(String text) {
 		org.jdom2.Element entry = new org.jdom2.Element("entry", SignedEntry.XMLNS);
-		entry.addContent(new Text(text));
+		entry.addContent(new org.jdom2.Text(text));
 		return entry;
 	}
 }
