@@ -57,8 +57,8 @@ public class TrsstSignatureGenerator implements ModuleGenerator {
 		// Here can check if type is feed or entry, if necessary
 		if (fm.getIsSigned()) {
 			try {
-	            SignatureUtil.signElement(element, fm.getKeyPair());
-            } catch (XMLSignatureException e) {
+	            SignatureUtil.signElement(XmlUtil.toDom(element), fm.getKeyPair());
+            } catch (XMLSignatureException | IOException e) {
 	            log.error(e.getMessage(), e);
             }
 		}

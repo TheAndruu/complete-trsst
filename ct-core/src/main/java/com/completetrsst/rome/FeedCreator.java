@@ -47,6 +47,22 @@ public class FeedCreator {
 	 * entries prior to returning DOM elment representing the signed Feed
 	 * containing signed Entry nodes.
 	 */
+	
+	
+	
+	
+	/*
+	 * TODO:
+	 * Make this only sign a feed (as it does)
+	 * 
+	 * Force going through a separate function to sign Entries (in its class)
+	 * 
+	 * Then use separate functions to validate each
+	 * 
+	 * Can remove the 'remove entry nodes' from this guy if we mandate it only be used with unattached feeds
+	 */
+	
+	
 	public static Element signFeed(Feed feed, KeyPair keyPair) throws XMLSignatureException {
 
 		org.jdom2.Element jdomFeed = toJdom(feed);

@@ -40,8 +40,7 @@ public class FeedCreatorTest {
 	@Before
 	public void init() {
 		feed = FeedCreator.createFor(keyPair);
-		Entry entry = new Entry();
-		entry.setTitle(ENTRY_TITLE);
+		Entry entry = EntryCreator.create(ENTRY_TITLE);
 		feed.setEntries(Arrays.asList(entry));
 	}
 

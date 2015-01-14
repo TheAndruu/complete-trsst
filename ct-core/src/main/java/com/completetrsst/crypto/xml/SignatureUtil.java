@@ -6,13 +6,19 @@ import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.XMLStructure;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.Reference;
 import javax.xml.crypto.dsig.SignedInfo;
+import javax.xml.crypto.dsig.Transform;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.crypto.dsig.XMLSignatureFactory;
@@ -21,6 +27,8 @@ import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
+import javax.xml.crypto.dsig.spec.TransformParameterSpec;
+import javax.xml.crypto.dsig.spec.XPathFilterParameterSpec;
 
 import org.apache.jcp.xml.dsig.internal.dom.DOMCanonicalizationMethod;
 import org.apache.jcp.xml.dsig.internal.dom.DOMDigestMethod;
@@ -30,10 +38,11 @@ import org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.completetrsst.model.SignedEntry;
 import com.completetrsst.xml.XmlUtil;
 
 public class SignatureUtil {
@@ -41,31 +50,7 @@ public class SignatureUtil {
 
     static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
 
-    /**
-     * Signs a JDOM Element, such as one containing a single Atom Entry.
-     * Parameter will be updated to include XML Digital Signature on the object.
-     */
-    public static void signElement(org.jdom2.Element jdomElement, KeyPair keyPair) throws XMLSignatureException {
-        org.w3c.dom.Element signedDomElement = null;
-        try {
-            signedDomElement = XmlUtil.toDom(jdomElement);
-        } catch (IOException e) {
-            log.debug("Error signing element: " + e.getMessage());
-            throw new XMLSignatureException(e);
-        }
-
-        signElement(signedDomElement, keyPair);
-        org.jdom2.Element newJdomWithSignature = XmlUtil.toJdom(signedDomElement);
-
-        // grab the signature element:
-        org.jdom2.Element signatureElement = newJdomWithSignature.getChild("Signature",
-                Namespace.getNamespace(XMLSignature.XMLNS));
-
-        // attach to original jdom element
-        signatureElement.detach();
-        jdomElement.addContent(signatureElement);
-    }
-
+    
     /**
      * Attaches a signature to the given DOM element, in place.
      * 
@@ -81,9 +66,26 @@ public class SignatureUtil {
         // reference indicates which xml node will be signed
         Reference ref;
         try {
-            ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null),
-                    Collections.singletonList(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null)), null,
-                    null);
+            if (domElement.getNodeName().equalsIgnoreCase("entry")) {
+                List<Transform> transforms = new ArrayList<Transform>(3);
+                Map<String, String> namespaces = new HashMap<String, String>(1);
+                namespaces.put("atom", SignedEntry.XMLNS);
+                // To select the entry itself
+                // xpath: any entry with id = this entry's id, no matter where it is in the document
+                // id is a required entry, so no fear in accessing it by index
+                Node entryIdNode = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id").item(0);
+                String entryId = entryIdNode.getTextContent();
+                XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:entry[atom:id='"+entryId+"']", namespaces);
+                transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
+                transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
+                transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE, (TransformParameterSpec) null));
+
+                ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
+            } else {
+                ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null),
+                        Collections.singletonList(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null)), null,
+                        null);    
+            }
         } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException e) {
             log.debug("Problem constructing XML reference to sign", e);
             throw new XMLSignatureException(e);
