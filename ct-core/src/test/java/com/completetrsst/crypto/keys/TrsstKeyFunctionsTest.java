@@ -18,7 +18,8 @@ public class TrsstKeyFunctionsTest {
 	@Test
 	public void toFeedId() {
 		String feedId = TrsstKeyFunctions.toFeedId(key);
-		assertEquals(33, feedId.length());
+		assertTrue(feedId.length()>26);
+		assertTrue(feedId.length()<35);
 		// This verifies the above id. Returns null if invalid
 		byte[] result = TrsstKeyFunctions.decodeChecked(feedId);
 		assertNotNull(result);

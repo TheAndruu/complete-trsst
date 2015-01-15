@@ -34,7 +34,6 @@ public class RestEndpointController {
     public @ResponseBody ResponseEntity<String> readFeed(@PathVariable String publisherId) {
         log.info("Got viewPublisher handler with id: " + publisherId);
         String xmlEntities = storyOperations.readFeed(publisherId);
-        // TODO: Add feed xml
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_ATOM_XML);
         return new ResponseEntity<String>(xmlEntities, responseHeaders, HttpStatus.OK);

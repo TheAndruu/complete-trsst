@@ -4,9 +4,15 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.crypto.KeySelector.Purpose;
+import javax.xml.crypto.KeySelectorException;
+import javax.xml.crypto.KeySelectorResult;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.crypto.dsig.SignedInfo;
 import javax.xml.crypto.dsig.XMLSignature;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.crypto.dsig.dom.DOMValidateContext;
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,7 +36,7 @@ public class AtomParser {
 	 * Adds the given entities as children to the destinationElement, including
 	 * associating them with the new destination's owner document.
 	 */
-	void addEntries(Element destinationElement, List<Node> nodesToAdd) {
+	public void addEntries(Element destinationElement, List<Node> nodesToAdd) {
 		nodesToAdd.forEach(node -> {
 			destinationElement.getOwnerDocument().adoptNode(node);
 			destinationElement.appendChild(node);
@@ -149,7 +155,17 @@ public class AtomParser {
 	private PublicKey extractPublicKey(Node entry) throws XMLSignatureException {
 	    DOMValidateContext valContext = SignatureUtil.extractValidationContext((Element)entry);
 	    XMLSignature signature = SignatureUtil.extractSignature(valContext);
-	    PublicKey key = (PublicKey)signature.getKeySelectorResult().getKey();
+	    KeyInfo keyInfo = signature.getKeyInfo();
+	    SignedInfo signedInfo = signature.getSignedInfo();
+	    SignatureMethod method = signedInfo.getSignatureMethod();
+	    KeySelectorResult result;
+        try {
+	        result = valContext.getKeySelector().select(keyInfo, Purpose.VERIFY, method, valContext);
+        } catch (KeySelectorException e) {
+	        log.error(e.getMessage(), e);
+	        throw new XMLSignatureException("Couldn't find the public key in the signature!");
+        }
+	    PublicKey key = (PublicKey)result.getKey();
 	    return key;
     }
 }

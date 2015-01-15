@@ -1,6 +1,7 @@
 package com.completetrsst.operations;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import org.w3c.dom.Node;
 import com.completetrsst.atom.AtomParser;
 import com.completetrsst.atom.AtomVerifier;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
-import com.completetrsst.model.SignedEntry;
 import com.completetrsst.xml.XmlUtil;
 
 public class InMemoryStoryOps implements StoryOperations {
@@ -23,30 +23,33 @@ public class InMemoryStoryOps implements StoryOperations {
 	private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
 
 	private static final AtomParser parser = new AtomParser();
-	private Map<String, List<SignedEntry>> publishersToStories = new HashMap<String, List<SignedEntry>>();
+	private Map<String, FeedHolder> idsToFeeds = new HashMap<String, FeedHolder>();
 
 	@Override
 	public String readFeed(String publisherId) {
-		List<SignedEntry> entries = publishersToStories.get(publisherId);
-		if (entries == null) {
+		FeedHolder holder = idsToFeeds.get(publisherId);
+		if (holder == null) {
 			return "No entries to view on feed " + publisherId;
 		}
-		StringBuilder builder = new StringBuilder();
 
-		builder.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
-		builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
-		builder.append("\"<title>Example Feed</title>");
-		builder.append("<updated>2014-12-13T18:30:02Z</updated>");
-		builder.append("<author>");
-		builder.append("<name>John Deere</name>");
-		builder.append("</author>");
-		builder.append("<id>urn:uuid:60a76c80-d399-11d9-b93C-0003939e0af6</id>");
+		String rawFeed = holder.feedXml;
+		List<String> rawEntries = holder.entryXml;
 
-		// First Java 8 Lambda!
-		entries.forEach(entry -> builder.append(entry.getRawXml()));
+		Element feedDom;
+		try {
+			feedDom = XmlUtil.toDom(rawFeed);
+			List<Node> entries = new ArrayList<Node>();
+			for (String entry : rawEntries) {
+				entries.add(XmlUtil.toDom(entry));
+			}
+			parser.addEntries(feedDom, entries);
+			// TODO: What is going on here?
+			return XmlUtil.serializeDom(feedDom);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
 
-		builder.append("</feed>");
-		return builder.toString();
 	}
 
 	/** Takes in raw signed XML and creates new or adds to existing Atom feed */
@@ -62,7 +65,7 @@ public class InMemoryStoryOps implements StoryOperations {
 			throw new IllegalArgumentException(e);
 		}
 
-		// Verify the feed and entries
+		// Verify the feed and entries. Throws exception if not verified
 		verifySignedContent(feed);
 
 		// Detach the entries themselves
@@ -79,12 +82,34 @@ public class InMemoryStoryOps implements StoryOperations {
 
 		// So now we know the entries belong on this feed, we have the feed by
 		// itself, and we have the entries by themselves
-		
-		// TODO: Create new map of Feed : entries if feed doesn't exist, else use old
-		// TODO: Store feed xml and entry xml under Feed Id
-		// -- new class?  SignedContent (string latestFeed, List<String> entries)
 
+		FeedHolder holder = getFeed(feedId);
+		try {
+			holder.feedXml = XmlUtil.serializeDom(feed);
+			for (Node node : detachedEntries) {
+				holder.entryXml.add(XmlUtil.serializeDom((Element) node));
+			}
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new IllegalArgumentException(e);
+		}
+
+		idsToFeeds.put(feedId, holder);
 		return "Stored verified signed entry onto its associated feed";
+	}
+
+	private FeedHolder getFeed(String feedId) {
+		FeedHolder holder = idsToFeeds.get(feedId);
+		if (holder == null) {
+			holder = new FeedHolder();
+			idsToFeeds.put(feedId, holder);
+		}
+		return holder;
+	}
+
+	private class FeedHolder {
+		String feedXml = "";
+		List<String> entryXml = new ArrayList<String>();
 	}
 
 	private void verifySignedContent(Element domElement) throws XMLSignatureException {
@@ -101,28 +126,29 @@ public class InMemoryStoryOps implements StoryOperations {
 		}
 	}
 
-//	// TODO: Move these to a helper class
-//	private SignedEntry createSignedEntry(Element domElement, String signedXml) throws IllegalArgumentException {
-//		String title = getTitle(domElement);
-//		String id = getId(domElement);
-//		String dateUpdated = getDateUpdated(domElement);
-//		SignedEntry entry = new SignedEntry();
-//		entry.setTitle(title);
-//		entry.setId(id);
-//		entry.setDateUpdated(dateUpdated);
-//		entry.setRawXml(signedXml);
-//		return entry;
-//	}
-//
-//	private void addEntry(String publisherId, SignedEntry story) {
-//		List<SignedEntry> existingStories = publishersToStories.get(publisherId);
-//		if (existingStories == null) {
-//			existingStories = new ArrayList<SignedEntry>();
-//		}
-//		existingStories.add(story);
-//		Collections.sort(existingStories);
-//
-//		publishersToStories.put(publisherId, existingStories);
-//	}
+	// // TODO: Move these to a helper class
+	// private SignedEntry createSignedEntry(Element domElement, String
+	// signedXml) throws IllegalArgumentException {
+	// String title = getTitle(domElement);
+	// String id = getId(domElement);
+	// String dateUpdated = getDateUpdated(domElement);
+	// SignedEntry entry = new SignedEntry();
+	// entry.setTitle(title);
+	// entry.setId(id);
+	// entry.setDateUpdated(dateUpdated);
+	// entry.setRawXml(signedXml);
+	// return entry;
+	// }
+	//
+	// private void addEntry(String publisherId, SignedEntry story) {
+	// List<SignedEntry> existingStories = publishersToStories.get(publisherId);
+	// if (existingStories == null) {
+	// existingStories = new ArrayList<SignedEntry>();
+	// }
+	// existingStories.add(story);
+	// Collections.sort(existingStories);
+	//
+	// publishersToStories.put(publisherId, existingStories);
+	// }
 
 }
