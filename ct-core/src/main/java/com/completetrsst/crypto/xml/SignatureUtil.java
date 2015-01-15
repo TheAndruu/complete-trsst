@@ -1,6 +1,5 @@
 package com.completetrsst.crypto.xml;
 
-import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyException;
 import java.security.KeyPair;
@@ -15,7 +14,6 @@ import java.util.Map;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.XMLStructure;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
 import javax.xml.crypto.dsig.Reference;
 import javax.xml.crypto.dsig.SignedInfo;
 import javax.xml.crypto.dsig.Transform;
@@ -35,7 +33,6 @@ import org.apache.jcp.xml.dsig.internal.dom.DOMDigestMethod;
 import org.apache.jcp.xml.dsig.internal.dom.DOMTransform;
 import org.apache.jcp.xml.dsig.internal.dom.DOMXMLSignatureFactory;
 import org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI;
-import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -43,7 +40,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.completetrsst.model.SignedEntry;
-import com.completetrsst.xml.XmlUtil;
 
 public class SignatureUtil {
     private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);

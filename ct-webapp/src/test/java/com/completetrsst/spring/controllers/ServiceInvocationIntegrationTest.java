@@ -17,12 +17,13 @@ import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Element;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
-import com.completetrsst.rome.FeedCreator;
+import com.completetrsst.model.SignedEntryPublisher;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Feed;
 
 /** Integration tests which only run if the local server is running */
 public class ServiceInvocationIntegrationTest {
+	
     private static final Logger log = LoggerFactory.getLogger(ServiceInvocationIntegrationTest.class);
 
     private static final RestTemplate rest = new RestTemplate();
@@ -41,13 +42,10 @@ public class ServiceInvocationIntegrationTest {
     @Test
     public void testPublishSignedEntry() throws Exception {
         KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
-        Feed feed = FeedCreator.createFor(keyPair);
-        // TODO: This works correctly as a test for now. The code its testing
-        // needs to be updated
-        // to extract entries and feeds separately
-        Element signedFeed = FeedCreator.signFeed(feed, keyPair);
-        String rawXml = XmlUtil.serializeDom(signedFeed);
-        log.info("Raw xml");
+        
+        SignedEntryPublisher publisher = new SignedEntryPublisher();
+        String rawXml = publisher.publish("New entry title!", keyPair);
+        
         log.info(rawXml);
         ResponseEntity<String> response = rest.postForEntity("http://localhost:8080/publish/1", rawXml, String.class);
         log.info("Got response: " + response.getBody());
