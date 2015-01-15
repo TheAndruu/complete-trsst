@@ -1,4 +1,4 @@
-package com.completetrsst.model;
+package com.completetrsst.atom;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -30,8 +30,8 @@ import com.rometools.rome.io.impl.Atom10Generator;
  * verification of Feed signatures implies all Entries have been removed from
  * owner document.
  */
-public class SignedEntryPublisher {
-    private static final Logger log = LoggerFactory.getLogger(SignedEntryPublisher.class);
+public class AtomSigner {
+    private static final Logger log = LoggerFactory.getLogger(AtomSigner.class);
     public static final String XMLNS = "http://www.w3.org/2005/Atom";
     public static final String ENTRY_ID_PREFIX = "urn:uuid:";
 
@@ -44,8 +44,8 @@ public class SignedEntryPublisher {
      * @return DOM element containing a signed Feed node and
      *         independently-signed Entry node
      */
-    public String publish(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
-        return XmlUtil.serializeDom(publishNew(entryTitle, keyPair));
+    public String newEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
+        return XmlUtil.serializeDom(createNewSignedEntry(entryTitle, keyPair));
     }
 
     /**
@@ -57,7 +57,7 @@ public class SignedEntryPublisher {
      * @return DOM element containing a signed Feed node and
      *         independently-signed Entry node
      */
-    protected Element publishNew(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
+    protected Element createNewSignedEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
         // Construct the feed and entry
         Element domEntry = toDom(createEntry(entryTitle));
         Element domFeed = toDom(createFeed(keyPair.getPublic()));

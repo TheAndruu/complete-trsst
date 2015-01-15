@@ -1,4 +1,4 @@
-package com.completetrsst.model;
+package com.completetrsst.atom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,8 @@ import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.xml.SignatureUtil;
 
-public class SignedEntryVerifier {
-    private static final Logger log = LoggerFactory.getLogger(SignedEntryVerifier.class);
+public class SignedAtomVerifier {
+    private static final Logger log = LoggerFactory.getLogger(SignedAtomVerifier.class);
 
     /**
      * Validates the signature on just a Feed element, regardless of whether the
@@ -58,7 +58,7 @@ public class SignedEntryVerifier {
      * nodes are placed into their own document.
      */
     List<Node> removeEntryNodes(Element domContainingEntries) {
-        NodeList nodeList = domContainingEntries.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "entry");
+        NodeList nodeList = domContainingEntries.getElementsByTagNameNS(AtomSigner.XMLNS, "entry");
         // we know there's only one entry on this feed
         List<Node> removedNodes = new ArrayList<Node>();
         int numEntryNodes = nodeList.getLength();

@@ -25,7 +25,6 @@ import javax.xml.crypto.dsig.dom.DOMValidateContext;
 import javax.xml.crypto.dsig.keyinfo.KeyInfo;
 import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
 import javax.xml.crypto.dsig.keyinfo.KeyValue;
-import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 import javax.xml.crypto.dsig.spec.XPathFilterParameterSpec;
 
 import org.apache.jcp.xml.dsig.internal.dom.DOMCanonicalizationMethod;
@@ -39,8 +38,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.model.SignedEntry;
-import com.completetrsst.model.SignedEntryPublisher;
+import com.completetrsst.atom.AtomSigner;
 
 public class SignatureUtil {
     private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
@@ -64,10 +62,10 @@ public class SignatureUtil {
         try {
             List<Transform> transforms = new ArrayList<Transform>(3);
             Map<String, String> namespaces = new HashMap<String, String>(1);
-            namespaces.put("atom", SignedEntryPublisher.XMLNS);
+            namespaces.put("atom", AtomSigner.XMLNS);
             // xpath: any atom element with id == the element's id
             // id is a required entry, so no fear in accessing it by index
-            Node idNode = domElement.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "id").item(0);
+            Node idNode = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "id").item(0);
             String idText = idNode.getTextContent();
             XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:" + domElement.getNodeName()
                     + "[atom:id='" + idText + "']", namespaces);

@@ -14,12 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Element;
 
+import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
-import com.completetrsst.model.SignedEntryPublisher;
-import com.completetrsst.xml.XmlUtil;
-import com.rometools.rome.feed.atom.Feed;
 
 /** Integration tests which only run if the local server is running */
 public class ServiceInvocationIntegrationTest {
@@ -43,8 +40,8 @@ public class ServiceInvocationIntegrationTest {
     public void testPublishSignedEntry() throws Exception {
         KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
         
-        SignedEntryPublisher publisher = new SignedEntryPublisher();
-        String rawXml = publisher.publish("New entry title!", keyPair);
+        AtomSigner signer = new AtomSigner();
+        String rawXml = signer.newEntry("New entry title!", keyPair);
         
         log.info(rawXml);
         ResponseEntity<String> response = rest.postForEntity("http://localhost:8080/publish/1", rawXml, String.class);

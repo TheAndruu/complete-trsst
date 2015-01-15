@@ -1,4 +1,4 @@
-package com.completetrsst.model;
+package com.completetrsst.atom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,11 +20,11 @@ public class SignedEntryVerifierTest {
     private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
     private static final String ENTRY_TITLE = "foo bar entry title";
 
-    private static SignedEntryVerifier verifier;
+    private static SignedAtomVerifier verifier;
 
     @Before
     public void init() {
-        verifier = new SignedEntryVerifier();
+        verifier = new SignedAtomVerifier();
     }
     
     @Test 
@@ -60,7 +60,7 @@ public class SignedEntryVerifierTest {
 
     @Test
     public void testRemoveEntryNodes() throws Exception {
-        Element signedFeedAndEntries = new SignedEntryPublisher().publishNew(ENTRY_TITLE, keyPair);
+        Element signedFeedAndEntries = new AtomSigner().createNewSignedEntry(ENTRY_TITLE, keyPair);
 
         String rawXmlWithEntries = XmlUtil.serializeDom(signedFeedAndEntries);
 
@@ -74,13 +74,13 @@ public class SignedEntryVerifierTest {
 
         assertTrue(removedEntries.size() == 1);
         Element entry = (Element) removedEntries.get(0);
-        Node titleNode = entry.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "title").item(0);
+        Node titleNode = entry.getElementsByTagNameNS(AtomSigner.XMLNS, "title").item(0);
         assertEquals(ENTRY_TITLE, titleNode.getTextContent());
     }
 
     @Test
     public void testAddEntryNodes() throws Exception {
-        Element signedFeedAndEntries = new SignedEntryPublisher().publishNew(ENTRY_TITLE, keyPair);
+        Element signedFeedAndEntries = new AtomSigner().createNewSignedEntry(ENTRY_TITLE, keyPair);
         org.jdom2.Element jdomFeed = XmlUtil.toJdom(signedFeedAndEntries);
         jdomFeed.addContent(createJdomEntry("first entry"));
         jdomFeed.addContent(createJdomEntry("second entry"));
@@ -104,7 +104,7 @@ public class SignedEntryVerifierTest {
     }
 
     private org.jdom2.Element createJdomEntry(String text) {
-        org.jdom2.Element entry = new org.jdom2.Element("entry", SignedEntryPublisher.XMLNS);
+        org.jdom2.Element entry = new org.jdom2.Element("entry", AtomSigner.XMLNS);
         entry.addContent(new org.jdom2.Text(text));
         return entry;
     }
