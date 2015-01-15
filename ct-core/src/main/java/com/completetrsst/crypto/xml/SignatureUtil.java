@@ -72,11 +72,8 @@ public class SignatureUtil {
             XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:" + domElement.getNodeName()
                     + "[atom:id='" + idText + "']", namespaces);
             
-            // Do need this transform in addition to the one below?
-//            transforms.add(fac.newTransform(CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS,
-//                    (TransformParameterSpec) null));
-//             TODO: Put xpath in?  if no, can remove dependency
-            transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
+//             Put xpath in?  if no, can remove dependency
+//            transforms.add(fac.newTransform(Transform.XPATH, (TransformParameterSpec) paramsXpath));
             transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
             ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
 

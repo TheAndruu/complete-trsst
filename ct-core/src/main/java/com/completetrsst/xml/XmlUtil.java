@@ -76,7 +76,6 @@ public class XmlUtil {
         return doc.getDocumentElement();
     }
 
-    // TODO: Make private
     public static String serializeJdom(org.jdom2.Element element) throws IOException {
         XMLOutputter xmlOutputter = new XMLOutputter();
         StringWriter writer = new StringWriter();
@@ -86,7 +85,6 @@ public class XmlUtil {
         return xmlString;
     }
 
-    // TODO: Make private 
     public static String serializeDom(Element domElement) throws IOException {
         StringWriter buffer = null;
         try {

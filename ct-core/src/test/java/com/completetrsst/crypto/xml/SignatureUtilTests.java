@@ -83,7 +83,7 @@ public class SignatureUtilTests {
 	 */
 	@Test
 	public void verifyStoredTamperedAsJDomXmlFails() throws Exception {
-		org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.TAMPERED_ATOM_ENTRY);
+		org.jdom2.Element element = TestUtil.readJDomFromFile(TestUtil.FEED_VALID_ENTRY_TAMPERED);
 
 		// now convert element to DOM and verify
 		Element signedAsDom = XmlUtil.toDom(element);
@@ -98,7 +98,7 @@ public class SignatureUtilTests {
 	 */
 	@Test
 	public void verifyStoredTamperedAsDomXmlFails() throws Exception {
-		org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.TAMPERED_ATOM_ENTRY);
+		org.w3c.dom.Element element = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_TAMPERED);
 
 		boolean isValid = SignatureUtil.verifySignature(element);
 		assertFalse(isValid);
