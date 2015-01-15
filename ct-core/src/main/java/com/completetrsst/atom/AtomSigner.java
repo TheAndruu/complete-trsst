@@ -87,30 +87,6 @@ public class AtomSigner {
         return feed;
     }
 
-    //
-    // private static signFeed(Element domFeed) {
-    // List<Node> removedNodes = removeEntryNodes(domFeed);
-    //
-    // // Actually sign the feed, including individual entry nodes separately
-    // try {
-    // SignatureUtil.signElement(domFeed, keyPair);
-    // // eclipse bug prevents a closure from being applied below
-    // for (Node entry : removedNodes) {
-    // SignatureUtil.signElement((Element) entry, keyPair);
-    // }
-    // } catch (XMLSignatureException e) {
-    // log.error(e.getMessage());
-    // throw new XMLSignatureException("Trouble when actually signing the feed",
-    // e);
-    // }
-    //
-    // // Add the removed, now-signed entity nodes back
-    // addEntries(domFeed, removedNodes);
-    //
-    // // Return the signed feed, with signed entries added back in
-    // return domFeed;
-    // }
-
     /** Returns unsigned entry not attached to any feed */
     protected Entry createEntry(String title) {
         Entry entry = new Entry();

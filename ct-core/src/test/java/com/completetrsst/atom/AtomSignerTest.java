@@ -36,7 +36,7 @@ public class AtomSignerTest {
     public void createNewSignedEntry() throws Exception {
         Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
 
-        SignedAtomVerifier verifier = new SignedAtomVerifier();
+        AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
         
@@ -52,7 +52,7 @@ public class AtomSignerTest {
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
         
-        SignedAtomVerifier verifier = new SignedAtomVerifier();
+        AtomVerifier verifier = new AtomVerifier();
         // Feed should fail validation
         assertFalse(verifier.isFeedVerified(signedFeedAndEntry));
         
@@ -68,7 +68,7 @@ public class AtomSignerTest {
         Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS, "entry").item(0);
         entryNode.appendChild(newText);
         
-        SignedAtomVerifier verifier = new SignedAtomVerifier();
+        AtomVerifier verifier = new AtomVerifier();
         // Feed should still validate
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         

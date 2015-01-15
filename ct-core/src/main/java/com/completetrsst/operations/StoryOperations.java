@@ -6,9 +6,7 @@ import com.completetrsst.model.SignedEntry;
 
 public interface StoryOperations {
 
-    public void create(String publisherId, SignedEntry story);
+	public String readFeed(String publisherId);
 
-    public String readFeed(String publisherId);
-
-    public String publishSignedEntry(String publisherId, String signedXml) throws XMLSignatureException, IllegalArgumentException;
+	public String publishSignedContent(String signedXml) throws XMLSignatureException, IllegalArgumentException;
 }

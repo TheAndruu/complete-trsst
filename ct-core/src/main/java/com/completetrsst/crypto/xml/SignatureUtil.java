@@ -114,7 +114,7 @@ public class SignatureUtil {
         }
     }
 
-    static XMLSignature extractSignature(DOMValidateContext valContext) throws XMLSignatureException {
+    public static XMLSignature extractSignature(DOMValidateContext valContext) throws XMLSignatureException {
         XMLSignatureFactory factory = DOMXMLSignatureFactory.getInstance("DOM", new XMLDSigRI());
         XMLSignature signature;
         try {
@@ -166,7 +166,7 @@ public class SignatureUtil {
      * Gets the validation context from an element, necessary for extracting the
      * signature
      */
-    static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
+    public static DOMValidateContext extractValidationContext(Element element) throws XMLSignatureException {
         NodeList nl = element.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl.getLength() == 0) {
             log.debug("Could not find XML signature element");

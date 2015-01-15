@@ -65,6 +65,14 @@ public class TrsstKeyFunctions {
         }
         return feedId;
     }
+    
+    /** Returns the Feed URN prefix from the given input, if it exists */
+    public static final String removeFeedUrnPrefix(String feedUrn) {
+    	if (feedUrn.startsWith(FEED_URN_PREFIX)) {
+    		return feedUrn.substring(FEED_URN_PREFIX.length());
+    	}
+    	return feedUrn;
+    }
 
 	/**
 	 * Uses the checksum in the last 4 bytes of the decoded data to verify the

@@ -46,12 +46,12 @@ public class RestEndpointController {
      * 
      * @throws IOException
      */
-    @RequestMapping(value = "/publish/{publisherId}", method = RequestMethod.POST, headers = "Accept=application/xml")
+    @RequestMapping(value = "/publish", method = RequestMethod.POST, headers = "Accept=application/xml")
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody String publishSignedEntry(@PathVariable String publisherId, @RequestBody String signedXml)
+    public @ResponseBody String publishSignedEntry(@RequestBody String signedXml)
             throws XMLSignatureException, IllegalArgumentException {
         log.info("Publish entry");
-        return storyOperations.publishSignedEntry(publisherId, signedXml);
+        return storyOperations.publishSignedContent(signedXml);
     }
 
     /**

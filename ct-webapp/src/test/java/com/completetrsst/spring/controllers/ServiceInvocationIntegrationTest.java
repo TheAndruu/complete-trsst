@@ -44,7 +44,7 @@ public class ServiceInvocationIntegrationTest {
         String rawXml = signer.newEntry("New entry title!", keyPair);
         
         log.info(rawXml);
-        ResponseEntity<String> response = rest.postForEntity("http://localhost:8080/publish/1", rawXml, String.class);
+        ResponseEntity<String> response = rest.postForEntity("http://localhost:8080/publish", rawXml, String.class);
         log.info("Got response: " + response.getBody());
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         log.info("Payload: " + response.getBody());
