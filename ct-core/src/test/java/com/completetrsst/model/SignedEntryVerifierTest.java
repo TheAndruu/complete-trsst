@@ -74,7 +74,7 @@ public class SignedEntryVerifierTest {
 
         assertTrue(removedEntries.size() == 1);
         Element entry = (Element) removedEntries.get(0);
-        Node titleNode = entry.getElementsByTagNameNS(SignedEntry.XMLNS, "title").item(0);
+        Node titleNode = entry.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "title").item(0);
         assertEquals(ENTRY_TITLE, titleNode.getTextContent());
     }
 
@@ -104,7 +104,7 @@ public class SignedEntryVerifierTest {
     }
 
     private org.jdom2.Element createJdomEntry(String text) {
-        org.jdom2.Element entry = new org.jdom2.Element("entry", SignedEntry.XMLNS);
+        org.jdom2.Element entry = new org.jdom2.Element("entry", SignedEntryPublisher.XMLNS);
         entry.addContent(new org.jdom2.Text(text));
         return entry;
     }

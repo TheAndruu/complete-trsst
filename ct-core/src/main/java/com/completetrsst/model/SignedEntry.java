@@ -19,8 +19,6 @@ import java.time.format.DateTimeFormatter;
  */
 public class SignedEntry implements Comparable<SignedEntry> {
 
-	public static final String XMLNS = "http://www.w3.org/2005/Atom";
-
 	// Signature validation precludes us from wanting to edit any of these
 	// values on the server once they're signed
 	private String id;

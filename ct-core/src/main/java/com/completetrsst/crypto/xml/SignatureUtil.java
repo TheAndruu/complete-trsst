@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.completetrsst.model.SignedEntry;
+import com.completetrsst.model.SignedEntryPublisher;
 
 public class SignatureUtil {
     private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
@@ -63,10 +64,10 @@ public class SignatureUtil {
         try {
             List<Transform> transforms = new ArrayList<Transform>(3);
             Map<String, String> namespaces = new HashMap<String, String>(1);
-            namespaces.put("atom", SignedEntry.XMLNS);
+            namespaces.put("atom", SignedEntryPublisher.XMLNS);
             // xpath: any atom element with id == the element's id
             // id is a required entry, so no fear in accessing it by index
-            Node idNode = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id").item(0);
+            Node idNode = domElement.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "id").item(0);
             String idText = idNode.getTextContent();
             XPathFilterParameterSpec paramsXpath = new XPathFilterParameterSpec("//atom:" + domElement.getNodeName()
                     + "[atom:id='" + idText + "']", namespaces);

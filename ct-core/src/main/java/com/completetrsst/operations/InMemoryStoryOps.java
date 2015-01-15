@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.model.SignedEntry;
+import com.completetrsst.model.SignedEntryPublisher;
 import com.completetrsst.xml.XmlUtil;
 
 public class InMemoryStoryOps implements StoryOperations {
@@ -98,7 +99,7 @@ public class InMemoryStoryOps implements StoryOperations {
     }
 
     private String getDateUpdated(Element domElement) {
-        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "updated");
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "updated");
         if (nl.getLength() == 0) {
             log.debug("Atom entries must have an <updated> element");
             throw new IllegalArgumentException("Atom entries must have a <updated> element");
@@ -108,7 +109,7 @@ public class InMemoryStoryOps implements StoryOperations {
     }
 
     private String getId(Element domElement) {
-        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "id");
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "id");
         if (nl.getLength() == 0) {
             log.debug("Atom entries must have an <id> element");
             throw new IllegalArgumentException("Atom entries must have a <id> element");
@@ -118,7 +119,7 @@ public class InMemoryStoryOps implements StoryOperations {
     }
 
     private String getTitle(Element domElement) {
-        NodeList nl = domElement.getElementsByTagNameNS(SignedEntry.XMLNS, "title");
+        NodeList nl = domElement.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "title");
         if (nl.getLength() == 0) {
             log.debug("Atom entries must have an <entry> element");
             throw new IllegalArgumentException("Atom entries must have a <title> element");
