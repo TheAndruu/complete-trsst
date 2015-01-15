@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.jdom2.Document;
-import org.jdom2.Element;
 import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
+import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 import com.rometools.rome.io.FeedException;
@@ -41,8 +42,11 @@ public class EntryCreator {
     }
 
     
+    public static Element toDom(Entry entry) throws IOException {
+        return XmlUtil.toDom(toJdom(entry));
+    }
     
-    public static org.jdom2.Element toJdom(Entry entry) {
+    private static org.jdom2.Element toJdom(Entry entry) {
         // Build a feed containing only the entry
         final List<Entry> entries = new ArrayList<Entry>();
         entries.add(entry);
@@ -61,21 +65,7 @@ public class EntryCreator {
         }
 
         // Grab entry element from feed and get JDOM to serialize it
-        final Element entryElement = feedDoc.getRootElement().getChildren().get(0);
-        return entryElement;
+        return feedDoc.getRootElement().getChildren().get(0);
     }
 
-    public static String serialize(Element entryElement) throws IOException {
-        Writer writer = new StringWriter();
-        final XMLOutputter outputter = new XMLOutputter();
-        try {
-            outputter.output(entryElement, writer);
-            writer.close();
-        } catch (IOException e) {
-            log.debug("Couldn't write entry element to string");
-            throw e;
-        }
-
-        return writer.toString();
-    }
 }

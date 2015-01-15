@@ -22,9 +22,9 @@ import com.rometools.rome.feed.atom.Feed;
 public class EntryCreatorTest {
     private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
     private Entry entry;
-    
+
     private static final String ENTRY_TITLE = "my title";
-    
+
     @Before
     public void init() {
         entry = EntryCreator.create(ENTRY_TITLE);
@@ -49,31 +49,29 @@ public class EntryCreatorTest {
         assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
         assertTrue(entry.getId().startsWith(EntryCreator.ENTRY_ID_PREFIX));
     }
-    
+
     @Test
-	public void testSigningElementByItself() throws Exception {
-	    org.jdom2.Element jdom = EntryCreator.toJdom(entry);
-	    Element dom = XmlUtil.toDom(jdom);
-	    SignatureUtil.signElement(dom, keyPair);
-	    // Twice to ensure nothing is detached improperly from the operation
-	    assertTrue(SignatureUtil.verifySignature(dom));
-	    assertTrue(SignatureUtil.verifySignature(dom));
-	    
-	    // convert to string and back
-	    dom = XmlUtil.toDom(XmlUtil.serializeDom(dom));
-	    assertTrue(SignatureUtil.verifySignature(dom));
-	}
-    
+    public void testSigningElementByItself() throws Exception {
+        Element dom = EntryCreator.toDom(entry);
+        SignatureUtil.signElement(dom, keyPair);
+        // Twice to ensure nothing is detached improperly from the operation
+        assertTrue(SignatureUtil.verifySignature(dom));
+        assertTrue(SignatureUtil.verifySignature(dom));
+
+        // convert to string and back
+        dom = XmlUtil.toDom(XmlUtil.serializeDom(dom));
+        assertTrue(SignatureUtil.verifySignature(dom));
+    }
+
     @Test
     public void testEditedSignedEntryFailsValidation() throws Exception {
-        
-        org.jdom2.Element jdom = EntryCreator.toJdom(entry);
-        Element dom = XmlUtil.toDom(jdom);
+
+        Element dom = EntryCreator.toDom(entry);
         SignatureUtil.signElement(dom, keyPair);
-        
+
         // Ensure it works originally
         assertTrue(SignatureUtil.verifySignature(dom));
-        
+
         Node titleNode = dom.getElementsByTagName("title").item(0);
         assertEquals(ENTRY_TITLE, titleNode.getTextContent());
         titleNode.setTextContent("new title");
@@ -82,27 +80,22 @@ public class EntryCreatorTest {
         // and verify it fails this time
         assertFalse(SignatureUtil.verifySignature(dom));
     }
-    
-    
-    // TODO: Look into this guy:
-    // http://stackoverflow.com/questions/12678647/reference-uri-error-creating-digital-signature-for-a-specific-xml-element-node
-    
-    // TODO: Looks like entries have to be signed independently BEFORE added to any feed
+
+    // TODO: Looks like entries have to be signed independently BEFORE added to
+    // any feed
     // and then tested separately (as their own document?) later
-    
+
     @Test
     public void testSigningElementInsideFeed() throws Exception {
         Feed feed = FeedCreator.createFor(keyPair);
 
-        
-        
-        org.jdom2.Element jdom = EntryCreator.toJdom(entry);
-        Element dom = XmlUtil.toDom(jdom);
+        Element dom = EntryCreator.toDom(entry);
         SignatureUtil.signElement(dom, keyPair);
+
         // Twice to ensure nothing is detached improperly from the operation
         assertTrue(SignatureUtil.verifySignature(dom));
         assertTrue(SignatureUtil.verifySignature(dom));
-        
+
         // convert to string and back
         dom = XmlUtil.toDom(XmlUtil.serializeDom(dom));
         assertTrue(SignatureUtil.verifySignature(dom));

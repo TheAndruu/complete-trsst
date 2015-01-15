@@ -130,7 +130,7 @@ public class FeedCreatorTest {
 
 	@Test
 	public void verificationFailsIfEntrySignedButInvalidAndFeedValidSignature() throws Exception {
-		Element element = TestUtil.readDomFromFile(TestUtil.SIGNED_FEED_TAMPERED_ENTRY);
+		Element element = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_TAMPERED);
 		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
 		assertFalse(SignatureUtil.verifySignature(entryElement));
 		// Have to remove the entry from the parent Feed node to test the feed's signature
@@ -139,16 +139,38 @@ public class FeedCreatorTest {
 		assertTrue(SignatureUtil.verifySignature((Element)feedNode));
 	}
 
+	/** 
+	 * TODO: This is the way we need to sign feeds and entries - separately prior to associating
+	 * them with each other, so that they may be individually verified */
 	@Test
 	public void validFeedAndEntryBothValidate() throws Exception {
-		Element element = TestUtil.readDomFromFile(TestUtil.VALID_FEED_AND_ENTRY);
-		
-		Element entryElement = (Element)element.getElementsByTagNameNS(SignedEntry.XMLNS, "entry").item(0);
-		assertTrue(SignatureUtil.verifySignature(entryElement));
-		// Have to remove the entry from the parent Feed node to test the feed's signature
-		Node feedNode = entryElement.getParentNode();
-		feedNode.removeChild(entryElement);
-		assertTrue(SignatureUtil.verifySignature((Element)feedNode));
+	    
+	    Entry entry = EntryCreator.create("my new entry");
+	    Element signedEntry = EntryCreator.toDom(entry);
+	    SignatureUtil.signElement(signedEntry, keyPair);
+	    
+	    // have signed entry, ready to be placed on signed feed
+	    
+	    assertTrue(SignatureUtil.verifySignature(signedEntry));
+	    
+	    Feed feed = FeedCreator.createFor(keyPair);
+	    Element signedFeed = FeedCreator.signFeed(feed, keyPair);
+	    assertTrue(SignatureUtil.verifySignature(signedFeed));
+	    
+	    
+	    assertTrue(SignatureUtil.verifySignature(signedEntry));
+	    signedEntry.getParentNode().removeChild(signedEntry);
+	    signedFeed.getOwnerDocument().adoptNode(signedEntry);
+	    signedFeed.appendChild(signedEntry);
+	    
+	    signedFeed.removeChild(signedEntry);
+	    DocumentBuilderFactory dbf =DocumentBuilderFactory.newInstance();
+	    dbf.setNamespaceAware(true);
+	    Document doc = dbf.newDocumentBuilder().newDocument();
+	    doc.adoptNode(signedEntry);
+	    assertTrue(SignatureUtil.verifySignature(signedEntry));
+	    
+	    assertTrue(SignatureUtil.verifySignature(signedFeed));
 	}
 
 	

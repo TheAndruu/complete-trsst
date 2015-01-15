@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 /**
  * <pre>
- * Represents an Atom 'entry' to a 'feed'.
+ * Represents a signable Atom 'entry' to a 'feed'.
  * 
  * Required Entry fields:
  * -- id
