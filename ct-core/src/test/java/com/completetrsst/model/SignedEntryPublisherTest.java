@@ -1,0 +1,144 @@
+package com.completetrsst.model;
+
+import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedId;
+import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedUrn;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.security.KeyPair;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.Text;
+
+import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.xml.XmlUtil;
+import com.rometools.rome.feed.atom.Entry;
+import com.rometools.rome.feed.atom.Feed;
+
+public class SignedEntryPublisherTest {
+
+    private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
+    private SignedEntryPublisher publisher;
+
+    @Before
+    public void init() {
+        publisher = new SignedEntryPublisher();
+    }
+
+    @Test
+    public void publishNew() throws Exception {
+        Element signedFeedAndEntry = publisher.publishNew("hi everybody!", keyPair);
+
+        SignedEntryVerifier verifier = new SignedEntryVerifier();
+        assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
+        assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
+        
+        // Twice to ensure the entries are left verifiable
+        assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
+        assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
+    }
+    
+    @Test
+    public void publishNewTamperedFeed() throws Exception {
+        Element signedFeedAndEntry = publisher.publishNew("hi everybody!", keyPair);
+        
+        Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
+        signedFeedAndEntry.appendChild(newText);
+        
+        SignedEntryVerifier verifier = new SignedEntryVerifier();
+        // Feed should fail validation
+        assertFalse(verifier.isFeedVerified(signedFeedAndEntry));
+        
+        // Entry should still pass validation
+        assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
+    }
+    
+    @Test
+    public void publishNewTamperedEntry() throws Exception {
+        Element signedFeedAndEntry = publisher.publishNew("hi everybody!", keyPair);
+        
+        Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
+        Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(SignedEntryPublisher.XMLNS, "entry").item(0);
+        entryNode.appendChild(newText);
+        
+        SignedEntryVerifier verifier = new SignedEntryVerifier();
+        // Feed should still validate
+        assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
+        
+        // Entry should fail validation
+        assertFalse(verifier.areEntriesVerified(signedFeedAndEntry));
+    }
+
+    /**
+     * Really just invokes the other publish() method, but couple simple tests
+     * to enforce it's operating.
+     * 
+     * Note: Could be real easy test with Mockito once that's added
+     */
+    @Test
+    public void publish() throws Exception {
+        Element firstFeed = publisher.publishNew("hi everybody!", keyPair);
+        String asString = publisher.publish("hi everybody!", keyPair);
+        Element secondFeed = XmlUtil.toDom(asString);
+
+        assertEquals(findAsString("id", firstFeed), findAsString("id", secondFeed));
+        Element firstEntry = (Element) firstFeed.getElementsByTagName("entry").item(0);
+        Element secondEntry = (Element) secondFeed.getElementsByTagName("entry").item(0);
+        assertEquals(findAsString("hi everybody!", firstEntry), findAsString("hi everybody!", secondEntry));
+
+    }
+
+    private String findAsString(String nodeName, Element domElement) throws Exception {
+        return XmlUtil.serializeDom((Element) domElement.getElementsByTagName(nodeName).item(0));
+    }
+
+    @Test
+    public void newEntryId() {
+        String id = publisher.newEntryId();
+        assertTrue(id.startsWith(SignedEntryPublisher.ENTRY_ID_PREFIX));
+        String justUuid = id.substring(SignedEntryPublisher.ENTRY_ID_PREFIX.length());
+        // Type 4 UUID
+        assertTrue(justUuid.substring(13, 15).equals("-4"));
+        assertTrue(justUuid.substring(18, 19).equals("-"));
+        String y = justUuid.substring(19, 20);
+        List<String> allowedY = Arrays.asList("8", "9", "A", "B", "a", "b");
+        assertTrue(allowedY.contains(y));
+    }
+
+    @Test
+    public void createEntry() {
+        Entry entry = publisher.createEntry("new title");
+        assertEquals("new title", entry.getTitle());
+        assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
+        assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
+        assertTrue(entry.getId().startsWith(SignedEntryPublisher.ENTRY_ID_PREFIX));
+    }
+
+    @Test
+    public void createFeed() {
+        Feed feed = publisher.createFeed(keyPair.getPublic());
+        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
+        assertEquals(expectedId, feed.getId());
+        assertEquals("atom_1.0", feed.getFeedType());
+        assertTrue(feed.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
+        assertTrue(feed.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
+    }
+
+    @Test
+    public void getFeedId() {
+        // Equals expected
+        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
+        assertEquals(expectedId, publisher.getFeedId(keyPair.getPublic()));
+        // Doesn't equal some other key's ID
+        KeyPair newKey = new EllipticCurveKeyCreator().createKeyPair();
+        assertFalse(expectedId.equals(new SignedEntryPublisher().getFeedId(newKey.getPublic())));
+    }
+
+}
