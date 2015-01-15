@@ -8,18 +8,15 @@ import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.jdom2.input.DOMBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -85,19 +82,31 @@ public class XmlUtil {
         return xmlString;
     }
 
-    public static String serializeDom(Element domElement) throws IOException {
-        StringWriter buffer = null;
-        try {
-            TransformerFactory transFactory = TransformerFactory.newInstance();
-            Transformer transformer = transFactory.newTransformer();
-            buffer = new StringWriter();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.transform(new DOMSource(domElement), new StreamResult(buffer));
-            buffer.close();
-        } catch (Exception e) {
-            log.debug(e.getMessage());
-            throw new IOException(e);
-        }
-        return buffer.toString();
+    public static String serializeDom(Node domElement) {
+        Document document = domElement.getOwnerDocument();
+        DOMImplementationLS domImplLS = (DOMImplementationLS) document.getImplementation();
+        LSSerializer serializer = domImplLS.createLSSerializer();
+        // by default its true, so set it to omit printing xml-declaration
+        serializer.getDomConfig().setParameter("xml-declaration", false);
+        String str = serializer.writeToString(domElement);
+        return str;
     }
+
+    // public static String serializeDom(Element domElement) throws IOException
+    // {
+    // StringWriter buffer = null;
+    // try {
+    // TransformerFactory transFactory = TransformerFactory.newInstance();
+    // Transformer transformer = transFactory.newTransformer();
+    // buffer = new StringWriter();
+    // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    // transformer.transform(new DOMSource(domElement), new
+    // StreamResult(buffer));
+    // buffer.close();
+    // } catch (Exception e) {
+    // log.debug(e.getMessage());
+    // throw new IOException(e);
+    // }
+    // return buffer.toString();
+    // }
 }

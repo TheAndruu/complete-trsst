@@ -1,13 +1,13 @@
 package com.completetrsst.spring.controllers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNoException;
 
 import java.net.ConnectException;
 import java.security.KeyPair;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,21 +34,23 @@ public class ServiceInvocationIntegrationTest {
             assumeNoException(e);
         }
     }
-
+    
     @Test
     public void testPublishSignedEntry() throws Exception {
         KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
         
         AtomSigner signer = new AtomSigner();
-        String rawXml = signer.newEntry("New entry title!", keyPair);
+        String rawXml = signer.newEntry("First new entry title!", keyPair);
         
         log.info(rawXml);
         ResponseEntity<String> response;
         try {
         response = rest.postForEntity("http://localhost:8080/publish", rawXml, String.class);
+        response = rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Second entry title!", keyPair), String.class);
+        response = rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Third time's the charm!", keyPair), String.class);
         } catch (Exception e) {
         	log.error(e.getMessage(), e);
-        	// later add asserts here
+        	fail();
         	return;
         }
         log.info("Got response: " + response.getBody());

@@ -91,7 +91,9 @@ public class AtomSignerTest {
         assertEquals(findAsString("id", firstFeed), findAsString("id", secondFeed));
         Element firstEntry = (Element) firstFeed.getElementsByTagName("entry").item(0);
         Element secondEntry = (Element) secondFeed.getElementsByTagName("entry").item(0);
-        assertEquals(findAsString("hi everybody!", firstEntry), findAsString("hi everybody!", secondEntry));
+        String firstTitleNode =findAsString("title", firstEntry);
+        assertEquals(firstTitleNode, findAsString("title", secondEntry));
+        assertEquals("hi everybody!", XmlUtil.toDom(firstTitleNode).getTextContent());
 
     }
 

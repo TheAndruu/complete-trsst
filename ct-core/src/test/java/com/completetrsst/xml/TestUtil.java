@@ -37,7 +37,7 @@ public class TestUtil {
 
     public static final String PLAIN_ATOM_ENTRY;
     public static final String SIGNED_ATOM_ENTRY;
-    
+
     public static final String FEED_VALID_ENTRY_VALID;
     public static final String FEED_VALID_ENTRY_TAMPERED;
     public static final String FEED_TAMPERED_ENTRY_VALID;
@@ -46,7 +46,7 @@ public class TestUtil {
     static {
         PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
         SIGNED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry.xml").getPath();
-        
+
         FEED_VALID_ENTRY_VALID = TestUtil.class.getResource("feedValidEntryValid.xml").getPath();
         FEED_VALID_ENTRY_TAMPERED = TestUtil.class.getResource("tampered/feedValidEntryTampered.xml").getPath();
         FEED_TAMPERED_ENTRY_VALID = TestUtil.class.getResource("tampered/feedTamperedEntryValid.xml").getPath();
@@ -100,11 +100,7 @@ public class TestUtil {
     }
 
     public static void logFormatted(String prefix, Element domElement) {
-        try {
-            log.info(prefix + format(XmlUtil.serializeDom(domElement)));
-        } catch (IOException e) {
-            log.error("Couldn't serialize dom element: " + e.getMessage(), e);
-        }
+        log.info(prefix + format(XmlUtil.serializeDom(domElement)));
     }
 
     public static String format(String xml) {
