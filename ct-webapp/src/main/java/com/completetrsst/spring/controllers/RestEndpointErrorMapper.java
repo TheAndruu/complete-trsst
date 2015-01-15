@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ControllerAdvice()
-public class SignedEntryErrorHandler {
+public class RestEndpointErrorMapper {
 
-    private final static Logger log = LoggerFactory.getLogger(SignedEntryErrorHandler.class);
+    private final static Logger log = LoggerFactory.getLogger(RestEndpointErrorMapper.class);
 
     // 406 if Xml Signature couldn't be parsed or found
     @ResponseStatus(value = HttpStatus.NOT_ACCEPTABLE)

@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.completetrsst.operations.StoryOperations;
 
 @Controller
-public class SignedEntryOperations {
+public class RestEndpointController {
 
-    private final static Logger log = LoggerFactory.getLogger(SignedEntryOperations.class);
+    private final static Logger log = LoggerFactory.getLogger(RestEndpointController.class);
 
     @Autowired
     private StoryOperations storyOperations;
