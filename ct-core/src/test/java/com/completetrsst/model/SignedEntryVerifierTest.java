@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 
 public class SignedEntryVerifierTest {
@@ -28,11 +29,33 @@ public class SignedEntryVerifierTest {
     
     @Test 
     public void isFeedVerified() throws Exception {
-        assertTrue(false);
+    	Element dom = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_VALID);
+    	assertTrue(verifier.isFeedVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_TAMPERED);
+    	assertTrue(verifier.isFeedVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_TAMPERED_ENTRY_VALID);
+    	assertFalse(verifier.isFeedVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_TAMPERED_ENTRY_TAMPERED);
+    	assertFalse(verifier.isFeedVerified(dom));
+    	
+    	
     }
     @Test 
     public void areEntriesVerified() throws Exception {
-        assertTrue(false);
+    	Element dom = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_VALID);
+    	assertTrue(verifier.areEntriesVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_VALID_ENTRY_TAMPERED);
+    	assertFalse(verifier.areEntriesVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_TAMPERED_ENTRY_VALID);
+    	assertTrue(verifier.areEntriesVerified(dom));
+    	
+    	dom = TestUtil.readDomFromFile(TestUtil.FEED_TAMPERED_ENTRY_TAMPERED);
+    	assertFalse(verifier.areEntriesVerified(dom));
     }
 
     @Test
