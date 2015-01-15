@@ -51,7 +51,6 @@ public class TestUtil {
         FEED_VALID_ENTRY_TAMPERED = TestUtil.class.getResource("tampered/feedValidEntryTampered.xml").getPath();
         FEED_TAMPERED_ENTRY_VALID = TestUtil.class.getResource("tampered/feedTamperedEntryValid.xml").getPath();
         FEED_TAMPERED_ENTRY_TAMPERED = TestUtil.class.getResource("tampered/feedTamperedEntryTampered.xml").getPath();
-        
     }
 
     public static String readFile(String path) throws IOException {

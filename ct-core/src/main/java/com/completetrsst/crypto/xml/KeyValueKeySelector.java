@@ -44,7 +44,7 @@ public class KeyValueKeySelector extends KeySelector {
     }
 
     static boolean algEquals(String algURI, String algName) {
-        // TODO: Remove the other types of keys since we don't plan on supporting them?
+        // Remove the other types of keys since we expect EC exclusively?
         if (algName.equalsIgnoreCase("DSA") && algURI.equalsIgnoreCase(SignatureMethod.DSA_SHA1)) {
             return true;
         } else if (algName.equalsIgnoreCase("RSA") && algURI.equalsIgnoreCase(SignatureMethod.RSA_SHA1)) {
