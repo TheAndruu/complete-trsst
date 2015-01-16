@@ -3,23 +3,24 @@ complete-trsst
 
 Implementation of the Trsst protocol
 
-System Requirements:
+System Requirements
 ---------
-Must have Java installed.
+Must have Oracle Java 8 installed.
 
-To run:
+To run
 -------
 
-### Linux / Mac OSX:
+### Linux / Mac OSX
 
 At a terminal from the project's root directory execute:
 `./gradlew bootRun`
 
-### Windows:
+### Windows
+
 From the command prompt in the project's root directory, execute:
 `gradlew.bat bootRun`
 
-Brief Overview:
+Brief Overview
 --------
 Trsst syndicates digitally signed content with the highest grade cryptographic technology.
 
@@ -34,17 +35,17 @@ This provides message confidentiality across a number of dimensions:
 Examples:
 ---------
 
-#### Creating signed posts programmatically
+#### Programmatically creating signed content
 
 Digitally signing content with public key cryptography involves creating a public + private `KeyPair` to calculate the signature.
 
 Trsst uses elliptic curve keys, which provide the highest form of security known today.
 
-#### Create a keypair:
+#### Create a keypair
 
 ``` KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();``` 
 
-#### Create a signed message:
+#### Create a signed message
 
 Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
 
@@ -54,7 +55,7 @@ Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elem
 `rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
 
-#### Verify a signed message:
+#### Verify a signed message
 
 Signatures are only good if you can verify them, right?  To do so:
 
@@ -87,7 +88,7 @@ Making a post involves sending a signed Entry inside of a signed Feed element to
 Example of a signed feed and entry can be found in: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>
 
 
-#### Display a feed:
+#### Display a feed
     GET: http://localhost:8080/feed/EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG
 
     Response: 200 (OK)
