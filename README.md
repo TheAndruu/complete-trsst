@@ -40,11 +40,11 @@ Digitally signing content with public key cryptography involves creating a publi
 
 Trsst uses elliptic curve keys, which provide the highest form of security known today.
 
-####### Create a keypair:
+##### Create a keypair:
 
 ``` KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();``` 
 
-####### Create a signed message:
+##### Create a signed message:
 
 Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
 
@@ -54,7 +54,7 @@ Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elem
 `rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
 
-####### Verify a signed message:
+##### Verify a signed message:
 
 Signatures are only good if you can verify them, right?  To do so:
 
