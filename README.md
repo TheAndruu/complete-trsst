@@ -7,6 +7,13 @@ System Requirements
 ---------
 Must have Oracle Java 8 installed.
 
+To see if it's already installed, at a new terminal, type: `java -version`.  You should see something like:
+
+    java version "1.8.0_25"
+    Java(TM) SE Runtime Environment (build 1.8.0_25-b17)
+
+If so, you're good to go.  If it says "java isn't recognized" or mentions OpenJDK, mosey over to Oracle's site for the real deal.
+
 To run
 -------
 
