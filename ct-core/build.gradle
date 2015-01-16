@@ -10,8 +10,6 @@ dependencies {
     
     // needed for sun security EC parameters
     compile 'org.apache.santuario:xmlsec:2.0.2'
-    // needed for xpath signature transformation
-    compile 'xalan:xalan:2.7.2'
     compile 'com.rometools:rome:1.5.0'
     // has stringutils, base64 encoding, etc    
     //compile 'commons-codec:commons-codec:1.10'
