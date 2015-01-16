@@ -123,30 +123,4 @@ public class InMemoryStoryOps implements StoryOperations {
             throw new IllegalArgumentException("Entry(s) didn't validate with their signature.");
         }
     }
-
-    // // TODO: Move these to a helper class
-    // private SignedEntry createSignedEntry(Element domElement, String
-    // signedXml) throws IllegalArgumentException {
-    // String title = getTitle(domElement);
-    // String id = getId(domElement);
-    // String dateUpdated = getDateUpdated(domElement);
-    // SignedEntry entry = new SignedEntry();
-    // entry.setTitle(title);
-    // entry.setId(id);
-    // entry.setDateUpdated(dateUpdated);
-    // entry.setRawXml(signedXml);
-    // return entry;
-    // }
-    //
-    // private void addEntry(String publisherId, SignedEntry story) {
-    // List<SignedEntry> existingStories = publishersToStories.get(publisherId);
-    // if (existingStories == null) {
-    // existingStories = new ArrayList<SignedEntry>();
-    // }
-    // existingStories.add(story);
-    // Collections.sort(existingStories);
-    //
-    // publishersToStories.put(publisherId, existingStories);
-    // }
-
 }
