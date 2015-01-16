@@ -26,8 +26,8 @@ Trsst syndicates digitally signed content with the highest grade cryptographic t
 This provides message confidentiality across a number of dimensions:
 
 - Authenticity - Knowing who created the message
-- Integrity - Have messages been tampered or modified in any way
-- Non-repudiation - The sender cannot deny creating a message
+- Integrity - Knowing if messages were tampered or modified in any way
+- Non-repudiation - It cannot be denied that the message came from a given account
 
 
 
