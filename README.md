@@ -19,43 +19,83 @@ At a terminal from the project's root directory execute:
 From the command prompt in the project's root directory, execute:
 `gradlew.bat bootRun`
 
-To play:
+Brief Overview:
 --------
-Pages will be accessible in a browser at http://localhost:8080/, at least for GET requests.
+Trsst syndicates digitally signed content with the highest grade cryptographic technology.
 
-For POST operations, consider using Postman until the client is delivered, a free Chrome browser app: <a href="https://chrome.google.com/webstore/detail/postman-rest-client/fdmmgilgnpjigdojojpjoooidkmcomcm?hl=en">Postman in Chrome</a>.  
+This provides message confidentiality across a number of dimensions:
+
+- Authenticity - Knowing who created the message
+- Integrity - Have messages been tampered or modified in any way
+- Non-repudiation - The sender cannot deny creating a message
+
+
 
 Examples:
 ---------
 
-##### Make a post
+##### Creating signed posts programmatically
+
+Digitally signing content with public key cryptography involves creating a public + private `KeyPair` to calculate the signature.
+
+Trsst uses elliptic curve keys, which provide the highest form of security known today.
+
+####### Create a keypair:
+
+``` KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();``` 
+
+####### Create a signed message:
+
+Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
+
+    AtomSigner signer = new AtomSigner();
+    String rawXml = signer.newEntry("Write your own message here!", keyPair);```
+
+`rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
+
+
+####### Verify a signed message:
+
+Signatures are only good if you can verify them, right?  To do so:
+
+    AtomVerifier verifier = new AtomVerifier();
+    boolean isFeedValid = verifier.isFeedVerified(domElement);
+    boolean isEntryValid = verifier.areEntriesVerified(domElement);
+    
+The verification functions independently determine the signatures of the given feeds and entries.  
+
+They return true if the signatures are valid, false if the content is modified, or `XMLSignatureException` if the signature is missing or broken.  For full use, see the JavaDocs.
+    
+
+##### Post a signed message
+
+Messages are posted as Entries contained inside their respective Feed (both elements signed).  This allows the server to validate not only the content, but also authorize who may post to the given feed, since Feed IDs correspond with the keypair used to sign the content.
+
+The above `AtomSigner.newEntry()` does this all behind the scenes and returns the results as raw XML.  Any alteration to this XML will invalidate the signature (which is desriable), including such things as whitespace and formatting, so be aware.
+
 Making a post involves sending a signed Entry inside of a signed Feed element to /publish.  For example:
 
     POST: http://localhost:8080/publish
-
+      
     Payload: 
-<feed xmlns="http://www.w3.org/2005/Atom"><id>urn:feed:EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG</id><updated>2015-01-15T00:53:50Z</updated><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><XPath xmlns:atom="http://www.w3.org/2005/Atom">//atom:feed[atom:id='urn:feed:EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG']</XPath></Transform><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>Z3t9W4lZEAZtY2GrmdgHQREh42Q=</DigestValue></Reference></SignedInfo><SignatureValue>27oyyWltP5buyurDDCO10xBAH76YqVBQZr7np4NcieZMmwfyAhuAPftY4W7xP+48e3G8LCFQp8uM
-cmNaQhOtvg==</SignatureValue><KeyInfo><KeyValue><ECKeyValue xmlns="http://www.w3.org/2009/xmldsig11#"><NamedCurve xmlns:null="http://www.w3.org/2009/xmldsig11#" URI="urn:oid:1.3.132.0.10"/><PublicKey>BN7ITSahM5Vq/cOupO9JxpfRPCRZDlEQYYwCVpGXSuQ7EhA0t4aWswA29khT4oleje0E6kYGNn3e
-JK4mmXoCxrI=</PublicKey></ECKeyValue></KeyValue></KeyInfo></Signature><entry xmlns="http://www.w3.org/2005/Atom"><title>hi everybody!</title><id>urn:uuid:cfa1ab4a-229c-44f1-9bb0-c49b25e032a1</id><updated>2015-01-15T00:53:50Z</updated><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><XPath xmlns:atom="http://www.w3.org/2005/Atom">//atom:entry[atom:id='urn:uuid:cfa1ab4a-229c-44f1-9bb0-c49b25e032a1']</XPath></Transform><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>DO2iFc+sKBuR0jfIYh7m96pH3wU=</DigestValue></Reference></SignedInfo><SignatureValue>q3Bt85qgLYgc7GnbLqBHAjDjxZlarUbtpkvnWr8CzQe3eBBUwm8ykCbukjrCJj9UjBlfRvbwCTAU
-QJ3XOVFQIA==</SignatureValue><KeyInfo><KeyValue><ECKeyValue xmlns="http://www.w3.org/2009/xmldsig11#"><NamedCurve xmlns:null="http://www.w3.org/2009/xmldsig11#" URI="urn:oid:1.3.132.0.10"/><PublicKey>BN7ITSahM5Vq/cOupO9JxpfRPCRZDlEQYYwCVpGXSuQ7EhA0t4aWswA29khT4oleje0E6kYGNn3e
-JK4mmXoCxrI=</PublicKey></ECKeyValue></KeyValue></KeyInfo></Signature></entry></feed>
+    <Signed atom feed and entries>
 
-    Response: 201 (Created) Stored verified signed entry on feed: 123
+    Response: 201 (Created) Stored onto feed: (feed id matching posted xml)
     -or-
     Response: 406 (Not acceptable) if a signature is not present or invalid
-Note: Since formatting matters in verifying XML signatures, if the above payload is having difficulty verifying when pasted from this readme, a workable example payload can be found in:<a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>
+    
+Example of a signed feed and entry can be found in:<a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>
 
 
 ##### Display a feed of signed entries by a given id (example value 123):
     GET: http://localhost:8080/feed/EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG
 
-    Response:
-<feed xmlns="http://www.w3.org/2005/Atom"><id>urn:feed:EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG</id><updated>2015-01-15T00:53:50Z</updated><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><XPath xmlns:atom="http://www.w3.org/2005/Atom">//atom:feed[atom:id='urn:feed:EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG']</XPath></Transform><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>Z3t9W4lZEAZtY2GrmdgHQREh42Q=</DigestValue></Reference></SignedInfo><SignatureValue>27oyyWltP5buyurDDCO10xBAH76YqVBQZr7np4NcieZMmwfyAhuAPftY4W7xP+48e3G8LCFQp8uM
-cmNaQhOtvg==</SignatureValue><KeyInfo><KeyValue><ECKeyValue xmlns="http://www.w3.org/2009/xmldsig11#"><NamedCurve xmlns:null="http://www.w3.org/2009/xmldsig11#" URI="urn:oid:1.3.132.0.10"/><PublicKey>BN7ITSahM5Vq/cOupO9JxpfRPCRZDlEQYYwCVpGXSuQ7EhA0t4aWswA29khT4oleje0E6kYGNn3e
-JK4mmXoCxrI=</PublicKey></ECKeyValue></KeyValue></KeyInfo></Signature><entry xmlns="http://www.w3.org/2005/Atom"><title>hi everybody!</title><id>urn:uuid:cfa1ab4a-229c-44f1-9bb0-c49b25e032a1</id><updated>2015-01-15T00:53:50Z</updated><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><SignedInfo><CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/><SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1"/><Reference URI=""><Transforms><Transform Algorithm="http://www.w3.org/TR/1999/REC-xpath-19991116"><XPath xmlns:atom="http://www.w3.org/2005/Atom">//atom:entry[atom:id='urn:uuid:cfa1ab4a-229c-44f1-9bb0-c49b25e032a1']</XPath></Transform><Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/></Transforms><DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/><DigestValue>DO2iFc+sKBuR0jfIYh7m96pH3wU=</DigestValue></Reference></SignedInfo><SignatureValue>q3Bt85qgLYgc7GnbLqBHAjDjxZlarUbtpkvnWr8CzQe3eBBUwm8ykCbukjrCJj9UjBlfRvbwCTAU
-QJ3XOVFQIA==</SignatureValue><KeyInfo><KeyValue><ECKeyValue xmlns="http://www.w3.org/2009/xmldsig11#"><NamedCurve xmlns:null="http://www.w3.org/2009/xmldsig11#" URI="urn:oid:1.3.132.0.10"/><PublicKey>BN7ITSahM5Vq/cOupO9JxpfRPCRZDlEQYYwCVpGXSuQ7EhA0t4aWswA29khT4oleje0E6kYGNn3e
-JK4mmXoCxrI=</PublicKey></ECKeyValue></KeyValue></KeyInfo></Signature></entry></feed>
-    
     Response: 200 (OK)
+    Payload:
+    <Signed atom feed and entries>
+    
+Again, for example of signed atom feed and entry, see <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
+
+
 
 
