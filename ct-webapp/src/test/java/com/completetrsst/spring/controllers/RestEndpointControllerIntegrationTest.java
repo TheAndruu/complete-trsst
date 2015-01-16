@@ -19,9 +19,9 @@ import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 
 /** Integration tests which only run if the local server is running */
-public class ServiceInvocationIntegrationTest {
+public class RestEndpointControllerIntegrationTest {
 	
-    private static final Logger log = LoggerFactory.getLogger(ServiceInvocationIntegrationTest.class);
+    private static final Logger log = LoggerFactory.getLogger(RestEndpointControllerIntegrationTest.class);
 
     private static final RestTemplate rest = new RestTemplate();
 

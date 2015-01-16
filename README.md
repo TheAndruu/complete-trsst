@@ -98,5 +98,17 @@ Example of a signed feed and entry can be found in: <a href="https://github.com/
 Again, for example of signed atom feed and entry, see <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
 
+#### Working example
+
+There's a working example in `RestEndpointControllerIntegrationTest.java`
+
+It demonstrates how to create a `KeyPair`, sign a message, and post it to the server.
+
+To run, ensure the webapp is running (./gradlew bootRun) and run the unit test, either in your IDE of choice or in another terminal with ./gradlew clean test
+
+Entryies can be viewed in a browser at http://localhost:8080/feed/<feed public key value>
+
+
+
 
 
