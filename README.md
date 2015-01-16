@@ -57,7 +57,7 @@ Trsst uses elliptic curve keys, which provide the highest form of security known
 Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
 
     AtomSigner signer = new AtomSigner();
-    String rawXml = signer.newEntry("Write your own message here!", keyPair);```
+    String rawXml = signer.newEntry("Write your own message here!", keyPair);
 
 `rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
