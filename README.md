@@ -10,12 +10,12 @@ Must have Java installed.
 To run:
 -------
 
-###Linux / Mac OSX:
+### Linux / Mac OSX:
 
 At a terminal from the project's root directory execute:
 `./gradlew bootRun`
 
-###Windows:
+### Windows:
 From the command prompt in the project's root directory, execute:
 `gradlew.bat bootRun`
 
@@ -34,17 +34,17 @@ This provides message confidentiality across a number of dimensions:
 Examples:
 ---------
 
-##### Creating signed posts programmatically
+#### Creating signed posts programmatically
 
 Digitally signing content with public key cryptography involves creating a public + private `KeyPair` to calculate the signature.
 
 Trsst uses elliptic curve keys, which provide the highest form of security known today.
 
-##### Create a keypair:
+#### Create a keypair:
 
 ``` KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();``` 
 
-##### Create a signed message:
+#### Create a signed message:
 
 Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
 
@@ -54,7 +54,7 @@ Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elem
 `rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
 
-##### Verify a signed message:
+#### Verify a signed message:
 
 Signatures are only good if you can verify them, right?  To do so:
 
@@ -67,7 +67,7 @@ The verification functions independently determine the signatures of the given f
 They return true if the signatures are valid, false if the content is modified, or `XMLSignatureException` if the signature is missing or broken.  For full use, see the JavaDocs.
     
 
-##### Post a signed message
+#### Post a signed message
 
 Messages are posted as Entries contained inside their respective Feed (both elements signed).  This allows the server to validate not only the content, but also authorize who may post to the given feed, since Feed IDs correspond with the keypair used to sign the content.
 
@@ -84,10 +84,10 @@ Making a post involves sending a signed Entry inside of a signed Feed element to
     -or-
     Response: 406 (Not acceptable) if a signature is not present or invalid
     
-Example of a signed feed and entry can be found in:<a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>
+Example of a signed feed and entry can be found in: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>
 
 
-##### Display a feed of signed entries by a given id (example value 123):
+#### Display a feed:
     GET: http://localhost:8080/feed/EUvjLx5n9GWA1aMkvJ2GAvMAFeW1Av1HG
 
     Response: 200 (OK)
