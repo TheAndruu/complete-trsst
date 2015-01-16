@@ -117,5 +117,6 @@ Entryies can be viewed in a browser at http://localhost:8080/feed/<feed public k
 
 
 
-
+## In Development!
+This project is in rapid development and messages are not yet persisted.  This means as soon as the server shuts down, they will be erased.  
 
