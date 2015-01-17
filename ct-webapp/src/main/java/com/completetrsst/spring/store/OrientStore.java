@@ -15,13 +15,6 @@ import com.orientechnologies.orient.server.OServerMain;
 // on indexes: https://github.com/orientechnologies/orientdb/wiki/Performance-Tuning#use-of-indexes
 // on java api: https://github.com/orientechnologies/orientdb/wiki/Tutorial-Java
 
-// TODO: saving keys -- put them on disk?
-// see storing keys here: http://www.informit.com/articles/article.aspx?p=170967&seqNum=3
-// http://blog.codinghorror.com/keeping-private-keys-private/
-// -- o-- see what trsst does for this
-
-// TODO: Configure this in spring Application and set as Storage value for InMemoryStorageOps
-
 public class OrientStore implements Storage, InitializingBean, DisposableBean {
 
     private static final Logger log = LoggerFactory.getLogger(OrientStore.class);
