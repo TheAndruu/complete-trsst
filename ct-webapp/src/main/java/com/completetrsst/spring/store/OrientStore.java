@@ -45,12 +45,19 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		feed.field("date", dateUpdated);
 		feed.field("xml", rawFeedXml);
 		feed.save();
+		log.info("Feed should be saved!");
 	}
 
 	@Override
 	public void storeEntry(String feedId, String entryId, String dateEntryUpdated, String rawEntryXml) {
-		// TODO Auto-generated method stub
-
+		log.info("Call to orient store entry with id " + entryId);
+		ODocument feed = new ODocument("Entry");
+		feed.field("feedId", feedId);
+		feed.field("id", entryId);
+		feed.field("date", dateEntryUpdated);
+		feed.field("xml", rawEntryXml);
+		feed.save();
+		log.info("Entry should be saved!");
 	}
 
 	@Override
