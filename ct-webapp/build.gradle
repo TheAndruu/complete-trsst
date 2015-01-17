@@ -5,10 +5,18 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.0.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
     }
 }
+// gets built by ./gradlew war
+// output in ct-webapp/build/libs
+// can then do ./gradlew bootRepackage
+// then run with java -jar ct-webapp/build/libs/ct-webapp-1.0.war
+// ./gradlew assemble also creates both
+// ./gradlew clean assemble bootRepackage also
+// when deploying to tomcat, use the 'original' war!
 
+apply plugin: 'war'
 apply plugin: 'spring-boot'
 
 // needed when multiple 'main' classes are in project
@@ -25,11 +33,18 @@ jar {
 
 
 dependencies {
-    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    // TODO: Can remove if we're not serving MVC stuff
-    compile 'org.springframework:spring-webmvc:4.1.3.RELEASE'
+    // for embedded orient db 
+    compile 'com.orientechnologies:orientdb-enterprise:2.0-M3'
+    compile 'com.orientechnologies:orientdb-server:2.0-M3'
+
+    // to make our app both standalone and embeddable in a container (i.e. tomcat)
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    // For spring -- removed all mvc stuff since we're not going that route
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    // for graceful shutdown via http://localhost:8080/shutdown
+    // TODO: Do without the actuator component for graceful shutdown?
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
     // TODO: Can remove if we don't use the StoryFeedView w/ atom parsing
     compile 'com.rometools:rome:1.5.0'
-    testCompile("junit:junit")
     compile project(':ct-core')
 }

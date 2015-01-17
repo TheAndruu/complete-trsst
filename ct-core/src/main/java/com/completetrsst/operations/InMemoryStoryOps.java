@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
 import com.completetrsst.atom.AtomParser;
 import com.completetrsst.atom.AtomVerifier;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
+import com.completetrsst.store.Storage;
 import com.completetrsst.xml.XmlUtil;
 
 public class InMemoryStoryOps implements StoryOperations {
@@ -24,6 +25,13 @@ public class InMemoryStoryOps implements StoryOperations {
 
     private static final AtomParser parser = new AtomParser();
     private Map<String, FeedHolder> idsToFeeds = new HashMap<String, FeedHolder>();
+
+    // For database access
+    private Storage storage;
+    
+    public void setStorage(Storage storage) {
+        this.storage = storage;
+    }
 
     @Override
     public String readFeed(String publisherId) {
@@ -76,7 +84,9 @@ public class InMemoryStoryOps implements StoryOperations {
 
         // 'feed' is now just a 'feed' node with no entries attached
         String feedId = TrsstKeyFunctions.removeFeedUrnPrefix(parser.getId(feed));
-
+        
+        // TODO: This just here for testing
+storage.getFeed(feedId);
         // Verify the feed matches the signature of each node's public key
         boolean entriesMatchFeed = parser.doEntriesMatchFeedId(feedId, detachedEntries);
         if (!entriesMatchFeed) {
@@ -87,7 +97,7 @@ public class InMemoryStoryOps implements StoryOperations {
         // itself, and we have the entries by themselves
 
         FeedHolder holder = getFeed(feedId);
-        holder.feedXml = XmlUtil.serializeDom(feed);
+        holder.feedXml = XmlUtil.serializeDom(feed);        
         for (Node node : detachedEntries) {
             holder.entryXml.push(XmlUtil.serializeDom((Element) node));
         }

@@ -10,15 +10,11 @@ import java.security.Signature;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.KeyCreator;
 
 public class EllipticCurveKeyCreatorTest {
-
-    private static final Logger log = LoggerFactory.getLogger(EllipticCurveKeyCreatorTest.class);
 
     private KeyCreator keyCreator;
 

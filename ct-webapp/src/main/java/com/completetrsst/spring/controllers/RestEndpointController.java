@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.completetrsst.operations.StoryOperations;
+import com.completetrsst.store.Storage;
 
 @Controller
 public class RestEndpointController {
@@ -29,7 +30,7 @@ public class RestEndpointController {
     @Autowired
     private StoryOperations storyOperations;
 
-    // http://localhost:8080/viewPublisher/1
+    // http://localhost:8080/feed/1asdfasdfd
     @RequestMapping(value = "/feed/{publisherId}", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> readFeed(@PathVariable String publisherId) {
         log.info("Got viewPublisher handler with id: " + publisherId);

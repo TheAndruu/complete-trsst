@@ -10,8 +10,6 @@ import java.security.KeyPair;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
@@ -23,8 +21,6 @@ import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 
 /** Integration tests which only run if the local server is running */
 public class RestEndpointControllerIntegrationTest {
-
-	private static final Logger log = LoggerFactory.getLogger(RestEndpointControllerIntegrationTest.class);
 
 	private static final RestTemplate rest = new RestTemplate();
 	private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();

@@ -9,8 +9,6 @@ import java.security.KeyPair;
 import javax.xml.crypto.dsig.XMLSignatureException;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
@@ -18,8 +16,6 @@ import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 
 public class SignatureUtilTests {
-
-	private static final Logger log = LoggerFactory.getLogger(SignatureUtilTests.class);
 
 	private KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
 

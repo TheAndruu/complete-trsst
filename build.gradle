@@ -8,7 +8,13 @@ subprojects {
     }
 
     dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.9'
         testCompile 'junit:junit:4.8.2'
+        testCompile 'org.mockito:mockito-all:1.10.19'
+        // eclipse bug pretty much locks us to this for logging in tests,
+        // else it conflicts with dependencies during IDE test debugging 
+        // (doesn't occur on command line, as is expected)
+        testRuntime 'ch.qos.logback:logback-classic:1.1.2'
     }
 
     version = '1.0'

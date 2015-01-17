@@ -79,8 +79,6 @@ public class AtomSignerTest {
     /**
      * Really just invokes the other publish() method, but couple simple tests
      * to enforce it's operating.
-     * 
-     * Note: Could be real easy test with Mockito once that's added
      */
     @Test
     public void newEntry() throws Exception {
