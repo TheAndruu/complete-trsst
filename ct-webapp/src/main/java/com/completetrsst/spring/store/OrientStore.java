@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.completetrsst.store.Storage;
 import com.orientechnologies.orient.server.OServer;
+import com.orientechnologies.orient.server.OServerMain;
 
 // on indexes: https://github.com/orientechnologies/orientdb/wiki/Performance-Tuning#use-of-indexes
 // on java api: https://github.com/orientechnologies/orientdb/wiki/Tutorial-Java
@@ -28,18 +29,18 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("Starting up orient server");
-//        server = OServerMain.create();
-//        server.startup(getClass().getResourceAsStream("db.config"));
-//        server.activate();
+        server = OServerMain.create();
+        server.startup(getClass().getResourceAsStream("/orient-config.xml"));
+        server.activate();
 
     }
 
     @Override
     public void destroy() throws Exception {
         log.info("Shutting down orient server");
-//        if (server != null) {
-//            server.shutdown();
-//        }
+        if (server != null) {
+            server.shutdown();
+        }
     }
 
     @Override
