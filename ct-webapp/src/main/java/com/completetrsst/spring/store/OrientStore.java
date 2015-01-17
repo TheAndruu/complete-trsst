@@ -90,6 +90,8 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 			results = db.command(query).execute(feedId);
 			return results.size() == 0 ? "" : results.get(0).field("xml");
 		} catch (Exception e) {
+			// TODO: First time a db is ever used, it'll throw an exception
+			// handle this when the client's GUI is being created
 			log.error("Error getting feed: " + feedId, e);
 			log.error(e.getMessage());
 		}finally {
