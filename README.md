@@ -113,10 +113,5 @@ It demonstrates how to create a `KeyPair`, sign a message, and post it to the se
 
 To run, ensure the webapp is running (./gradlew bootRun) and run the unit test, either in your IDE of choice or in another terminal with ./gradlew clean test
 
-Entryies can be viewed in a browser at http://localhost:8080/feed/<feed public key value>
-
-
-
-## In Development!
-This project is in rapid development and messages are not yet persisted.  This means as soon as the server shuts down, they will be erased.  
+Entries can be viewed in a browser at http://localhost:8080/feed/<feed public key value>
 
