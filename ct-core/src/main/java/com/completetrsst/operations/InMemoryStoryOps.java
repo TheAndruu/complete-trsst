@@ -1,10 +1,8 @@
 package com.completetrsst.operations;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
@@ -21,116 +19,107 @@ import com.completetrsst.xml.XmlUtil;
 
 public class InMemoryStoryOps implements StoryOperations {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
+	private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
 
-    private static final AtomParser parser = new AtomParser();
-    private Map<String, FeedHolder> idsToFeeds = new HashMap<String, FeedHolder>();
+	private static final AtomParser parser = new AtomParser();
+	// private Map<String, FeedHolder> idsToFeeds = new HashMap<String,
+	// FeedHolder>();
 
-    // For database access
-    private Storage storage;
-    
-    public void setStorage(Storage storage) {
-        this.storage = storage;
-    }
+	// For database access
+	private Storage storage;
 
-    @Override
-    public String readFeed(String publisherId) {
-        FeedHolder holder = idsToFeeds.get(publisherId);
-        if (holder == null) {
-            log.debug("No entries to view on feed: " + publisherId);
-            return "No entries to view on feed " + publisherId;
-        }
+	public void setStorage(Storage storage) {
+		this.storage = storage;
+	}
 
-        String rawFeed = holder.feedXml;
-        List<String> rawEntries = holder.entryXml;
+	@Override
+	public String readFeed(String publisherId) {
+		String rawFeed = storage.getFeed(publisherId);
+		if (rawFeed.equals("")) {
+			log.debug("No entries to view on feed: " + publisherId);
+			return "No entries to view on feed " + publisherId;
+		}
 
-        Element feedDom;
-        try {
-            feedDom = XmlUtil.toDom(rawFeed);
+		List<String> rawEntries = storage.getLatestEntries(publisherId);
+		if (rawEntries.size() == 0) {
+			log.debug("No entries to view on feed: " + publisherId);
+			return rawFeed;
+		}
 
-            for (String entry : rawEntries) {
-                Element domEntry = XmlUtil.toDom(entry);
-                feedDom.getOwnerDocument().adoptNode(domEntry);
-                feedDom.appendChild(domEntry);
-            }
+		Element feedDom;
+		try {
+			feedDom = XmlUtil.toDom(rawFeed);
 
-            log.debug("Successfully got serialized feed");
-            return XmlUtil.serializeDom(feedDom);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+			for (String entry : rawEntries) {
+				Element domEntry = XmlUtil.toDom(entry);
+				feedDom.getOwnerDocument().adoptNode(domEntry);
+				feedDom.appendChild(domEntry);
+			}
 
-    }
+			log.debug("Successfully got serialized feed");
+			return XmlUtil.serializeDom(feedDom);
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
 
-    /** Takes in raw signed XML and creates new or adds to existing Atom feed */
-    @Override
-    public String publishSignedContent(String signedXml) throws XMLSignatureException, IllegalArgumentException {
-        log.info("Received signed XML to publish!");
+	}
 
-        Element feed;
-        try {
-            feed = XmlUtil.toDom(signedXml);
-        } catch (IOException e) {
-            log.debug(e.getMessage());
-            throw new IllegalArgumentException(e);
-        }
+	/** Takes in raw signed XML and creates new or adds to existing Atom feed */
+	@Override
+	public String publishSignedContent(String signedXml) throws XMLSignatureException, IllegalArgumentException {
+		log.info("Received signed XML to publish!");
 
-        // Verify the feed and entries. Throws exception if not verified
-        verifySignedContent(feed);
+		Element feed;
+		try {
+			feed = XmlUtil.toDom(signedXml);
+		} catch (IOException e) {
+			log.debug(e.getMessage());
+			throw new IllegalArgumentException(e);
+		}
 
-        // Detach the entries themselves
-        List<Node> detachedEntries = parser.removeEntryNodes(feed);
+		// Verify the feed and entries. Throws exception if not verified
+		verifySignedContent(feed);
 
-        // 'feed' is now just a 'feed' node with no entries attached
-        String feedId = TrsstKeyFunctions.removeFeedUrnPrefix(parser.getId(feed));
-        
-        // TODO: This just here for testing
-storage.getFeed(feedId);
-        // Verify the feed matches the signature of each node's public key
-        boolean entriesMatchFeed = parser.doEntriesMatchFeedId(feedId, detachedEntries);
-        if (!entriesMatchFeed) {
-            throw new IllegalArgumentException("Entries must be signed with same public key as this feed");
-        }
+		// Detach the entries themselves
+		List<Node> detachedEntries = parser.removeEntryNodes(feed);
 
-        // So now we know the entries belong on this feed, we have the feed by
-        // itself, and we have the entries by themselves
+		// 'feed' is now just a 'feed' node with no entries attached
+		String feedId = TrsstKeyFunctions.removeFeedUrnPrefix(parser.getId(feed));
 
-        FeedHolder holder = getFeed(feedId);
-        holder.feedXml = XmlUtil.serializeDom(feed);        
-        for (Node node : detachedEntries) {
-            holder.entryXml.push(XmlUtil.serializeDom((Element) node));
-        }
+		// Verify the feed matches the signature of each node's public key
+		boolean entriesMatchFeed = parser.doEntriesMatchFeedId(feedId, detachedEntries);
+		if (!entriesMatchFeed) {
+			throw new IllegalArgumentException("Entries must be signed with same public key as this feed");
+		}
 
-        idsToFeeds.put(feedId, holder);
-        return "Stored onto feed " + feedId;
-    }
+		// So now we know the entries belong on this feed, we have the feed by
+		// itself, and we have the entries by themselves
 
-    private FeedHolder getFeed(String feedId) {
-        FeedHolder holder = idsToFeeds.get(feedId);
-        if (holder == null) {
-            holder = new FeedHolder();
-            idsToFeeds.put(feedId, holder);
-        }
-        return holder;
-    }
+		// TODO: Parse this date from the input, don't set it with system date!
+		storage.storeFeed(feedId, new Date(), XmlUtil.serializeDom(feed));
+		
+		for (Node node : detachedEntries) {
+			// TODO: Remove urn prefix on entry ids!
+			String entryId = parser.getId((Element)node);
+			// TODO: parse the date, don't set it to system date!
+			storage.storeEntry(feedId, entryId, new Date(), XmlUtil.serializeDom((Element) node));
+		}
 
-    private class FeedHolder {
-        String feedXml = "";
-        LinkedList<String> entryXml = new LinkedList<String>();
-    }
+		return "Stored onto feed " + feedId;
+	}
 
-    private void verifySignedContent(Element domElement) throws XMLSignatureException {
-        AtomVerifier verifier = new AtomVerifier();
-        boolean isFeedValid = verifier.isFeedVerified(domElement);
-        if (!isFeedValid) {
-            log.debug("Feed didn't validate with its signature");
-            throw new IllegalArgumentException("Feed didn't validate with its signature");
-        }
-        boolean isEntryValid = verifier.areEntriesVerified(domElement);
-        if (!isEntryValid) {
-            log.debug("Entry(s) didn't validate with their signature.");
-            throw new IllegalArgumentException("Entry(s) didn't validate with their signature.");
-        }
-    }
+	private void verifySignedContent(Element domElement) throws XMLSignatureException {
+		AtomVerifier verifier = new AtomVerifier();
+		boolean isFeedValid = verifier.isFeedVerified(domElement);
+		if (!isFeedValid) {
+			log.debug("Feed didn't validate with its signature");
+			throw new IllegalArgumentException("Feed didn't validate with its signature");
+		}
+		boolean isEntryValid = verifier.areEntriesVerified(domElement);
+		if (!isEntryValid) {
+			log.debug("Entry(s) didn't validate with their signature.");
+			throw new IllegalArgumentException("Entry(s) didn't validate with their signature.");
+		}
+	}
 }

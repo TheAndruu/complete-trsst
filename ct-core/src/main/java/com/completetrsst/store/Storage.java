@@ -7,7 +7,7 @@ public interface Storage {
 
     public void storeFeed(String feedId, Date dateUpdated, String rawFeedXml);
 
-    public void storeEntry(String feedId, String entryId, String dateEntryUpdated, String rawEntryXml);
+    public void storeEntry(String feedId, String entryId, Date dateEntryUpdated, String rawEntryXml);
 
     public String getFeed(String feedId);
 

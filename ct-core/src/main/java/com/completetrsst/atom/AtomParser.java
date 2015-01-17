@@ -92,7 +92,7 @@ public class AtomParser {
 	 * @throws IllegalArgumentException
 	 *             if no such node exists
 	 */
-	private String getDateUpdated(Element domElement) {
+	public String getDateUpdated(Element domElement) {
 		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "updated");
 		if (nl.getLength() == 0) {
 			log.debug("Atom entries must have an <updated> element");
