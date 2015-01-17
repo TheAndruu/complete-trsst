@@ -127,12 +127,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 
 	/** Returns a live db connection which must be closed (in finally block) */
 	private ODatabaseDocumentTx openDatabase() {
-		pool = new OPartitionedDatabasePool(dbUrl, dbUsername, dbPassword);
-		ODatabaseDocumentTx db = pool.acquire();
-		return db;
-//		ODatabaseDocumentTx tx = new ODatabaseDocumentTx(dbUrl);
-//		ODatabaseDocumentTx database = (ODatabaseDocumentTx) ODatabaseRecordThreadLocal.INSTANCE.get();
-//		return tx.open(dbUsername, dbPassword);
+		return pool.acquire();
 	}
 
 	/** Close each database connection, to release it back to the pool */
@@ -157,16 +152,19 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		}} finally {
 			tx.close();
 		}
+
+		pool = new OPartitionedDatabasePool(dbUrl, dbUsername, dbPassword);
 	}
 
 	@Override
 	public void destroy() throws Exception {
 		log.info("Shutting down orient server");
-		if (server != null) {
-			server.shutdown();
-		}
 		if (pool != null) {
 			pool.close();
+		}
+		
+		if (server != null) {
+			server.shutdown();
 		}
 	}
 
