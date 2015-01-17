@@ -1,10 +1,11 @@
 package com.completetrsst.store;
 
+import java.util.Date;
 import java.util.List;
 
 public interface Storage {
 
-    public void storeFeed(String feedId, String dateUpdated, String rawFeedXml);
+    public void storeFeed(String feedId, Date dateUpdated, String rawFeedXml);
 
     public void storeEntry(String feedId, String entryId, String dateEntryUpdated, String rawEntryXml);
 
