@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.completetrsst.store.Storage;
 import com.orientechnologies.orient.server.OServer;
@@ -25,12 +26,15 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 
     private static final Logger log = LoggerFactory.getLogger(OrientStore.class);
     private OServer server = null;
+    
+    @Value("${orient.config.file}")
+    private String databaseConfigFile;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         log.info("Starting up orient server");
         server = OServerMain.create();
-        server.startup(getClass().getResourceAsStream("/orient-config.xml"));
+        server.startup(getClass().getResourceAsStream(databaseConfigFile));
         server.activate();
 
     }
