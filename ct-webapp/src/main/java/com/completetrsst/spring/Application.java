@@ -24,73 +24,47 @@ import com.completetrsst.store.Storage;
 @EnableAutoConfiguration
 public class Application extends SpringBootServletInitializer {
 
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
+	private static final Logger log = LoggerFactory.getLogger(Application.class);
 
- // how to discover port at runtime: http://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-servlet-containers.html
+	// how to discover port at runtime:
+	// http://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-servlet-containers.html
 
-    
-    public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(Application.class);
-        ConfigurableApplicationContext context = app.run(args);
-        // Once the GUI is running, can shut down with this line and remove spring boot actuator
-        // SpringApplication.exit(context);
-        // or 
-        // ((ConfigurableApplicationContext)context).close();
-    }
+	public static void main(String[] args) {
+		SpringApplication app = new SpringApplication(Application.class);
+		ConfigurableApplicationContext context = app.run(args);
+		// Once the GUI is running, can shut down with this line and remove
+		// spring boot actuator
+		// SpringApplication.exit(context);
+		// or
+		// ((ConfigurableApplicationContext)context).close();
+	}
 
-    // Must let Spring control the scope for it to register init /shutdown hooks
-    @Bean
-    public Storage getStorage() {
-        return new OrientStore();
-    }
-    
-    // use the bean provided by spring for storage
-    @Bean
-    public StoryOperations storyOperations() {
-        InMemoryStoryOps operations = new InMemoryStoryOps();
-        operations.setStorage(getStorage());
-        return operations;
-    }
-    
+	// Must let Spring control the scope for it to register init /shutdown hooks
+	@Bean
+	public Storage getStorage() {
+		return new OrientStore();
+	}
 
-    @Bean
-    public KeyManager keyManager() {
-        KeyManager manager = new FileSystemKeyManager();
-        manager.setKeyGenerator(new EllipticCurveKeyCreator());
-        log.info("Key home: " + manager.getKeyStoreHome().toString());
-        return manager;
-    }
-    
-    
-    // Used when deploying to a standalone servlet container, i.e. tomcat
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(Application.class);
-    }
-    
-    
-    // /**
-    // * Create the CNVR. Get Spring to inject the ContentNegotiationManager
-    // * created by the configurer (see previous method).
-    // */
-    // @Bean
-    // public ViewResolver
-    // contentNegotiatingViewResolver(ContentNegotiationManager manager) {
-    //
-    // ContentNegotiatingViewResolver resolver = new
-    // ContentNegotiatingViewResolver();
-    // Map<String, MediaType> types = new HashMap<String, MediaType>();
-    // // This gives us the atom feed resolver. HTLM resolver is made by
-    // // including thymeleaf dependency
-    // types.put("atom", MediaType.APPLICATION_ATOM_XML);
-    //
-    // MediaTypeFileExtensionResolver extensions = new
-    // MappingMediaTypeFileExtensionResolver(types);
-    // manager.addFileExtensionResolvers(extensions);
-    //
-    // resolver.setContentNegotiationManager(manager);
-    //
-    // return resolver;
-    // }
+	// use the bean provided by spring for storage
+	@Bean
+	public StoryOperations storyOperations() {
+		InMemoryStoryOps operations = new InMemoryStoryOps();
+		operations.setStorage(getStorage());
+		return operations;
+	}
+
+	@Bean
+	public KeyManager keyManager() {
+		KeyManager manager = new FileSystemKeyManager();
+		manager.setKeyGenerator(new EllipticCurveKeyCreator());
+		log.info("Key home: " + manager.getKeyStoreHome().toString());
+		return manager;
+	}
+
+	// Used when deploying to a standalone servlet container, i.e. tomcat
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(Application.class);
+	}
 
 }

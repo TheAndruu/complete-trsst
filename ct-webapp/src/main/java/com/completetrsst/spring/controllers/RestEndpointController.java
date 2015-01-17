@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.completetrsst.operations.StoryOperations;
-import com.completetrsst.store.Storage;
 
 @Controller
 public class RestEndpointController {

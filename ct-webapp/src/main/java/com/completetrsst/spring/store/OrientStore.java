@@ -6,11 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Component;
 
 import com.completetrsst.store.Storage;
 import com.orientechnologies.orient.server.OServer;
-import com.orientechnologies.orient.server.OServerMain;
 
 // on indexes: https://github.com/orientechnologies/orientdb/wiki/Performance-Tuning#use-of-indexes
 // on java api: https://github.com/orientechnologies/orientdb/wiki/Tutorial-Java
