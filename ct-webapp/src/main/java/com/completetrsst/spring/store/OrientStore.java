@@ -101,7 +101,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		return "";
 	}
 
-	// TODO: Have this overridden to always do a (last 50 results from date) search
+	// TODO: Have this overridden to take a date and return last 50 from that date
 	@Override
 	public List<String> getLatestEntries(String feedId) {
 		ODatabaseDocumentTx db = null;
@@ -109,9 +109,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		try {
 			db = openDatabase();
 			
-			// TODO: Make this ordered
-			// TODO: make this limited to a # of results returned
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Entry where feedId = ? order by date desc");
+			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Entry where feedId = ? order by date desc limit 50");
 			results = db.command(query).execute(feedId);
 			log.info("Got " + results.size() + " entries for feed");
 			List<String> xml = new ArrayList<String>(results.size());
@@ -150,7 +148,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		try {
 		if (!tx.exists()) 
 		{
-			tx.create();	
+			tx.create();
 		}} finally {
 			tx.close();
 		}
