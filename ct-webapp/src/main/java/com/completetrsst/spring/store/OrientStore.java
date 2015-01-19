@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.completetrsst.store.Storage;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.server.OServer;
@@ -46,13 +49,30 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		// TODO: Check first if the feed exists and do an update
 
 		ODatabaseDocumentTx db = null;
+		ODocument feed;
 		try {
 			db = openDatabase();
-			ODocument feed = new ODocument("Feed");
-			feed.field("id", feedId);
-			feed.field("date", dateUpdated);
-			feed.field("xml", rawFeedXml);
+			db.begin();
+			
+			// TODO: Fetch query by ID
+			// TODO: Move this outside the transaction
+			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
+			List<ODocument> results = db.command(query).execute(feedId);
+			if (results.size() ==0) {
+				// create new feed 
+				feed = new ODocument("Feed");
+				feed.field("id", feedId);
+				feed.field("date", dateUpdated);
+				feed.field("xml", rawFeedXml);
+			} else {
+				// update existing feed
+				feed = results.get(0);
+				feed.field("date", dateUpdated);
+				feed.field("xml", rawFeedXml);
+			}
 			feed.save();
+			db.commit();
+			
 		} finally {
 			closeDatabase(db);
 		}
@@ -60,18 +80,20 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		log.info("Feed should be saved!");
 	}
 
+	// TODO: have entry title passed in
+	// TODO: If have link to feed, should feed and entry be created at same time? i.e. add feed fields?
 	@Override
 	public void storeEntry(String feedId, String entryId, Date dateEntryUpdated, String rawEntryXml) {
 		log.info("Call to orient store entry with id " + entryId);
 		ODatabaseDocumentTx db = null;
 		try {
 			db = openDatabase();
-			ODocument feed = new ODocument("Entry");
-			feed.field("feedId", feedId);
-			feed.field("id", entryId);
-			feed.field("date", dateEntryUpdated);
-			feed.field("xml", rawEntryXml);
-			feed.save();
+			ODocument entry = new ODocument("Entry");
+			entry.field("feedId", feedId);
+			entry.field("id", entryId);
+			entry.field("date", dateEntryUpdated);
+			entry.field("xml", rawEntryXml);
+			entry.save();
 		} finally {
 			closeDatabase(db);
 		}
@@ -85,8 +107,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		List<ODocument> results = new ArrayList<ODocument>(0);
 		try {
 			db = openDatabase();
-			// TODO: Always only return the latest feed
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ?");
+			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 			results = db.command(query).execute(feedId);
 			return results.size() == 0 ? "" : results.get(0).field("xml");
 		} catch (Exception e) {
@@ -111,6 +132,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 			
 			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Entry where feedId = ? order by date desc limit 50");
 			results = db.command(query).execute(feedId);
+			
 			log.info("Got " + results.size() + " entries for feed");
 			List<String> xml = new ArrayList<String>(results.size());
 			results.forEach(result -> xml.add(result.field("xml")));
@@ -149,6 +171,19 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		if (!tx.exists()) 
 		{
 			tx.create();
+			OClass feed = tx.getMetadata().getSchema().createClass("Feed");
+			feed.createProperty("id", OType.STRING);
+			feed.createProperty("date", OType.DATETIME);
+			feed.createProperty("xml", OType.STRING);
+			feed.createIndex("Feed.id", OClass.INDEX_TYPE.UNIQUE, "id");
+			
+			OClass entry = tx.getMetadata().getSchema().createClass("Entry");
+			entry.createProperty("feedId", OType.STRING);
+			entry.createProperty("id", OType.STRING);
+			entry.createProperty("title", OType.STRING);
+			entry.createProperty("date", OType.DATETIME);
+			entry.createProperty("xml", OType.STRING);
+			
 		}} finally {
 			tx.close();
 		}
