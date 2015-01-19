@@ -22,9 +22,6 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.OServerMain;
 
-// on indexes: https://github.com/orientechnologies/orientdb/wiki/Performance-Tuning#use-of-indexes
-// on java api: https://github.com/orientechnologies/orientdb/wiki/Tutorial-Java
-
 public class OrientStore implements Storage, InitializingBean, DisposableBean {
 
 	private static final Logger log = LoggerFactory.getLogger(OrientStore.class);
@@ -46,17 +43,14 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 	public void storeFeed(String feedId, Date dateUpdated, String rawFeedXml) {
 		log.info("Call to orient store feed with id " + feedId);
 
-		// TODO: Check first if the feed exists and do an update
-
 		ODatabaseDocumentTx db = null;
 		ODocument feed;
+
+		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 		try {
 			db = openDatabase();
 			db.begin();
 
-			// TODO: Fetch query by ID
-			// TODO: Move this outside the transaction
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 			List<ODocument> results = db.command(query).execute(feedId);
 			if (results.size() == 0) {
 				// create new feed
@@ -80,9 +74,6 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		log.info("Feed should be saved!");
 	}
 
-	// TODO: have entry title passed in
-	// TODO: If have link to feed, should feed and entry be created at same
-	// time? i.e. add feed fields?
 	@Override
 	public void storeEntry(String feedId, String entryId, Date dateEntryUpdated, String rawEntryXml) {
 		log.info("Call to orient store entry with id " + entryId);
@@ -106,14 +97,12 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		log.info("Request to orient for feed with id: " + feedId);
 		ODatabaseDocumentTx db = null;
 		List<ODocument> results = new ArrayList<ODocument>(0);
+		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 		try {
 			db = openDatabase();
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 			results = db.command(query).execute(feedId);
 			return results.size() == 0 ? "" : results.get(0).field("xml");
 		} catch (Exception e) {
-			// TODO: First time a db is ever used, it'll throw an exception
-			// handle this when the client's GUI is being created
 			log.error("Error getting feed: " + feedId, e);
 			log.error(e.getMessage());
 		} finally {
@@ -123,19 +112,15 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		return "";
 	}
 
-	// TODO: Have this overridden to take a date and return last 50 from that
-	// date
+	// TODO: Have this overridden to take a date and return last 50 from that date
 	@Override
 	public List<String> getLatestEntries(String feedId) {
 		ODatabaseDocumentTx db = null;
 		List<ODocument> results = new ArrayList<ODocument>(0);
+		OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Entry where feedId = ? order by date desc limit 50");
 		try {
 			db = openDatabase();
-
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>(
-			        "select from Entry where feedId = ? order by date desc limit 50");
 			results = db.command(query).execute(feedId);
-
 			log.info("Got " + results.size() + " entries for feed");
 			List<String> xml = new ArrayList<String>(results.size());
 			results.forEach(result -> xml.add(result.field("xml")));
@@ -192,10 +177,10 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 				entry.createProperty("title", OType.STRING);
 				entry.createProperty("date", OType.DATETIME);
 				entry.createProperty("xml", OType.STRING);
-				// TODO: This and above the correct way to create an automatic
-				// date index?
+				// This and above the correct way to create an automatic date index?
 				entry.createIndex("Entry.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
 
+				// TODO: Add lucene indexing on title
 			}
 		} finally {
 			tx.close();
