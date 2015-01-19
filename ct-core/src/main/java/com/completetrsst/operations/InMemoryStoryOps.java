@@ -22,8 +22,6 @@ public class InMemoryStoryOps implements StoryOperations {
 	private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
 
 	private static final AtomParser parser = new AtomParser();
-	// private Map<String, FeedHolder> idsToFeeds = new HashMap<String,
-	// FeedHolder>();
 
 	// For database access
 	private Storage storage;
