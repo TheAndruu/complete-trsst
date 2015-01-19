@@ -1,5 +1,6 @@
 package com.completetrsst.spring.store;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -14,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import com.completetrsst.store.Storage;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -53,13 +53,13 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		try {
 			db = openDatabase();
 			db.begin();
-			
+
 			// TODO: Fetch query by ID
 			// TODO: Move this outside the transaction
 			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
 			List<ODocument> results = db.command(query).execute(feedId);
-			if (results.size() ==0) {
-				// create new feed 
+			if (results.size() == 0) {
+				// create new feed
 				feed = new ODocument("Feed");
 				feed.field("id", feedId);
 				feed.field("date", dateUpdated);
@@ -72,7 +72,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 			}
 			feed.save();
 			db.commit();
-			
+
 		} finally {
 			closeDatabase(db);
 		}
@@ -81,7 +81,8 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 	}
 
 	// TODO: have entry title passed in
-	// TODO: If have link to feed, should feed and entry be created at same time? i.e. add feed fields?
+	// TODO: If have link to feed, should feed and entry be created at same
+	// time? i.e. add feed fields?
 	@Override
 	public void storeEntry(String feedId, String entryId, Date dateEntryUpdated, String rawEntryXml) {
 		log.info("Call to orient store entry with id " + entryId);
@@ -115,36 +116,38 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 			// handle this when the client's GUI is being created
 			log.error("Error getting feed: " + feedId, e);
 			log.error(e.getMessage());
-		}finally {
+		} finally {
 			closeDatabase(db);
 		}
 		// all fetching has to happen before the db is closed
 		return "";
 	}
 
-	// TODO: Have this overridden to take a date and return last 50 from that date
+	// TODO: Have this overridden to take a date and return last 50 from that
+	// date
 	@Override
 	public List<String> getLatestEntries(String feedId) {
 		ODatabaseDocumentTx db = null;
 		List<ODocument> results = new ArrayList<ODocument>(0);
 		try {
 			db = openDatabase();
-			
-			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Entry where feedId = ? order by date desc limit 50");
+
+			OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>(
+			        "select from Entry where feedId = ? order by date desc limit 50");
 			results = db.command(query).execute(feedId);
-			
+
 			log.info("Got " + results.size() + " entries for feed");
 			List<String> xml = new ArrayList<String>(results.size());
 			results.forEach(result -> xml.add(result.field("xml")));
 			return xml;
 		} catch (Exception e) {
-				log.error("Error getting entries on feed: " + feedId, e);
-				log.error(e.getMessage());
-		}finally {
+			log.error("Error getting entries on feed: " + feedId, e);
+			log.error(e.getMessage());
+		} finally {
 			closeDatabase(db);
 		}
-		
-		return Collections.<String>emptyList();
+
+		return Collections.<String> emptyList();
 	}
 
 	/** Returns a live db connection which must be closed (in finally block) */
@@ -162,29 +165,39 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		log.info("Starting up orient server");
+
+		if (dbUrl.equalsIgnoreCase("default")) {
+			dbUrl = "plocal:" + System.getProperty("user.home") + File.separator + "trsst-db";
+		}
+		log.info("Using db url: " + dbUrl);
+
 		server = OServerMain.create();
 		server.startup(getClass().getResourceAsStream(databaseConfigFile));
 		server.activate();
 
 		ODatabaseDocumentTx tx = new ODatabaseDocumentTx(dbUrl);
 		try {
-		if (!tx.exists()) 
-		{
-			tx.create();
-			OClass feed = tx.getMetadata().getSchema().createClass("Feed");
-			feed.createProperty("id", OType.STRING);
-			feed.createProperty("date", OType.DATETIME);
-			feed.createProperty("xml", OType.STRING);
-			feed.createIndex("Feed.id", OClass.INDEX_TYPE.UNIQUE, "id");
-			
-			OClass entry = tx.getMetadata().getSchema().createClass("Entry");
-			entry.createProperty("feedId", OType.STRING);
-			entry.createProperty("id", OType.STRING);
-			entry.createProperty("title", OType.STRING);
-			entry.createProperty("date", OType.DATETIME);
-			entry.createProperty("xml", OType.STRING);
-			
-		}} finally {
+			if (!tx.exists()) {
+				tx.create();
+				OClass feed = tx.getMetadata().getSchema().createClass("Feed");
+				feed.createProperty("id", OType.STRING);
+				feed.createProperty("date", OType.DATETIME);
+				feed.createProperty("xml", OType.STRING);
+				feed.createIndex("Feed.id", OClass.INDEX_TYPE.UNIQUE, "id");
+				feed.createIndex("Feed.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
+
+				OClass entry = tx.getMetadata().getSchema().createClass("Entry");
+				entry.createProperty("feedId", OType.STRING);
+				entry.createProperty("id", OType.STRING);
+				entry.createProperty("title", OType.STRING);
+				entry.createProperty("date", OType.DATETIME);
+				entry.createProperty("xml", OType.STRING);
+				// TODO: This and above the correct way to create an automatic
+				// date index?
+				entry.createIndex("Entry.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
+
+			}
+		} finally {
 			tx.close();
 		}
 
@@ -197,7 +210,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 		if (pool != null) {
 			pool.close();
 		}
-		
+
 		if (server != null) {
 			server.shutdown();
 		}
