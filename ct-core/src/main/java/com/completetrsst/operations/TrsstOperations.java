@@ -2,7 +2,7 @@ package com.completetrsst.operations;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
-public interface StoryOperations {
+public interface TrsstOperations {
 
 	public String readFeed(String publisherId);
 

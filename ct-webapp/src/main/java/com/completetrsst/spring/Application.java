@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.FileSystemKeyManager;
 import com.completetrsst.crypto.keys.KeyManager;
-import com.completetrsst.operations.InMemoryStoryOps;
-import com.completetrsst.operations.StoryOperations;
+import com.completetrsst.operations.CompleteTrsstOps;
+import com.completetrsst.operations.TrsstOperations;
 import com.completetrsst.spring.store.OrientStore;
 import com.completetrsst.store.Storage;
 
@@ -47,8 +47,8 @@ public class Application extends SpringBootServletInitializer {
 
 	// use the bean provided by spring for storage
 	@Bean
-	public StoryOperations storyOperations() {
-		InMemoryStoryOps operations = new InMemoryStoryOps();
+	public TrsstOperations storyOperations() {
+		CompleteTrsstOps operations = new CompleteTrsstOps();
 		operations.setStorage(getStorage());
 		return operations;
 	}

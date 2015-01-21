@@ -20,9 +20,9 @@ import com.completetrsst.store.Storage;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.io.impl.DateParser;
 
-public class InMemoryStoryOps implements StoryOperations {
+public class CompleteTrsstOps implements TrsstOperations {
 
-    private static final Logger log = LoggerFactory.getLogger(InMemoryStoryOps.class);
+    private static final Logger log = LoggerFactory.getLogger(CompleteTrsstOps.class);
 
     private static final AtomParser parser = new AtomParser();
 

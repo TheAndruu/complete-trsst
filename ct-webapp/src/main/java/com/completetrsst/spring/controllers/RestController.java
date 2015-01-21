@@ -19,15 +19,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.completetrsst.operations.StoryOperations;
+import com.completetrsst.operations.TrsstOperations;
 
 @Controller
-public class RestEndpointController {
+public class RestController {
 
-    private final static Logger log = LoggerFactory.getLogger(RestEndpointController.class);
+    private final static Logger log = LoggerFactory.getLogger(RestController.class);
 
     @Autowired
-    private StoryOperations storyOperations;
+    private TrsstOperations storyOperations;
 
     // http://localhost:8080/feed/1asdfasdfd
     @RequestMapping(value = "/feed/{publisherId}", method = RequestMethod.GET)

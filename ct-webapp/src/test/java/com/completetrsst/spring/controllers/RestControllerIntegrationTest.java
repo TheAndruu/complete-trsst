@@ -20,7 +20,7 @@ import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 
 /** Integration tests which only run if the local server is running */
-public class RestEndpointControllerIntegrationTest {
+public class RestControllerIntegrationTest {
 
     private static final RestTemplate rest = new RestTemplate();
     private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
@@ -38,7 +38,7 @@ public class RestEndpointControllerIntegrationTest {
 
     @Test
     public void testPublishSignedEntry() throws Exception {
-        String rawXml = signer.newEntry("Pete is a prepper.  He preps many things.  One of which is a pepper.!", keyPair);
+        String rawXml = signer.newEntry("In the jungle the mighty jungle, the lion sleeps tonight!", keyPair);
         ResponseEntity<String> response;
         try {
             response = rest.postForEntity("http://localhost:8080/publish", rawXml, String.class);
