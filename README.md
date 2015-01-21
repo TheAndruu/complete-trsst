@@ -104,10 +104,17 @@ Example of a signed feed and entry can be found in: <a href="https://github.com/
     
 Again, for example of signed atom feed and entry, see <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
+#### Search feeds
+    GET: http://localhost:8080/search/whatever search terms you like
+
+    Response: 200 (OK)
+    Payload:
+    <Feed containing entries that match the given search terms>
+
 
 #### Working example
 
-There's a working example in `RestEndpointControllerIntegrationTest.java`
+There's a working example in `RestControllerIntegrationTest.java`
 
 It demonstrates how to create a `KeyPair`, sign a message, and post it to the server.
 
