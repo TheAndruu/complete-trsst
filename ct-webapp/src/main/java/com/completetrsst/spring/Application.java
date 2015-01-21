@@ -54,6 +54,7 @@ public class Application extends SpringBootServletInitializer {
 		return operations;
 	}
 
+	// TODO: Remove the key manager-- should only be relevant on the client
 	@Bean
 	public KeyManager keyManager() {
 		KeyManager manager = new FileSystemKeyManager();
