@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 public class EllipticCurveKeyCreator implements KeyCreator {
 
     private static final Logger log = LoggerFactory.getLogger(EllipticCurveKeyCreator.class);
+    private static final String CURVE_256K1 = "secp256k1";
 
     static {
         try {
@@ -29,8 +30,6 @@ public class EllipticCurveKeyCreator implements KeyCreator {
             throw new RuntimeException(e);
         }
     }
-
-    private static final String CURVE_256K1 = "secp256k1";
 
     @Override
     public KeyPair createKeyPair() {

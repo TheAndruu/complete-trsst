@@ -1,6 +1,7 @@
 package com.completetrsst.spring.controllers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNoException;
@@ -90,18 +91,27 @@ public class RestControllerIntegrationTest {
         assertTrue(expectedMid < expectedLast);
     }
 
-//    @Test
-//    public void testSearchEntries() throws Exception {
-//        rest.postForEntity("http://localhost:8080/s", signer.newEntry("First new post!", keyPair), String.class);
-//        // To ensure we have different timestamps on the entries
-//        Thread.sleep(1);
-//        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Second entry title!", keyPair), String.class);
-//        Thread.sleep(1);
-//        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Third time's the charm!", keyPair), String.class);
-//
-//        // Now read the feed
-//        String feedId = TrsstKeyFunctions.toFeedId(keyPair.getPublic());
-//    }
+    @Test
+    public void testSearchEntries() throws Exception {
+        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("George Washington wrote this new post!", keyPair), String.class);
+        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("John Adams wrote this new entry!", keyPair), String.class);
+        
+        String response = rest.getForEntity("http://localhost:8080/search/wrote", String.class).getBody();
+        assertTrue(response.contains("George Washington"));
+        assertTrue(response.contains("John Adams"));
+        
+        response = rest.getForEntity("http://localhost:8080/search/washington", String.class).getBody();
+        assertTrue(response.contains("George Washington"));
+        assertFalse(response.contains("John Adams"));
+        
+        response = rest.getForEntity("http://localhost:8080/search/john+adams", String.class).getBody();
+        assertFalse(response.contains("George Washington"));
+        assertTrue(response.contains("John Adams"));
+        
+        response = rest.getForEntity("http://localhost:8080/search/potato", String.class).getBody();
+        assertFalse(response.contains("George Washington"));
+        assertFalse(response.contains("John Adams"));
+    }
     
     @Test
     public void testPing() throws ConnectException {
