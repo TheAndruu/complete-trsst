@@ -49,9 +49,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
         OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select from Feed where id = ? limit 1");
         try {
             db = openDatabase();
-            // Add transaction around this or no? Index ensures records are
-            // unique
-            // db.begin();
+            // Add transaction around this or no? Index ensures records are unique
 
             List<ODocument> results = db.command(query).execute(feedId);
             if (results.size() == 0) {
@@ -67,7 +65,6 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
                 feed.field("xml", rawFeedXml);
             }
             feed.save();
-            // db.commit();
 
         } finally {
             closeDatabase(db);
@@ -86,8 +83,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
             entry.field("feedId", feedId);
             entry.field("title", entryTitle);
             // Don't use the date from the entry -- RFC3339 isn't millisecond
-            // specific,
-            // which would lead to inaccuracies in sorting by date
+            // specific, which would lead to inaccuracies in sorting by date
             entry.field("date", new Date());
             entry.field("xml", rawEntryXml);
             entry.save();
@@ -117,9 +113,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
         return "";
     }
 
-    // TODO: Review indexes in orient
-    // Have this overridden to take a date and return last 50 from that date,
-    // for paging
+    // Have this overridden to take a date and return from that date, for paging
     @Override
     public List<String> getLatestEntries(String feedId) {
         ODatabaseDocumentTx db = null;
@@ -136,6 +130,26 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
             log.error("Error getting entries on feed: " + feedId, e);
             log.error(e.getMessage());
             return Collections.<String> emptyList();
+        } finally {
+            closeDatabase(db);
+        }
+    }
+
+    @Override
+    public List<String> searchEntries(String searchString) {
+        ODatabaseDocumentTx db = null;
+        List<ODocument> results = new ArrayList<ODocument>(0);
+        OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select * from Entry where title LUCENE ? limit 50");
+        try {
+            db = openDatabase();
+            results = db.command(query).execute(searchString);
+            List<String> entryXml = new ArrayList<String>(results.size());
+            results.forEach(result -> entryXml.add(result.field("xml")));
+            log.info("Got " + entryXml.size() + " entries for search");
+            return entryXml;
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Collections.singletonList(e.getMessage());
         } finally {
             closeDatabase(db);
         }
@@ -183,6 +197,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
                 entry.createProperty("date", OType.DATETIME);
                 entry.createProperty("xml", OType.STRING);
                 entry.createIndex("Entry.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
+                entry.createIndex("Entry.title", "FULLTEXT", null, null, "LUCENE", new String[] { "title" });
             }
         } finally {
             tx.close();

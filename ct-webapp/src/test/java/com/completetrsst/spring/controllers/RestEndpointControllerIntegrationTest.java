@@ -90,6 +90,19 @@ public class RestEndpointControllerIntegrationTest {
         assertTrue(expectedMid < expectedLast);
     }
 
+//    @Test
+//    public void testSearchEntries() throws Exception {
+//        rest.postForEntity("http://localhost:8080/s", signer.newEntry("First new post!", keyPair), String.class);
+//        // To ensure we have different timestamps on the entries
+//        Thread.sleep(1);
+//        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Second entry title!", keyPair), String.class);
+//        Thread.sleep(1);
+//        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Third time's the charm!", keyPair), String.class);
+//
+//        // Now read the feed
+//        String feedId = TrsstKeyFunctions.toFeedId(keyPair.getPublic());
+//    }
+    
     @Test
     public void testPing() throws ConnectException {
         ResponseEntity<String> pingResponse = sendPing();

@@ -1,7 +1,10 @@
 package com.completetrsst.operations;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
@@ -15,6 +18,7 @@ import com.completetrsst.atom.AtomVerifier;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.store.Storage;
 import com.completetrsst.xml.XmlUtil;
+import com.rometools.rome.io.impl.DateParser;
 
 public class InMemoryStoryOps implements StoryOperations {
 
@@ -117,6 +121,22 @@ public class InMemoryStoryOps implements StoryOperations {
             log.debug("Entry(s) didn't validate with their signature.");
             throw new IllegalArgumentException("Entry(s) didn't validate with their signature.");
         }
+    }
+
+	@Override
+    public String searchEntries(String searchString) {
+	    List<String> foundEntries =  storage.searchEntries(searchString);
+	    StringBuilder builder = new StringBuilder();
+        builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
+        builder.append("<id>");
+        builder.append(TrsstKeyFunctions.toFeedUrn(UUID.randomUUID().toString()));
+        builder.append("</id>");
+        builder.append("<updated>");
+        builder.append(DateParser.formatW3CDateTime(new Date(), Locale.US));
+        builder.append("</updated>");
+        foundEntries.forEach(found -> builder.append(found));
+        builder.append("</feed>");
+        return builder.toString();
     }
 
 }

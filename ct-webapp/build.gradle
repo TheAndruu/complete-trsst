@@ -39,6 +39,8 @@ dependencies {
     // for orient java db
     compile 'com.orientechnologies:orientdb-core:2.0-M3'
     compile 'com.orientechnologies:orient-commons:2.0-M1'
+    // for orient lucene
+    compile 'com.orientechnologies:orientdb-lucene:2.0-M3'
 
     // to make our app both standalone and embeddable in a container (i.e. tomcat)
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'

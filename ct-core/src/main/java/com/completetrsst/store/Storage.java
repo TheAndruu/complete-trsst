@@ -12,6 +12,6 @@ public interface Storage {
 
     // TODO: Add optional date param to do paging
     public List<String> getLatestEntries(String feedId);
-    
-//    public List<String> searchEntries(String searchString);
+
+	public List<String> searchEntries(String searchString);
 }

@@ -38,6 +38,16 @@ public class RestEndpointController {
         responseHeaders.setContentType(MediaType.APPLICATION_ATOM_XML);
         return new ResponseEntity<String>(xmlEntities, responseHeaders, HttpStatus.OK);
     }
+    
+    // http://localhost:8080/search/searchTerms
+    @RequestMapping(value = "/search/{searchTerms}", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<String> searchEntries(@PathVariable String searchTerms) {
+        log.info("Searching through entries");
+        String entries = storyOperations.searchEntries(searchTerms);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.APPLICATION_ATOM_XML);
+        return new ResponseEntity<String>(entries, responseHeaders, HttpStatus.OK);
+    }
 
     /**
      * Expects an already-signed or already-encrypted Atom entry. Validates
