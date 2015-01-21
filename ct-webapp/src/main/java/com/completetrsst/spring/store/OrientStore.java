@@ -182,7 +182,6 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
                 entry.createProperty("title", OType.STRING);
                 entry.createProperty("date", OType.DATETIME);
                 entry.createProperty("xml", OType.STRING);
-                // This and above the correct way to create an automatic date index?
                 entry.createIndex("Entry.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
             }
         } finally {
