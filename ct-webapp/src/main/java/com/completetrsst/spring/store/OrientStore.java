@@ -1,11 +1,15 @@
 package com.completetrsst.spring.store;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -137,6 +141,8 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
 
     @Override
     public List<String> searchEntries(String searchString) {
+        // TODO: Use lucene (version 4.7 currently) to tokenize search strings
+
         ODatabaseDocumentTx db = null;
         List<ODocument> results = new ArrayList<ODocument>(0);
         OSQLSynchQuery<ODocument> query = new OSQLSynchQuery<ODocument>("select * from Entry where title LUCENE ? limit 50");
@@ -197,6 +203,7 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
                 entry.createProperty("date", OType.DATETIME);
                 entry.createProperty("xml", OType.STRING);
                 entry.createIndex("Entry.date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
+                // https://github.com/orientechnologies/orientdb-lucene/wiki/Full-Text-Index
                 entry.createIndex("Entry.title", "FULLTEXT", null, null, "LUCENE", new String[] { "title" });
             }
         } finally {

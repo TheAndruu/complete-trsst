@@ -38,7 +38,7 @@ public class RestEndpointControllerIntegrationTest {
 
     @Test
     public void testPublishSignedEntry() throws Exception {
-        String rawXml = signer.newEntry("First new entry title!", keyPair);
+        String rawXml = signer.newEntry("Pete is a prepper.  He preps many things.  One of which is a pepper.!", keyPair);
         ResponseEntity<String> response;
         try {
             response = rest.postForEntity("http://localhost:8080/publish", rawXml, String.class);
