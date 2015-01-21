@@ -53,6 +53,7 @@ public class RestEndpointController {
         return storyOperations.publishSignedContent(signedXml);
     }
 
+    
     /**
      * Ping to assert the server is running
      * 

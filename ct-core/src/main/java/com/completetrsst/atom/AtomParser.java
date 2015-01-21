@@ -2,7 +2,9 @@ package com.completetrsst.atom;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.crypto.KeySelector.Purpose;
 import javax.xml.crypto.KeySelectorException;
@@ -25,6 +27,7 @@ import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.crypto.xml.SignatureUtil;
+import com.rometools.rome.io.impl.DateParser;
 
 /**
  * Helps with parsing Atom content.
@@ -92,13 +95,15 @@ public class AtomParser {
 	 * @throws IllegalArgumentException
 	 *             if no such node exists
 	 */
-	public String getDateUpdated(Element domElement) {
+	public Date getDateUpdated(Element domElement) {
 		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "updated");
 		if (nl.getLength() == 0) {
 			log.debug("Atom entries must have an <updated> element");
 			throw new IllegalArgumentException("Atom entries must have a <updated> element");
 		} else {
-			return nl.item(0).getTextContent();
+			String formattedDate = nl.item(0).getTextContent();
+			Date date = DateParser.parseW3CDateTime(formattedDate, Locale.US);
+			return date;
 		}
 	}
 
@@ -126,10 +131,10 @@ public class AtomParser {
 	 * @throws IllegalArgumentException
 	 *             if no such node exists
 	 */
-	private String getTitle(Element domElement) {
+	public String getTitle(Element domElement) {
 		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "title");
 		if (nl.getLength() == 0) {
-			log.debug("Atom entries must have an <entry> element");
+			log.debug("Atom entries must have an <title> element");
 			throw new IllegalArgumentException("Atom entries must have a <title> element");
 		} else {
 			return nl.item(0).getTextContent();
