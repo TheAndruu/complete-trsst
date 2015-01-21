@@ -29,6 +29,7 @@ public class Application extends SpringBootServletInitializer {
 	// how to discover port at runtime:
 	// http://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-servlet-containers.html
 
+	// TODO: Remove spring boot actuator since we have other ways of getting shutdowns to fire
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(Application.class);
 		ConfigurableApplicationContext context = app.run(args);
@@ -47,7 +48,7 @@ public class Application extends SpringBootServletInitializer {
 
 	// use the bean provided by spring for storage
 	@Bean
-	public TrsstOperations storyOperations() {
+	public TrsstOperations trsstOperations() {
 		CompleteTrsstOps operations = new CompleteTrsstOps();
 		operations.setStorage(getStorage());
 		return operations;

@@ -27,13 +27,13 @@ public class RestController {
     private final static Logger log = LoggerFactory.getLogger(RestController.class);
 
     @Autowired
-    private TrsstOperations storyOperations;
+    private TrsstOperations trsstOperations;
 
     // http://localhost:8080/feed/1asdfasdfd
     @RequestMapping(value = "/feed/{publisherId}", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> readFeed(@PathVariable String publisherId) {
         log.info("Got viewPublisher handler with id: " + publisherId);
-        String xmlEntities = storyOperations.readFeed(publisherId);
+        String xmlEntities = trsstOperations.readFeed(publisherId);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_ATOM_XML);
         return new ResponseEntity<String>(xmlEntities, responseHeaders, HttpStatus.OK);
@@ -43,7 +43,7 @@ public class RestController {
     @RequestMapping(value = "/search/{searchTerms}", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<String> searchEntries(@PathVariable String searchTerms) {
         log.info("Searching through entries");
-        String entries = storyOperations.searchEntries(searchTerms);
+        String entries = trsstOperations.searchEntries(searchTerms);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.setContentType(MediaType.APPLICATION_ATOM_XML);
         return new ResponseEntity<String>(entries, responseHeaders, HttpStatus.OK);
@@ -60,7 +60,7 @@ public class RestController {
     public @ResponseBody String publishSignedEntry(@RequestBody String signedXml)
             throws XMLSignatureException, IllegalArgumentException {
         log.info("Publish entry");
-        return storyOperations.publishSignedContent(signedXml);
+        return trsstOperations.publishSignedContent(signedXml);
     }
 
     
