@@ -125,6 +125,7 @@ public class CompleteTrsstOps implements TrsstOperations {
 
 	@Override
     public String searchEntries(String searchString) {
+	    // TODO: Use Entry and Feed objects rather than building manually
 	    List<String> foundEntries =  storage.searchEntries(searchString);
 	    StringBuilder builder = new StringBuilder();
         builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
