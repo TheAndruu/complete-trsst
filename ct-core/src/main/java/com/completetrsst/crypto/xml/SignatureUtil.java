@@ -43,6 +43,10 @@ public class SignatureUtil {
 
 	static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
 
+	static {
+        org.apache.xml.security.Init.init();
+    }
+	
 	/**
 	 * Attaches a signature to the given DOM element, in place.
 	 * 

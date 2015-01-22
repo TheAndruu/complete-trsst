@@ -35,6 +35,8 @@ public class AtomSigner {
     public static final String XMLNS = "http://www.w3.org/2005/Atom";
     public static final String ENTRY_ID_PREFIX = "urn:uuid:";
 
+    // TODO: Encryption: https://svn.apache.org/repos/asf/santuario/xml-security-java/trunk/samples/org/apache/xml/security/samples/encryption/
+    
     /**
      * Creates a new signed Atom entry with given title, wrapped inside an
      * individually-sigend Atom feed element.
