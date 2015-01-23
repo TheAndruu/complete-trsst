@@ -4,7 +4,6 @@ import java.util.Collections;
 
 import org.w3c.dom.Element;
 
-import com.completetrsst.crypto.xml.encrypt.EncryptionUtil;
 import com.rometools.rome.feed.atom.Content;
 import com.rometools.rome.feed.atom.Entry;
 

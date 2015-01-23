@@ -6,10 +6,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-
-import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -22,7 +19,6 @@ import org.w3c.dom.NodeList;
 
 import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.Crypto;
-import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.xml.XmlUtil;
 
 // https://svn.apache.org/repos/asf/santuario/xml-security-java/trunk/samples/org/apache/xml/security/samples/encryption/
