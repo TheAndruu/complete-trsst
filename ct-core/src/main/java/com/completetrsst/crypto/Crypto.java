@@ -68,7 +68,7 @@ public class Crypto {
 
             return _cryptIES(input, publicKey, true);
         } catch (GeneralSecurityException e) {
-            log.error("Error while encrypting key", e);
+            log.debug("Error while encrypting key");
             throw e;
         }
     }
@@ -81,7 +81,7 @@ public class Crypto {
 
             return _cryptIES(input, privateKey, false);
         } catch (GeneralSecurityException e) {
-            log.error("Error while decrypting key", e);
+            log.debug("Error while decrypting key");
             throw new GeneralSecurityException(e);
         }
     }

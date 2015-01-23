@@ -1,7 +1,6 @@
 package com.completetrsst.crypto.xml.encrypt;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -9,6 +8,8 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.crypto.BadPaddingException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -29,7 +30,7 @@ public class EncryptionUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptionUtil.class);
 
-    private static final String XMLNS_ENCRYPT = "http://www.w3.org/2001/04/xmlenc#";
+    public static final String XMLNS_ENCRYPT = "http://www.w3.org/2001/04/xmlenc#";
 
     /**
      * Expects the Entry element in DOM form, with one content element on it. Encrypts the Content element, removes the unencrypted node, and replaces
