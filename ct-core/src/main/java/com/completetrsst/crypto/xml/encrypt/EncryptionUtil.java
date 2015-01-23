@@ -1,7 +1,10 @@
 package com.completetrsst.crypto.xml.encrypt;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -29,7 +32,8 @@ public class EncryptionUtil {
     private static final String XMLNS_ENCRYPT = "http://www.w3.org/2001/04/xmlenc#";
 
     /**
-     * Expects one content element contained on a DOM Entry element
+     * Expects the Entry element in DOM form, with one content element on it. Encrypts the Content element, removes the unencrypted node, and replaces
+     * it with the encrypted nodes
      */
     public void encrypt(Element domEntryElement, KeyPair encryptionKey, List<PublicKey> givenRecipientsPublicKeys) throws GeneralSecurityException {
 
@@ -54,8 +58,7 @@ public class EncryptionUtil {
             nodesContainingEncryptedKeys.add(encryptedDataKeyForPublicRecipient);
         }
 
-        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS, "content");
-        Node contentNode = nodeList.item(0);
+        Node contentNode = getContentNode(domEntryElement);
         byte[] contentAsBytes = XmlUtil.serializeDom(contentNode).getBytes();
         byte[] encryptedContentNode;
         try {
@@ -70,10 +73,16 @@ public class EncryptionUtil {
         // now have nodesContainingEncryptedKeys and nodeContainingEncryptedContent
         // add these in place of the existing content element
         removeAllChildren(contentNode);
-        ((Element)contentNode).setAttribute("type", "application/xenc+xml");
+        ((Element) contentNode).setAttribute("type", "application/xenc+xml");
 
         nodesContainingEncryptedKeys.forEach(node -> contentNode.appendChild(node));
         contentNode.appendChild(nodeContainingEncryptedContent);
+    }
+
+    private Node getContentNode(Element domEntryElement) {
+        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS, "content");
+        Node contentNode = nodeList.item(0);
+        return contentNode;
     }
 
     private void removeAllChildren(Node node) {
@@ -99,6 +108,62 @@ public class EncryptionUtil {
         cipherData.appendChild(cipherValue);
         encryptedData.appendChild(cipherData);
         return encryptedData;
+    }
+
+    /**
+     * Decrypts the 'content' node of an Entry element in dom form and returns the decrypted content node as a DOM element
+     * 
+     * @param entryWithEncryptedContent
+     * @param privateKey
+     * @throws GeneralSecurityException
+     */
+    public Element decryptText(Element entryWithEncryptedContent, PrivateKey privateKey) throws GeneralSecurityException {
+        Node contentNode = getContentNode(entryWithEncryptedContent);
+        NodeList encryptedElements = contentNode.getChildNodes();
+        int numChildren = encryptedElements.getLength();
+        // Stop at second to last child node, these are the encrypted keys
+        byte[] decryptedKey = null;
+        for (int i = 0; i < numChildren - 1; i++) {
+            Element encryptedData = ((Element) encryptedElements.item(i));
+            byte[] decodedCipherValue = getCipherValueText(encryptedData);
+            try {
+                decryptedKey = Crypto.decryptKeyWithIES(decodedCipherValue, privateKey);
+                // If we get here, the key was decrypted, so break this loop as its job is done
+                break;
+            } catch (GeneralSecurityException e) {
+                log.debug("Key did not fit, try next node" + e.getMessage());
+            }
+        }
+        if (decryptedKey == null) {
+            throw new GeneralSecurityException("Could not decrypt key from ElementData");
+        }
+        // minus 1 because numChildren is the count, not indices
+        Element lastEncryptedNode = (Element) encryptedElements.item(numChildren - 1);
+        // get the decoded cipher value representing the encrypted <content> node
+        byte[] decodedCipherValue = getCipherValueText(lastEncryptedNode);
+
+        byte[] decryptedContent;
+        try {
+            decryptedContent = Crypto.decryptAES(decodedCipherValue, decryptedKey);
+        } catch (InvalidCipherTextException e) {
+            log.debug("Could not decrypt the encrypted content");
+            throw new GeneralSecurityException("Could not decrypt the encrypted content", e);
+        }
+
+        try {
+            // Auto-detect the encoding?
+            String decryptedAsString = new String(decryptedContent, "UTF-8");
+            return XmlUtil.toDom(decryptedAsString);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private byte[] getCipherValueText(Element encryptedData) {
+        Node cipherValue = encryptedData.getElementsByTagNameNS(XMLNS_ENCRYPT, "CipherValue").item(0);
+        String cipherValueText = cipherValue.getTextContent();
+        return new Base64().decode(cipherValueText);
     }
 
     private void workingExample(Element entryAsDomElement) throws Exception {
