@@ -73,8 +73,7 @@ public class Crypto {
         }
     }
 
-    public static byte[] decryptKeyWithIES(byte[] input, long entryId,
-            PublicKey publicKey, PrivateKey privateKey)
+    public static byte[] decryptKeyWithIES(byte[] input, PrivateKey privateKey)
             throws GeneralSecurityException {
         try {
             // BC appears to be happier with BCECPrivateKeys:

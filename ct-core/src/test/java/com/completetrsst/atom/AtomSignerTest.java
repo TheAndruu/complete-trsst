@@ -5,6 +5,8 @@ import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedUrn;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.security.KeyPair;
 import java.util.Arrays;
@@ -39,46 +41,45 @@ public class AtomSignerTest {
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
-        
+
         // Twice to ensure the entries are left verifiable
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
     }
-    
+
     @Test
     public void createNewSignedEntryTamperedFeed() throws Exception {
         Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
-        
+
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
-        
+
         AtomVerifier verifier = new AtomVerifier();
         // Feed should fail validation
         assertFalse(verifier.isFeedVerified(signedFeedAndEntry));
-        
+
         // Entry should still pass validation
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
     }
-    
+
     @Test
     public void createNewSignedEntryTamperedEntry() throws Exception {
         Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
-        
+
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS, "entry").item(0);
         entryNode.appendChild(newText);
-        
+
         AtomVerifier verifier = new AtomVerifier();
         // Feed should still validate
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
-        
+
         // Entry should fail validation
         assertFalse(verifier.areEntriesVerified(signedFeedAndEntry));
     }
 
     /**
-     * Really just invokes the other publish() method, but couple simple tests
-     * to enforce it's operating.
+     * Really just invokes the other publish() method, but couple simple tests to enforce it's operating.
      */
     @Test
     public void newEntry() throws Exception {
@@ -89,10 +90,18 @@ public class AtomSignerTest {
         assertEquals(findAsString("id", firstFeed), findAsString("id", secondFeed));
         Element firstEntry = (Element) firstFeed.getElementsByTagName("entry").item(0);
         Element secondEntry = (Element) secondFeed.getElementsByTagName("entry").item(0);
-        String firstTitleNode =findAsString("title", firstEntry);
+        String firstTitleNode = findAsString("title", firstEntry);
         assertEquals(firstTitleNode, findAsString("title", secondEntry));
         assertEquals("hi everybody!", XmlUtil.toDom(firstTitleNode).getTextContent());
 
+    }
+
+    /** Assert that newEntry is really just using our other "create new signed entry" method */
+    @Test
+    public void newEntryDelegatesCreateNewSignedEntyr() throws Exception {
+        AtomSigner spy = spy(publisher);
+        spy.newEntry("hi everybody!", keyPair);
+        verify(spy).createNewSignedEntry("hi everybody!", keyPair);
     }
 
     private String findAsString(String nodeName, Element domElement) throws Exception {

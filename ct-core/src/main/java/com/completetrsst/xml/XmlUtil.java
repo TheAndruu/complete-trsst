@@ -14,7 +14,9 @@ import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.InputSource;
@@ -58,7 +60,6 @@ public class XmlUtil {
         }
     }
 
-    // TODO: Test me
     public static org.w3c.dom.Element toDom(String xmlString) throws IOException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -92,21 +93,4 @@ public class XmlUtil {
         return str;
     }
 
-    // public static String serializeDom(Element domElement) throws IOException
-    // {
-    // StringWriter buffer = null;
-    // try {
-    // TransformerFactory transFactory = TransformerFactory.newInstance();
-    // Transformer transformer = transFactory.newTransformer();
-    // buffer = new StringWriter();
-    // transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-    // transformer.transform(new DOMSource(domElement), new
-    // StreamResult(buffer));
-    // buffer.close();
-    // } catch (Exception e) {
-    // log.debug(e.getMessage());
-    // throw new IOException(e);
-    // }
-    // return buffer.toString();
-    // }
 }

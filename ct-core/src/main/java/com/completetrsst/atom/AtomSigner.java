@@ -24,45 +24,39 @@ import com.rometools.rome.io.WireFeedOutput;
 import com.rometools.rome.io.impl.Atom10Generator;
 
 /**
- * Publishes a signed Atom entry on an Atom feed. Entries are signed as
- * 'excluded' meaning they can be verified independently of their owner Feed
- * elements. Feed elements are signed exclusive of any attached Entries. Thus
- * verification of Feed signatures implies all Entries have been removed from
- * owner document.
+ * Publishes a signed Atom entry on an Atom feed. Entries are signed as 'excluded' meaning they can be verified independently of their owner Feed
+ * elements. Feed elements are signed exclusive of any attached Entries. Thus verification of Feed signatures implies all Entries have been removed
+ * from owner document.
  */
 public class AtomSigner {
     private static final Logger log = LoggerFactory.getLogger(AtomSigner.class);
     public static final String XMLNS = "http://www.w3.org/2005/Atom";
     public static final String ENTRY_ID_PREFIX = "urn:uuid:";
 
-    // TODO: Encryption: https://svn.apache.org/repos/asf/santuario/xml-security-java/trunk/samples/org/apache/xml/security/samples/encryption/
-    
     /**
-     * Creates a new signed Atom entry with given title, wrapped inside an
-     * individually-sigend Atom feed element.
+     * Creates a new signed Atom entry with given title, wrapped inside an individually-sigend Atom feed element.
      * 
      * @param entryTitle
      *            Title for the entry
-     * @return DOM element containing a signed Feed node and
-     *         independently-signed Entry node
+     * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
     public String newEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
         return XmlUtil.serializeDom(createNewSignedEntry(entryTitle, keyPair));
     }
 
     /**
-     * Creates a new signed Atom entry with given title, wrapped inside an
-     * individually-sigend Atom feed element.
+     * Creates a new signed Atom entry with given title, wrapped inside an individually-sigend Atom feed element.
      * 
      * @param entryTitle
      *            Title for the entry
-     * @return DOM element containing a signed Feed node and
-     *         independently-signed Entry node
+     * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
     protected Element createNewSignedEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
         // Construct the feed and entry
         Element domEntry = toDom(createEntry(entryTitle));
         Element domFeed = toDom(createFeed(keyPair.getPublic()));
+
+        finalizeBeforeSigning(domEntry);
 
         // Sign each separately
         SignatureUtil.signElement(domEntry, keyPair);
@@ -75,9 +69,13 @@ public class AtomSigner {
         return domFeed;
     }
 
+    /** Method to allow any final modifications prior to signing the entry elemnet */
+    protected void finalizeBeforeSigning(Element domEntry) {
+        // nothing here, extending classes have the option of supplying logic here
+    }
+
     /**
-     * Creates a new unsigned feed with updated date and ID matching public
-     * key's date.
+     * Creates a new unsigned feed with updated date and ID matching public key's date.
      * 
      * @return unsigned feed with updated date
      */

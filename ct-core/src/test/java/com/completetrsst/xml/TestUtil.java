@@ -6,6 +6,8 @@ import static java.nio.file.Paths.get;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
@@ -63,8 +66,7 @@ public class TestUtil {
         return doc.getRootElement();
     }
 
-    public static Element readDomFromFile(String filePath) throws ParserConfigurationException, SAXException,
-            IOException {
+    public static Element readDomFromFile(String filePath) throws ParserConfigurationException, SAXException, IOException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
         DocumentBuilder builder = dbf.newDocumentBuilder();
@@ -106,8 +108,7 @@ public class TestUtil {
     public static String format(String xml) {
         try {
             final InputSource src = new InputSource(new StringReader(xml));
-            final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src)
-                    .getDocumentElement();
+            final Node document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(src).getDocumentElement();
             final Boolean keepDeclaration = Boolean.valueOf(xml.startsWith("<?xml"));
 
             // May need this:
@@ -134,6 +135,24 @@ public class TestUtil {
         SAXBuilder builder = new SAXBuilder();
         org.jdom2.Document doc = builder.build(new StringReader(rawXml));
         return doc.getRootElement();
+    }
 
+    /**
+     * Putting this in TestUtil and not XmlUtil since any production code could probably benefit by doing other work while iterating over NodeList
+     * directly, as opposed to looping once to construct this list we return, then iterating over it again to do such work.
+     */
+    public static List<Node> getElementsByTagName(Element node, String xmlns, String nodeName) {
+        List<Node> nodes = new ArrayList<Node>();
+        NodeList nodeList = node.getElementsByTagNameNS(xmlns, nodeName);
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            nodes.add(nodeList.item(i));
+        }
+        return nodes;
+    }
+    
+    /** Returns the first child element with specified XMLNS / name match, or null if none exists */
+    public static Node getFirstElement(Element node, String xmlns, String nodeName) {
+        NodeList nodeList = node.getElementsByTagNameNS(xmlns, nodeName);
+        return nodeList.item(0);
     }
 }

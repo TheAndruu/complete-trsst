@@ -1,33 +1,114 @@
 package com.completetrsst.crypto.xml.encrypt;
 
-import java.io.ByteArrayOutputStream;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.Crypto;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.xml.XmlUtil;
 
 // https://svn.apache.org/repos/asf/santuario/xml-security-java/trunk/samples/org/apache/xml/security/samples/encryption/
 public class EncryptionUtil {
-    
-    private static final String XMLNS_ENCRYPT  = "http://www.w3.org/2001/04/xmlenc#";
 
-    private void workingExample(Element entryAsDomElement) throws Exception {
-        
-        // These encryption keys will be read from storage / used by the user for their feed
-        KeyPair encryptionKeys = new EllipticCurveKeyCreator().createKeyPair();
-        
+    private static final Logger log = LoggerFactory.getLogger(EncryptionUtil.class);
+
+    private static final String XMLNS_ENCRYPT = "http://www.w3.org/2001/04/xmlenc#";
+
+    /**
+     * Expects one content element contained on a DOM Entry element
+     */
+    public void encrypt(Element domEntryElement, KeyPair encryptionKey, List<PublicKey> givenRecipientsPublicKeys) throws GeneralSecurityException {
+
+        // Copy the list of public keys so we can add ours to it
+        List<PublicKey> recipientPublicKeys = new ArrayList<PublicKey>(givenRecipientsPublicKeys);
+        PublicKey encryptionPublicKey = encryptionKey.getPublic();
+        if (recipientPublicKeys.contains(encryptionPublicKey)) {
+            // Shouldn't usually happen, but if so, remove it so we add it to the end
+            recipientPublicKeys.remove(encryptionPublicKey);
+        }
+        recipientPublicKeys.add(encryptionPublicKey);
+
         // AES256 key for encrypting -- created new every time
         byte[] contentKey = Crypto.generateAESKey();
-        
+
+        List<Element> nodesContainingEncryptedKeys = new ArrayList<Element>(recipientPublicKeys.size());
+        // encrypt content key separately for each recipient
+        for (PublicKey recipient : recipientPublicKeys) {
+            byte[] encryptedBytes = Crypto.encryptKeyWithIES(contentKey, recipient, encryptionKey.getPrivate());
+            // Create 'encryption data' elements
+            Element encryptedDataKeyForPublicRecipient = createEncryptedData(domEntryElement, encryptedBytes);
+            nodesContainingEncryptedKeys.add(encryptedDataKeyForPublicRecipient);
+        }
+
+        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS, "content");
+        Node contentNode = nodeList.item(0);
+        byte[] contentAsBytes = XmlUtil.serializeDom(contentNode).getBytes();
+        byte[] encryptedContentNode;
+        try {
+            encryptedContentNode = Crypto.encryptAES(contentAsBytes, contentKey);
+        } catch (InvalidCipherTextException e) {
+            log.error(e.getMessage(), e);
+            throw new GeneralSecurityException(e);
+        }
+        // This is the encrypted full <content> node from the original entry
+        Element nodeContainingEncryptedContent = createEncryptedData(domEntryElement, encryptedContentNode);
+
+        // now have nodesContainingEncryptedKeys and nodeContainingEncryptedContent
+        // add these in place of the existing content element
+        removeAllChildren(contentNode);
+        ((Element)contentNode).setAttribute("type", "application/xenc+xml");
+
+        nodesContainingEncryptedKeys.forEach(node -> contentNode.appendChild(node));
+        contentNode.appendChild(nodeContainingEncryptedContent);
+    }
+
+    private void removeAllChildren(Node node) {
+        while (node.hasChildNodes()) {
+            node.removeChild(node.getFirstChild());
+        }
+    }
+
+    /**
+     * Returns an unattached EncryptedData node for the given parent element containing the encrypted value/ This method does the encoding of the
+     * 'cipherValueData' param
+     * 
+     * @param cipherValueData
+     *            the un-encoded bytes to insert in the CipherValue
+     */
+    private Element createEncryptedData(Element ownerElement, byte[] cipherValueData) {
+        String encoded = new Base64(0, null, true).encodeToString(cipherValueData);
+        Document doc = ownerElement.getOwnerDocument();
+        Element encryptedData = doc.createElementNS(XMLNS_ENCRYPT, "EncryptedData");
+        Element cipherData = doc.createElementNS(XMLNS_ENCRYPT, "CipherData");
+        Element cipherValue = doc.createElementNS(XMLNS_ENCRYPT, "CipherValue");
+        cipherValue.setTextContent(encoded);
+        cipherData.appendChild(cipherValue);
+        encryptedData.appendChild(cipherData);
+        return encryptedData;
+    }
+
+    private void workingExample(Element entryAsDomElement) throws Exception {
+
+        // These encryption keys will be read from storage / used by the user for their feed
+        KeyPair encryptionKeys = new EllipticCurveKeyCreator().createKeyPair();
+
+        // AES256 key for encrypting -- created new every time
+        byte[] contentKey = Crypto.generateAESKey();
+
         // use said key to encrypt the content (before hashing-- whatever that means)
         // TODO: The 'content to encrypt' will come from the <Content> node of the parameter DOM
         // TODO: This might also need to happen in a loop for each content child
@@ -35,28 +116,27 @@ public class EncryptionUtil {
         // This will likely need to return the node of the content first, then
         // get the content of that node, meaning everything will need to go in a loop
         // and also remove the content at that time, so below we just need to worry about appending them
-        byte [] currentContent = extractContentData(contentElementToEncrypt);
-//        byte[] currentContent = "the entry's content to encrypt".getBytes(); // = options.getContentData()[part];
+        byte[] currentContent = extractContentData(contentElementToEncrypt);
+        // byte[] currentContent = "the entry's content to encrypt".getBytes(); // = options.getContentData()[part];
         currentContent = Crypto.encryptAES(currentContent, contentKey);
         // content-type is present, but doesn't get encrypted
-        
+
         // These can come in as parameters-- clients will need to fetch / supply the pub keys as x509 or whatnot
         // using something like keys.add(Common.toPublicKeyFromX509(e.getText()));
         List<PublicKey> recipientPublicKeys = new LinkedList<PublicKey>();
-        // so TODO: add the public keys to this list 
-        
+        // so TODO: add the public keys to this list
+
         // add our public key to the end of the list
         recipientPublicKeys.add(encryptionKeys.getPublic());
-        
-        
-        // ---- ---- ---- 
+
+        // ---- ---- ----
         // ---- now actually encrypt the generated Content Key we're using for encryption
         // ---- for inclusion in the xml
         for (PublicKey recipient : recipientPublicKeys) {
             byte[] bytes = Crypto.encryptKeyWithIES(contentKey, recipient, encryptionKeys.getPrivate());
             String encoded = new Base64(0, null, true).encodeToString(bytes);
-         // and write this key as bytes under EncryptedData, CipherData, and CipherValue
-            
+            // and write this key as bytes under EncryptedData, CipherData, and CipherValue
+
             // See Apache Xml Sanctuario if it has a way to add this to a DOM element
             // otherwise, construct w/ DOM entry element this way:
             Document doc = entryAsDomElement.getOwnerDocument();
@@ -66,15 +146,15 @@ public class EncryptionUtil {
             cipherValue.setTextContent(encoded);
             cipherData.appendChild(cipherValue);
             encryptedData.appendChild(cipherData);
-            
+
             // TODO: Remove all children above when we extract the content in the first place above
             contentElementToEncrypt.appendChild(encryptedData);
         }// done for... loop encrypting keys
-     
+
         // TODO: Now encrypt the whole Content itself
         // TODO: Ensur ethe contentElementToEncrypt is only serializing the node itself
-        byte [] contentAsBytes = XmlUtil.serializeDom(contentElementToEncrypt).getBytes();
-        byte [] contentAsEncryptedBytes  = Crypto.encryptAES(contentAsBytes, contentKey);
+        byte[] contentAsBytes = XmlUtil.serializeDom(contentElementToEncrypt).getBytes();
+        byte[] contentAsEncryptedBytes = Crypto.encryptAES(contentAsBytes, contentKey);
         String encoded = new Base64(0, null, true).encodeToString(contentAsEncryptedBytes);
         Document doc = entryAsDomElement.getOwnerDocument();
         Element encryptedData = doc.createElementNS(XMLNS_ENCRYPT, "EncryptedData");
@@ -83,7 +163,7 @@ public class EncryptionUtil {
         cipherValue.setTextContent(encoded);
         cipherData.appendChild(cipherValue);
         encryptedData.appendChild(cipherData);
-        
+
         // TODO: now add this to the correct node and remove all other nodes as appropriate
         contentElementToEncrypt.appendChild(encryptedData);
     }
