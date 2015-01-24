@@ -21,7 +21,7 @@ import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.Crypto;
 import com.completetrsst.xml.XmlUtil;
 
-// https://svn.apache.org/repos/asf/santuario/xml-security-java/trunk/samples/org/apache/xml/security/samples/encryption/
+/** Supports encryption of Atom <content> nodes contained within Atom <entry> elements */
 public class EncryptionUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptionUtil.class);
