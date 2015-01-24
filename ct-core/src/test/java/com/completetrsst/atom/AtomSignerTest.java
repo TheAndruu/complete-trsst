@@ -19,6 +19,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
+import com.completetrsst.crypto.Common;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
@@ -38,8 +39,6 @@ public class AtomSignerTest {
     @Test
     public void createEntryAsDom() throws Exception {
         Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
-        System.out.println("Chck this out");
-System.out.println(TestUtil.format(XmlUtil.serializeDom(signedFeedAndEntry)));
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
@@ -87,6 +86,14 @@ System.out.println(TestUtil.format(XmlUtil.serializeDom(signedFeedAndEntry)));
         assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
         assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
         assertTrue(entry.getId().startsWith(AtomSigner.ENTRY_ID_PREFIX));
+    }
+    
+    @Test
+    public void createEntryHasSignElementOnFeed() throws Exception {
+        Element feed = signer.createEntryAsDom("title with sign node", keyPair);
+        Element signNode = (Element)TestUtil.getFirstElement(feed, AtomSigner.XMLNS_TRSST, "sign");
+        assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(keyPair.getPublic()));
+
     }
 
     /** Assert that newEntry is really just using our other "create new signed entry" method */
