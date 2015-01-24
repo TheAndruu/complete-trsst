@@ -20,22 +20,23 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 
 public class AtomSignerTest {
 
     private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
-    private AtomSigner publisher;
+    private AtomSigner signer;
 
     @Before
     public void init() {
-        publisher = new AtomSigner();
+        signer = new AtomSigner();
     }
 
     @Test
     public void createEntryAsDom() throws Exception {
-        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
 
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
@@ -48,7 +49,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryAsDomTamperedFeed() throws Exception {
-        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
@@ -60,10 +61,10 @@ public class AtomSignerTest {
         // Entry should still pass validation
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
     }
-
+    
     @Test
     public void createNewSignedEntryTamperedEntry() throws Exception {
-        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS, "entry").item(0);
@@ -79,7 +80,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryHasFieldsProperlySet() {
-        Entry entry = publisher.createEntry("new title");
+        Entry entry = signer.createEntry("new title");
         assertEquals("new title", entry.getTitle());
         assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
         assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
@@ -89,14 +90,14 @@ public class AtomSignerTest {
     /** Assert that newEntry is really just using our other "create new signed entry" method */
     @Test
     public void createEntryDelegatesToCreateEntryAsDom() throws Exception {
-        AtomSigner spy = spy(publisher);
+        AtomSigner spy = spy(signer);
         spy.createEntry("hi everybody!", keyPair);
         verify(spy).createEntryAsDom("hi everybody!", keyPair);
     }
 
     @Test
     public void newEntryId() {
-        String id = publisher.newEntryId();
+        String id = signer.newEntryId();
         assertTrue(id.startsWith(AtomSigner.ENTRY_ID_PREFIX));
         String justUuid = id.substring(AtomSigner.ENTRY_ID_PREFIX.length());
         // Type 4 UUID
@@ -109,7 +110,7 @@ public class AtomSignerTest {
 
     @Test
     public void createFeed() {
-        Feed feed = publisher.createFeed(keyPair.getPublic());
+        Feed feed = signer.createFeed(keyPair.getPublic());
         String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
         assertEquals(expectedId, feed.getId());
         assertEquals("atom_1.0", feed.getFeedType());
@@ -121,10 +122,25 @@ public class AtomSignerTest {
     public void getFeedId() {
         // Equals expected
         String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
-        assertEquals(expectedId, publisher.getFeedId(keyPair.getPublic()));
+        assertEquals(expectedId, signer.getFeedId(keyPair.getPublic()));
         // Doesn't equal some other key's ID
         KeyPair newKey = new EllipticCurveKeyCreator().createKeyPair();
         assertFalse(expectedId.equals(new AtomSigner().getFeedId(newKey.getPublic())));
     }
 
+    /**
+     * This is an important test, since moreoften we'll be verifying signatures after they've been serialized across a wire The effect of doing so
+     * often means XMLNS declarations will be moved around, breaking signatures in the process
+     */
+    @Test
+    public void signatureVerifiesAfterSerialization() throws Exception {
+        Element signedFeedAndEntry = signer.createEntryAsDom("another new title!", keyPair);
+
+        signedFeedAndEntry = XmlUtil.toDom(XmlUtil.serializeDom(signedFeedAndEntry));
+        
+        AtomVerifier verifier = new AtomVerifier();
+        assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
+        assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
+    }
+    
 }

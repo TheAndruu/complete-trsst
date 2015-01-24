@@ -61,10 +61,6 @@ public class AtomEncrypter {
         // Encrypt entry prior to signing
         util.encrypt(domEntry, encryptionKeys, recipientKeys);
 
-        // An important step, as it forces XMLNS declarations as they would appear to a recipient
-        // after serialization-- MUST be done prior to digitally signing
-        domEntry.getOwnerDocument().normalizeDocument();
-        
         // Sign and build feed
         signer.signAndBuildFeed(encryptionKeys, domEntry, domFeed);
 

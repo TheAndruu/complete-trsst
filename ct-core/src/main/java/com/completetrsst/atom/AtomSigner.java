@@ -62,6 +62,11 @@ public class AtomSigner {
 
     /** Signs the entry and feed elements separately, then attaches the entry element to the feed */
     void signAndBuildFeed(KeyPair keyPair, Element domEntry, Element domFeed) throws XMLSignatureException {
+        // An important step, as it forces XMLNS declarations as they would appear to a recipient
+        // after serialization-- MUST be done prior to digitally signing
+        domEntry.getOwnerDocument().normalizeDocument();
+        domFeed.getOwnerDocument().normalizeDocument();
+
         // Sign each separately
         SignatureUtil.signElement(domEntry, keyPair);
         SignatureUtil.signElement(domFeed, keyPair);
