@@ -3,6 +3,7 @@ package com.completetrsst.xml;
 import static java.nio.file.Files.readAllBytes;
 import static java.nio.file.Paths.get;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -45,15 +46,19 @@ public class TestUtil {
     public static final String FEED_VALID_ENTRY_TAMPERED;
     public static final String FEED_TAMPERED_ENTRY_VALID;
     public static final String FEED_TAMPERED_ENTRY_TAMPERED;
+    public static final String FEED_TAMPERED_ENTRY_VALID_FROM_OTHER_FEED;
 
+    private static final String sep = File.separator;
     static {
         PLAIN_ATOM_ENTRY = TestUtil.class.getResource("plainAtomEntry.xml").getPath();
         SIGNED_ATOM_ENTRY = TestUtil.class.getResource("signedAtomEntry.xml").getPath();
 
         FEED_VALID_ENTRY_VALID = TestUtil.class.getResource("feedValidEntryValid.xml").getPath();
-        FEED_VALID_ENTRY_TAMPERED = TestUtil.class.getResource("tampered/feedValidEntryTampered.xml").getPath();
-        FEED_TAMPERED_ENTRY_VALID = TestUtil.class.getResource("tampered/feedTamperedEntryValid.xml").getPath();
-        FEED_TAMPERED_ENTRY_TAMPERED = TestUtil.class.getResource("tampered/feedTamperedEntryTampered.xml").getPath();
+        FEED_VALID_ENTRY_TAMPERED = TestUtil.class.getResource("tampered" + sep + "feedValidEntryTampered.xml").getPath();
+        FEED_TAMPERED_ENTRY_VALID = TestUtil.class.getResource("tampered" + sep + "feedTamperedEntryValid.xml").getPath();
+        FEED_TAMPERED_ENTRY_TAMPERED = TestUtil.class.getResource("tampered" + sep + "feedTamperedEntryTampered.xml").getPath();
+        FEED_TAMPERED_ENTRY_VALID_FROM_OTHER_FEED = TestUtil.class.getResource("tampered" + sep + "feedTamperedEntryValidFromOtherFeed.xml")
+                .getPath();
     }
 
     public static String readFile(String path) throws IOException {
@@ -149,7 +154,7 @@ public class TestUtil {
         }
         return nodes;
     }
-    
+
     /** Returns the first child element with specified XMLNS / name match, or null if none exists */
     public static Node getFirstElement(Element node, String xmlns, String nodeName) {
         NodeList nodeList = node.getElementsByTagNameNS(xmlns, nodeName);

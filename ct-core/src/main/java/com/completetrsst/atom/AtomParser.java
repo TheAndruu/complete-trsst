@@ -2,9 +2,7 @@ package com.completetrsst.atom;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import javax.xml.crypto.KeySelector.Purpose;
 import javax.xml.crypto.KeySelectorException;
@@ -27,7 +25,6 @@ import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.crypto.xml.SignatureUtil;
-import com.rometools.rome.io.impl.DateParser;
 
 /**
  * Helps with parsing Atom content.
@@ -89,23 +86,23 @@ public class AtomParser {
 		doc.appendChild(domNode);
 	}
 
-	/**
-	 * Returns the text content of the first child node of type 'updated'
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if no such node exists
-	 */
-	public Date getDateUpdated(Element domElement) {
-		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "updated");
-		if (nl.getLength() == 0) {
-			log.debug("Atom entries must have an <updated> element");
-			throw new IllegalArgumentException("Atom entries must have a <updated> element");
-		} else {
-			String formattedDate = nl.item(0).getTextContent();
-			Date date = DateParser.parseW3CDateTime(formattedDate, Locale.US);
-			return date;
-		}
-	}
+//	/**
+//	 * Returns the text content of the first child node of type 'updated'
+//	 * 
+//	 * @throws IllegalArgumentException
+//	 *             if no such node exists
+//	 */
+//	public Date getDateUpdated(Element domElement) {
+//		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "updated");
+//		if (nl.getLength() == 0) {
+//			log.debug("Atom entries must have an <updated> element");
+//			throw new IllegalArgumentException("Atom entries must have a <updated> element");
+//		} else {
+//			String formattedDate = nl.item(0).getTextContent();
+//			Date date = DateParser.parseW3CDateTime(formattedDate, Locale.US);
+//			return date;
+//		}
+//	}
 
 	/**
 	 * Returns the text content of the first child of the given node of type
@@ -141,7 +138,6 @@ public class AtomParser {
 		}
 	}
 
-	// TODO: Test me
 	public boolean doEntriesMatchFeedId(String feedId, List<Node> detachedEntries) throws XMLSignatureException {
 		boolean doMatch = false;
 		for (Node entry : detachedEntries) {

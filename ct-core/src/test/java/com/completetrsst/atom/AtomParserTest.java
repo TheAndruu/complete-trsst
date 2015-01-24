@@ -28,7 +28,7 @@ public class AtomParserTest {
 
 	@Test
 	public void testRemoveEntryNodes() throws Exception {
-		Element signedFeedAndEntries = new AtomSigner().createNewSignedEntry(ENTRY_TITLE, keyPair);
+		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, keyPair);
 
 		String rawXmlWithEntries = XmlUtil.serializeDom(signedFeedAndEntries);
 
@@ -48,7 +48,7 @@ public class AtomParserTest {
 
 	@Test
 	public void testAddEntryNodes() throws Exception {
-		Element signedFeedAndEntries = new AtomSigner().createNewSignedEntry(ENTRY_TITLE, keyPair);
+		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, keyPair);
 		org.jdom2.Element jdomFeed = XmlUtil.toJdom(signedFeedAndEntries);
 		jdomFeed.addContent(createJdomEntry("first entry"));
 		jdomFeed.addContent(createJdomEntry("second entry"));

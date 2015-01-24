@@ -66,7 +66,14 @@ public class CompleteTrsstOps implements TrsstOperations {
 
     }
 
-    /** Takes in raw signed XML and creates new or adds to existing Atom feed */
+    /**
+     * Takes in raw signed XML and creates new or adds to existing Atom feed
+     * 
+     * @throws XMLSignatureException
+     *             if the given XML isn't properly signed
+     * @throws IllegalArgumentException
+     *             if the given XML isn't properly constructed (missing end tag or something)
+     */
     @Override
     public String publishSignedContent(String signedXml) throws XMLSignatureException, IllegalArgumentException {
         log.info("Received signed XML to publish!");
@@ -109,7 +116,7 @@ public class CompleteTrsstOps implements TrsstOperations {
         return "Stored onto feed " + feedId;
     }
 
-    private void verifySignedContent(Element domElement) throws XMLSignatureException {
+    void verifySignedContent(Element domElement) throws XMLSignatureException {
         AtomVerifier verifier = new AtomVerifier();
         boolean isFeedValid = verifier.isFeedVerified(domElement);
         if (!isFeedValid) {
@@ -123,11 +130,11 @@ public class CompleteTrsstOps implements TrsstOperations {
         }
     }
 
-	@Override
+    @Override
     public String searchEntries(String searchString) {
-	    // TODO: Use Entry and Feed objects rather than building manually
-	    List<String> foundEntries =  storage.searchEntries(searchString);
-	    StringBuilder builder = new StringBuilder();
+        // TODO: Use Entry and Feed objects rather than building manually
+        List<String> foundEntries = storage.searchEntries(searchString);
+        StringBuilder builder = new StringBuilder();
         builder.append("<feed xmlns=\"http://www.w3.org/2005/Atom\">");
         builder.append("<id>");
         builder.append(TrsstKeyFunctions.toFeedUrn(UUID.randomUUID().toString()));

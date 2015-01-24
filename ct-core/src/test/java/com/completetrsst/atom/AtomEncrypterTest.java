@@ -1,9 +1,17 @@
 package com.completetrsst.atom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -13,15 +21,32 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.crypto.keys.KeyCreator;
+import com.completetrsst.crypto.xml.encrypt.EncryptionUtil;
 import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Content;
 import com.rometools.rome.feed.atom.Entry;
 
 public class AtomEncrypterTest {
+    private static final KeyCreator creator = new EllipticCurveKeyCreator();
+    private static final KeyPair encryptionKeys = creator.createKeyPair();
 
-    private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
     private AtomEncrypter encrypter;
+
+    private static final List<PublicKey> recipientPublicKeys = new ArrayList<PublicKey>();
+    private static final List<PrivateKey> recipientPrivateKeys = new ArrayList<PrivateKey>();
+
+    private static final EncryptionUtil util = new EncryptionUtil();
+
+    static {
+        // Add a few public keys to decrypt the messages
+        for (int i = 0; i < 3; i++) {
+            KeyPair keyPair = creator.createKeyPair();
+            recipientPublicKeys.add(keyPair.getPublic());
+            recipientPrivateKeys.add(keyPair.getPrivate());
+        }
+    }
 
     @Before
     public void init() {
@@ -29,8 +54,8 @@ public class AtomEncrypterTest {
     }
 
     @Test
-    public void testCreateEntry() throws Exception {
-        Entry entry = encrypter.createEntry("your title goes here");
+    public void createEntryTitleInContent() throws Exception {
+        Entry entry = encrypter.createEntryTitleInContent("your title goes here");
         assertEquals(AtomEncrypter.ENCRYPTED_TITLE, entry.getTitle());
 
         List<Content> contents = entry.getContents();
@@ -41,34 +66,118 @@ public class AtomEncrypterTest {
     }
 
     @Test
-    public void signedElementHasTitleAsContent() throws Exception {
-        String rawXml = encrypter.newEntry("My other new title", keyPair);
-        Element entryNode = XmlUtil.toDom(rawXml);
-        NodeList contentNodeList = entryNode.getElementsByTagNameNS(AtomSigner.XMLNS, "content");
-        assertEquals(1, contentNodeList.getLength());
-        Node contentNode = contentNodeList.item(0);
+    public void createEncryptedEntryIsProperlySignedTestFeedFirst() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
 
-        Node titleNode = TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS, "title");
-        assertEquals(AtomEncrypter.ENCRYPTED_TITLE, titleNode.getTextContent());
-        
-        // TODO: Once encryption happens, the 'type' should be 'application/xenc+xml'
-        // attribute is a node of "type='text'"
-        assertEquals("text", contentNode.getAttributes().item(0).getNodeValue());
-        // TODO: Once encryption happens, assert this doesn't equal the given title
-        assertEquals("My other new title", contentNode.getTextContent());
+        // Assert the feed verifies
+        AtomVerifier verifier = new AtomVerifier();
+        boolean feedValid = verifier.isFeedVerified(entryNode);
+        assertTrue(feedValid);
+
+        // Assert the entry verifies
+        boolean entryValid = verifier.areEntriesVerified(entryNode);
+        assertTrue(entryValid);
     }
 
     @Test
-    public void signedElementSignatureVerifies() throws Exception {
-        String rawXml = encrypter.newEntry("And yet another new title", keyPair);
-        Element entryNode = XmlUtil.toDom(rawXml);
+    public void createEncryptedEntryIsProperlySignedTestEntryFirst() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
+
         AtomVerifier verifier = new AtomVerifier();
         // Assert the entry verifies
         boolean entryValid = verifier.areEntriesVerified(entryNode);
         assertTrue(entryValid);
+
         // Assert the feed verifies
         boolean feedValid = verifier.isFeedVerified(entryNode);
         assertTrue(feedValid);
     }
 
+    /**
+     * This is an important test, since moreoften we'll be verifying signatures after they've been serialized across a wire The effect of doing so
+     * often means XMLNS declarations will be moved around, breaking signatures in the process
+     */
+    @Test
+    public void createEncryptedEntryIsProperlySignedAfterSerialization() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
+
+        entryNode = XmlUtil.toDom(XmlUtil.serializeDom(entryNode));
+
+        // Assert the feed verifies
+        AtomVerifier verifier = new AtomVerifier();
+        boolean feedValid = verifier.isFeedVerified(entryNode);
+        assertTrue(feedValid);
+
+        // Assert the entry verifies
+        boolean entryValid = verifier.areEntriesVerified(entryNode);
+        assertTrue(entryValid);
+    }
+
+    @Test
+    public void createEncryptedEntryHasExpectedTitle() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        AtomParser parser = new AtomParser();
+        List<Node> entryNodes = parser.removeEntryNodes(entryNode);
+        assertEquals(1, entryNodes.size());
+        // Get the entry node before grabbing the title
+        // otherwise, if we ever add titles to feeds, the TestUtil.getFirstElement() would get the feed's title
+        assertEquals(AtomEncrypter.ENCRYPTED_TITLE, TestUtil.getFirstElement((Element) entryNodes.get(0), AtomSigner.XMLNS, "title").getTextContent());
+    }
+
+    @Test
+    public void createEncryptedEntryHasEncryptedContent() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+
+        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS, "content");
+        assertFalse("Titles rock".equals(contentDom.getTextContent()));
+
+        NodeList contentChildren = contentDom.getElementsByTagNameNS(EncryptionUtil.XMLNS_ENCRYPT, "EncryptedData");
+        // Number encrypted data nodes = num recipients keys + author's public key + node containing actual encrypted content
+        assertEquals(recipientPublicKeys.size() + 2, contentChildren.getLength());
+    }
+
+    @Test
+    public void encryptedEntryIsDecryptableByRecipients() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+
+        for (PrivateKey key : recipientPrivateKeys) {
+            Element content = util.decryptText(entryNode, key);
+            String contentText = content.getTextContent();
+            assertEquals("Titles rock", contentText);
+        }
+
+    }
+
+    @Test
+    public void encryptedEntryIsDecryptableByAuthor() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+
+        Element content = util.decryptText(entryNode, encryptionKeys.getPrivate());
+        String contentText = content.getTextContent();
+        assertEquals("Titles rock", contentText);
+    }
+
+    @Test
+    public void encryptedEntryIsNotDecryptableByRandomKey() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+
+        Element content = null;
+        try {
+            content = util.decryptText(entryNode, creator.createKeyPair().getPrivate());
+            fail("Should throw an exception as we can't decrypt with this key");
+        } catch (GeneralSecurityException e) {
+            // We hope to get here
+        }
+        assertNull(content);
+
+        // Just to be sure the content is still not decrypted
+        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS, "content");
+        assertFalse("Titles rock".equals(contentDom.getTextContent()));
+    }
+
+    // For help with some other test classes
+    public static Element createUnencryptedEntryWithContent(String title) throws IOException {
+        Entry entry = new AtomEncrypter().createEntryTitleInContent(title);
+        return new AtomSigner().toDom(entry);
+    }
 }

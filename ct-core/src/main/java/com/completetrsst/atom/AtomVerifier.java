@@ -1,5 +1,6 @@
 package com.completetrsst.atom;
 
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -38,7 +39,9 @@ public class AtomVerifier {
         List<Node> removedEntries = parser.removeEntryNodes(feedAndEntry);
 
         boolean isVerified = true;
-        for (Node entryNode : removedEntries) {
+        Iterator<Node> removedEntryIterator = removedEntries.iterator();
+        while(removedEntryIterator.hasNext() && isVerified) {
+            Node entryNode = removedEntryIterator.next();
             isVerified = isVerified && SignatureUtil.verifySignature((Element) entryNode);
         }
 

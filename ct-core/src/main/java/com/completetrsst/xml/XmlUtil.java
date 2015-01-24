@@ -43,16 +43,8 @@ public class XmlUtil {
             dbf.setNamespaceAware(true);
             Document domDoc = dbf.newDocumentBuilder().parse(new ByteArrayInputStream(xmlBytes));
             return domDoc.getDocumentElement();
-        } catch (IOException e) {
-            String message = "IO exception" + e.getMessage();
-            log.debug(message);
-            throw new IOException(message, e);
-        } catch (ParserConfigurationException e) {
-            String message = "Parser exception" + e.getMessage();
-            log.debug(message);
-            throw new IOException(message, e);
-        } catch (SAXException e) {
-            String message = "Sax exception" + e.getMessage();
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            String message = "Exception" + e.getMessage();
             log.debug(message);
             throw new IOException(message, e);
         }
@@ -87,8 +79,7 @@ public class XmlUtil {
         LSSerializer serializer = domImplLS.createLSSerializer();
         // by default its true, so set it to omit printing xml-declaration
         serializer.getDomConfig().setParameter("xml-declaration", false);
-        String str = serializer.writeToString(domElement);
-        return str;
+        return serializer.writeToString(domElement);
     }
 
 }

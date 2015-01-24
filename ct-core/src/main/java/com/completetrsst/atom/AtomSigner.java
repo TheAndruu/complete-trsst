@@ -34,30 +34,34 @@ public class AtomSigner {
     public static final String ENTRY_ID_PREFIX = "urn:uuid:";
 
     /**
-     * Creates a new signed Atom entry with given title, wrapped inside an individually-sigend Atom feed element.
+     * Creates a new signed Atom entry with given title, wrapped inside an individually-signed Atom feed element.
      * 
      * @param entryTitle
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public String newEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
-        return XmlUtil.serializeDom(createNewSignedEntry(entryTitle, keyPair));
+    public String createEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
+        return XmlUtil.serializeDom(createEntryAsDom(entryTitle, keyPair));
     }
 
     /**
-     * Creates a new signed Atom entry with given title, wrapped inside an individually-sigend Atom feed element.
+     * Creates a new signed Atom entry inside a feed with given title, wrapped inside an individually-signed Atom feed element.
      * 
      * @param entryTitle
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    protected Element createNewSignedEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
+    public Element createEntryAsDom(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
         // Construct the feed and entry
         Element domEntry = toDom(createEntry(entryTitle));
         Element domFeed = toDom(createFeed(keyPair.getPublic()));
 
-        finalizeBeforeSigning(domEntry);
+        signAndBuildFeed(keyPair, domEntry, domFeed);
+        return domFeed;
+    }
 
+    /** Signs the entry and feed elements separately, then attaches the entry element to the feed */
+    void signAndBuildFeed(KeyPair keyPair, Element domEntry, Element domFeed) throws XMLSignatureException {
         // Sign each separately
         SignatureUtil.signElement(domEntry, keyPair);
         SignatureUtil.signElement(domFeed, keyPair);
@@ -65,13 +69,6 @@ public class AtomSigner {
         // Add the entry to the feed
         domFeed.getOwnerDocument().adoptNode(domEntry);
         domFeed.appendChild(domEntry);
-
-        return domFeed;
-    }
-
-    /** Method to allow any final modifications prior to signing the entry elemnet */
-    protected void finalizeBeforeSigning(Element domEntry) {
-        // nothing here, extending classes have the option of supplying logic here
     }
 
     /**

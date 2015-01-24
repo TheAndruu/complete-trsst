@@ -39,7 +39,7 @@ public class RestControllerIntegrationTest {
 
     @Test
     public void testPublishSignedEntry() throws Exception {
-        String rawXml = signer.newEntry("In the jungle the mighty jungle, the lion sleeps tonight!", keyPair);
+        String rawXml = signer.createEntry("In the jungle the mighty jungle, the lion sleeps tonight!", keyPair);
         ResponseEntity<String> response;
         try {
             response = rest.postForEntity("http://localhost:8080/publish", rawXml, String.class);
@@ -52,7 +52,7 @@ public class RestControllerIntegrationTest {
 
     @Test
     public void testPublishTamperedEntry() throws Exception {
-        String rawXml = signer.newEntry("my own title to replace", keyPair);
+        String rawXml = signer.createEntry("my own title to replace", keyPair);
         rawXml = rawXml.replace("my own title to replace", "i've been tampered!");
 
         try {
@@ -66,12 +66,12 @@ public class RestControllerIntegrationTest {
     @Test
     public void testReadFeed() throws Exception {
         AtomSigner signer = new AtomSigner();
-        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("First new post!", keyPair), String.class);
+        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("First new post!", keyPair), String.class);
         // To ensure we have different timestamps on the entries
         Thread.sleep(1);
-        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Second entry title!", keyPair), String.class);
+        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("Second entry title!", keyPair), String.class);
         Thread.sleep(1);
-        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("Third time's the charm!", keyPair), String.class);
+        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("Third time's the charm!", keyPair), String.class);
 
         // Now read the feed
         String feedId = TrsstKeyFunctions.toFeedId(keyPair.getPublic());
@@ -93,26 +93,26 @@ public class RestControllerIntegrationTest {
 
     @Test
     public void testSearchEntries() throws Exception {
-        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("George Washington wrote this new post!", keyPair), String.class);
-        rest.postForEntity("http://localhost:8080/publish", signer.newEntry("John Adams wrote this new entry!", keyPair), String.class);
-        
+        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("George Washington wrote this new post!", keyPair), String.class);
+        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("John Adams wrote this new entry!", keyPair), String.class);
+
         String response = rest.getForEntity("http://localhost:8080/search/wrote", String.class).getBody();
         assertTrue(response.contains("George Washington"));
         assertTrue(response.contains("John Adams"));
-        
+
         response = rest.getForEntity("http://localhost:8080/search/washington", String.class).getBody();
         assertTrue(response.contains("George Washington"));
         assertFalse(response.contains("John Adams"));
-        
+
         response = rest.getForEntity("http://localhost:8080/search/john+adams", String.class).getBody();
         assertFalse(response.contains("George Washington"));
         assertTrue(response.contains("John Adams"));
-        
+
         response = rest.getForEntity("http://localhost:8080/search/potato", String.class).getBody();
         assertFalse(response.contains("George Washington"));
         assertFalse(response.contains("John Adams"));
     }
-    
+
     @Test
     public void testPing() throws ConnectException {
         ResponseEntity<String> pingResponse = sendPing();

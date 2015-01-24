@@ -20,7 +20,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
-import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
 
@@ -35,8 +34,8 @@ public class AtomSignerTest {
     }
 
     @Test
-    public void createNewSignedEntry() throws Exception {
-        Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
+    public void createEntryAsDom() throws Exception {
+        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
 
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
@@ -48,8 +47,8 @@ public class AtomSignerTest {
     }
 
     @Test
-    public void createNewSignedEntryTamperedFeed() throws Exception {
-        Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
+    public void createEntryAsDomTamperedFeed() throws Exception {
+        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
@@ -64,7 +63,7 @@ public class AtomSignerTest {
 
     @Test
     public void createNewSignedEntryTamperedEntry() throws Exception {
-        Element signedFeedAndEntry = publisher.createNewSignedEntry("hi everybody!", keyPair);
+        Element signedFeedAndEntry = publisher.createEntryAsDom("hi everybody!", keyPair);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS, "entry").item(0);
@@ -78,34 +77,21 @@ public class AtomSignerTest {
         assertFalse(verifier.areEntriesVerified(signedFeedAndEntry));
     }
 
-    /**
-     * Really just invokes the other publish() method, but couple simple tests to enforce it's operating.
-     */
     @Test
-    public void newEntry() throws Exception {
-        Element firstFeed = publisher.createNewSignedEntry("hi everybody!", keyPair);
-        String asString = publisher.newEntry("hi everybody!", keyPair);
-        Element secondFeed = XmlUtil.toDom(asString);
-
-        assertEquals(findAsString("id", firstFeed), findAsString("id", secondFeed));
-        Element firstEntry = (Element) firstFeed.getElementsByTagName("entry").item(0);
-        Element secondEntry = (Element) secondFeed.getElementsByTagName("entry").item(0);
-        String firstTitleNode = findAsString("title", firstEntry);
-        assertEquals(firstTitleNode, findAsString("title", secondEntry));
-        assertEquals("hi everybody!", XmlUtil.toDom(firstTitleNode).getTextContent());
-
+    public void createEntryHasFieldsProperlySet() {
+        Entry entry = publisher.createEntry("new title");
+        assertEquals("new title", entry.getTitle());
+        assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
+        assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
+        assertTrue(entry.getId().startsWith(AtomSigner.ENTRY_ID_PREFIX));
     }
 
     /** Assert that newEntry is really just using our other "create new signed entry" method */
     @Test
-    public void newEntryDelegatesCreateNewSignedEntyr() throws Exception {
+    public void createEntryDelegatesToCreateEntryAsDom() throws Exception {
         AtomSigner spy = spy(publisher);
-        spy.newEntry("hi everybody!", keyPair);
-        verify(spy).createNewSignedEntry("hi everybody!", keyPair);
-    }
-
-    private String findAsString(String nodeName, Element domElement) throws Exception {
-        return XmlUtil.serializeDom((Element) domElement.getElementsByTagName(nodeName).item(0));
+        spy.createEntry("hi everybody!", keyPair);
+        verify(spy).createEntryAsDom("hi everybody!", keyPair);
     }
 
     @Test
@@ -119,15 +105,6 @@ public class AtomSignerTest {
         String y = justUuid.substring(19, 20);
         List<String> allowedY = Arrays.asList("8", "9", "A", "B", "a", "b");
         assertTrue(allowedY.contains(y));
-    }
-
-    @Test
-    public void createEntry() {
-        Entry entry = publisher.createEntry("new title");
-        assertEquals("new title", entry.getTitle());
-        assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
-        assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
-        assertTrue(entry.getId().startsWith(AtomSigner.ENTRY_ID_PREFIX));
     }
 
     @Test
