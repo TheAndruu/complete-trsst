@@ -19,17 +19,37 @@ To run
 
 ### Linux / Mac OSX
 
-At a terminal from the project's root directory execute:
+To execute the development server, within a terminal from the project's root directory execute:
 `./gradlew bootRun`
 
 ### Windows
 
-From the command prompt in the project's root directory, execute:
+To execute the development server, within the command prompt in the project's root directory, execute:
 `gradlew.bat bootRun`
+
+### Standalone server
+Using `gradlew` as described above for your operating system, execute:
+`./gradlew assemble`
+
+The standalone server will then be created at:
+`ct-webapp/build/libs/ct-webapp-1.0.war`
+
+To run this server in a terminal, copy the war wherever desired and execute:
+`java -jar ct-webapp-1.0.war`
+
+### Deployed in a Tomcat
+
+Build the `ct-webapp-1.0.war` file as described above.
+Copy the built war file into TOMCAT_HOME/webapps
+Start Tomcat using `./startup.sh`
+
+Note: In this method, the URLs will reflect the name of the WAR file, for example, the 'search' URL would be: http://localhost:8080/ct-webapp-1.0/search
+
+One way this can be altered is by renaming the war file prior to copying to 'webapps', such as to 'trsst.war' which would make the above URL: http://localhost:8080/trsst/search.  To see other ways this path can be configured, consult the Tomcat documentation.
 
 Brief Overview
 --------
-Trsst syndicates digitally signed content with the highest grade cryptographic technology.
+Trsst syndicates digitally signed content with high grade cryptographic technology.
 
 This provides message confidentiality across a number of dimensions:
 
@@ -37,7 +57,7 @@ This provides message confidentiality across a number of dimensions:
 - Integrity - Knowing if messages were tampered or modified in any way
 - Non-repudiation - It cannot be denied that the message came from a given account
 
-
+Trsst also enables encryption of message payloads using Public Key Cryptography. Since you own the keys, it's practically impossible for another party to read your private messages so long as they don't have your private key.
 
 Examples:
 ---------
@@ -73,9 +93,24 @@ Signatures are only good if you can verify them, right?  To do so:
 The verification functions independently determine the signatures of the given feeds and entries.  
 
 They return true if the signatures are valid, false if the content is modified, or `XMLSignatureException` if the signature is missing or broken.  For full use, see the JavaDocs.
-    
 
-#### Post a signed message
+#### Create a signed, encrypted message
+
+Trsst provides signed and encrypted private messages.  In addition to all the benefits of signed messages, these are virtually impossible to be decrypted by anyone not in possession of your private key, or the private keys of your recipients.
+
+    AtomEncrypter encrypter = new AtomEncrypter();
+    String signedEncryptedPost = encrypter.createEncryptedEntry("another new title", encryptionKeys, recipientPublicKeys);
+
+`signedEncryptedPost` will contain the Atom xml, with the given title encrypted as the Content of the Atom Entry, and will only be decryptable by the `encryptionKeys` keypair and the `recipientPublicKeys`
+
+### Decrypt a signed, encrypted message
+
+To decrypt an encrypted message, one must have either the signer's private key, or a private key of one of the recipients.  With these, a message may be decrypted by:
+
+    EncryptionUtil util = new EncryptionUtil();
+    String textContent = util.decryptText(signedEncryptedEntry, encryptionKeys.getPrivate());
+
+#### Post a message
 
 Messages are posted as Entries contained inside their respective Feed (both elements signed).  This allows the server to validate not only the content, but also authorize who may post to the given feed, since Feed IDs correspond with the keypair used to sign the content.
 

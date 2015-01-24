@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -91,6 +93,19 @@ public class AtomEncrypterTest {
         // Assert the feed verifies
         boolean feedValid = verifier.isFeedVerified(entryNode);
         assertTrue(feedValid);
+    }
+    
+    @Test
+    public void createEncryptedEntryDelegates() throws Exception {
+        AtomEncrypter spy = spy(encrypter);
+        String rawXml = spy.createEncryptedEntry("another new title", encryptionKeys, recipientPublicKeys);
+        
+        // ensure we call the guy we want
+        verify(spy).createEncryptedEntryAsDom("another new title", encryptionKeys, recipientPublicKeys);
+        
+        // Ensure it contains the encrypted text as expected
+        assertTrue(rawXml.contains("Encrypted content"));
+        assertFalse(rawXml.contains("another new title"));
     }
 
     /**
