@@ -5,6 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -78,7 +80,7 @@ public class EncryptionUtilTest {
         Node contentNode = TestUtil.getFirstElement(entry, AtomSigner.XMLNS, "content");
         assertFalse("my second encrypted entry".equals(contentNode.getTextContent()));
 
-        Element decryptedContent = util.decryptText(entry, encryptionKeys.getPrivate());
+        Element decryptedContent = util.decrypt(entry, encryptionKeys.getPrivate());
         assertTrue("my second encrypted entry".equals(decryptedContent.getTextContent()));
     }
 
@@ -92,7 +94,7 @@ public class EncryptionUtilTest {
 
         Element content = null;
         try {
-            content = util.decryptText(entry, newKeyPair.getPrivate());
+            content = util.decrypt(entry, newKeyPair.getPrivate());
             fail("Should have thrown an exception because we didn't use the right key to decrypt");
         } catch (GeneralSecurityException e) {
             // we want to get here
@@ -106,15 +108,24 @@ public class EncryptionUtilTest {
     @Test
     public void decryptWithRecipientsKeys() throws Exception {
         Element entry = AtomEncrypterTest.createUnencryptedEntryWithContent("my fourth encrypted entry");
-
         util.encrypt(entry, encryptionKeys, recipientPublicKeys);
 
         for (PrivateKey key : recipientPrivateKeys) {
-            Element content = util.decryptText(entry, key);
+            Element content = util.decrypt(entry, key);
             String contentText = content.getTextContent();
             assertEquals("my fourth encrypted entry", contentText);
         }
-
+    }
+    
+    @Test
+    public void decryptTextDelegatesToDecrypt() throws Exception {
+        Element entry = AtomEncrypterTest.createUnencryptedEntryWithContent("my fifth encrypted entry");
+        util.encrypt(entry, encryptionKeys, recipientPublicKeys);
+        
+        EncryptionUtil spy = spy(util);
+        String result = spy.decryptText(entry, encryptionKeys.getPrivate());
+        verify(spy).decrypt(entry, encryptionKeys.getPrivate());
+        assertEquals("my fifth encrypted entry", result);
     }
 
 }

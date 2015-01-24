@@ -141,7 +141,7 @@ public class AtomEncrypterTest {
         Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
 
         for (PrivateKey key : recipientPrivateKeys) {
-            Element content = util.decryptText(entryNode, key);
+            Element content = util.decrypt(entryNode, key);
             String contentText = content.getTextContent();
             assertEquals("Titles rock", contentText);
         }
@@ -152,7 +152,7 @@ public class AtomEncrypterTest {
     public void encryptedEntryIsDecryptableByAuthor() throws Exception {
         Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
 
-        Element content = util.decryptText(entryNode, encryptionKeys.getPrivate());
+        Element content = util.decrypt(entryNode, encryptionKeys.getPrivate());
         String contentText = content.getTextContent();
         assertEquals("Titles rock", contentText);
     }
@@ -163,7 +163,7 @@ public class AtomEncrypterTest {
 
         Element content = null;
         try {
-            content = util.decryptText(entryNode, creator.createKeyPair().getPrivate());
+            content = util.decrypt(entryNode, creator.createKeyPair().getPrivate());
             fail("Should throw an exception as we can't decrypt with this key");
         } catch (GeneralSecurityException e) {
             // We hope to get here

@@ -1,5 +1,6 @@
 package com.completetrsst.atom;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -48,5 +49,4 @@ public class AtomVerifierTest {
     	dom = TestUtil.readDomFromFile(TestUtil.FEED_TAMPERED_ENTRY_TAMPERED);
     	assertFalse(verifier.areEntriesVerified(dom));
     }
-
 }

@@ -108,13 +108,32 @@ public class EncryptionUtil {
     }
 
     /**
-     * Decrypts the 'content' node of an Entry element in dom form and returns the decrypted content node as a DOM element
+     * Decrypts the content of an Atom entry node, represented in DOM form and returns the Text content
      * 
-     * @param entryWithEncryptedContent
+     * @param entryDom
+     *            Atom Entry DOM node
      * @param privateKey
+     *            The private key who can decrypt the content
+     * @return The text of the decrypted content
      * @throws GeneralSecurityException
+     *             If the private key cannot decrypt the content of the Atom entry
      */
-    public Element decryptText(Element entryWithEncryptedContent, PrivateKey privateKey) throws GeneralSecurityException {
+    public String decryptText(Element entryDom, PrivateKey privateKey) throws GeneralSecurityException {
+        return decrypt(entryDom, privateKey).getTextContent();
+    }
+
+    /**
+     * Decrypts the content of an Atom entry node, represented in DOM form and returns the Content which was decrypted
+     * 
+     * @param entryDom
+     *            Atom Entry DOM node
+     * @param privateKey
+     *            The private key who can decrypt the content
+     * @return The decrypted content node in DOM form
+     * @throws GeneralSecurityException
+     *             If the private key cannot decrypt the content of the Atom entry
+     */
+    public Element decrypt(Element entryWithEncryptedContent, PrivateKey privateKey) throws GeneralSecurityException {
         Node contentNode = getContentNode(entryWithEncryptedContent);
         NodeList encryptedElements = contentNode.getChildNodes();
         int numChildren = encryptedElements.getLength();
