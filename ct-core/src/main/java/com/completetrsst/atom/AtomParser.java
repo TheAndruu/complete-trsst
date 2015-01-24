@@ -50,7 +50,7 @@ public class AtomParser {
 	 * their own document.
 	 */
 	public List<Node> removeEntryNodes(Element domContainingEntries) {
-		NodeList nodeList = domContainingEntries.getElementsByTagNameNS(AtomSigner.XMLNS, "entry");
+		NodeList nodeList = domContainingEntries.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "entry");
 
 		List<Node> removedNodes = new ArrayList<Node>();
 		int numEntryNodes = nodeList.getLength();
@@ -112,7 +112,7 @@ public class AtomParser {
 	 *             if no such node exists
 	 */
 	public String getId(Element domElement) {
-		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "id");
+		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "id");
 		if (nl.getLength() == 0) {
 			log.debug("Atom entries must have an <id> element");
 			throw new IllegalArgumentException("Atom entries must have a <id> element");
@@ -129,7 +129,7 @@ public class AtomParser {
 	 *             if no such node exists
 	 */
 	public String getTitle(Element domElement) {
-		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS, "title");
+		NodeList nl = domElement.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "title");
 		if (nl.getLength() == 0) {
 			log.debug("Atom entries must have an <title> element");
 			throw new IllegalArgumentException("Atom entries must have a <title> element");

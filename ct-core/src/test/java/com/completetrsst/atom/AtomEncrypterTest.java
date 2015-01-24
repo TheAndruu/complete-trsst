@@ -136,14 +136,14 @@ public class AtomEncrypterTest {
         assertEquals(1, entryNodes.size());
         // Get the entry node before grabbing the title
         // otherwise, if we ever add titles to feeds, the TestUtil.getFirstElement() would get the feed's title
-        assertEquals(AtomEncrypter.ENCRYPTED_TITLE, TestUtil.getFirstElement((Element) entryNodes.get(0), AtomSigner.XMLNS, "title").getTextContent());
+        assertEquals(AtomEncrypter.ENCRYPTED_TITLE, TestUtil.getFirstElement((Element) entryNodes.get(0), AtomSigner.XMLNS_ATOM, "title").getTextContent());
     }
 
     @Test
     public void createEncryptedEntryHasEncryptedContent() throws Exception {
         Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
 
-        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS, "content");
+        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS_ATOM, "content");
         assertFalse("Titles rock".equals(contentDom.getTextContent()));
 
         NodeList contentChildren = contentDom.getElementsByTagNameNS(EncryptionUtil.XMLNS_ENCRYPT, "EncryptedData");
@@ -186,7 +186,7 @@ public class AtomEncrypterTest {
         assertNull(content);
 
         // Just to be sure the content is still not decrypted
-        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS, "content");
+        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS_ATOM, "content");
         assertFalse("Titles rock".equals(contentDom.getTextContent()));
     }
 

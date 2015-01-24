@@ -59,7 +59,7 @@ public class EncryptionUtilTest {
     public void testEncrypt() throws Exception {
         Element unencryptedEntry = AtomEncrypterTest.createUnencryptedEntryWithContent("New titles rock");
 
-        Node contentNode = TestUtil.getFirstElement(unencryptedEntry, AtomSigner.XMLNS, "content");
+        Node contentNode = TestUtil.getFirstElement(unencryptedEntry, AtomSigner.XMLNS_ATOM, "content");
         assertEquals("New titles rock", contentNode.getTextContent());
         assertEquals(1, contentNode.getChildNodes().getLength());
 
@@ -77,7 +77,7 @@ public class EncryptionUtilTest {
 
         util.encrypt(entry, encryptionKeys, recipientPublicKeys);
 
-        Node contentNode = TestUtil.getFirstElement(entry, AtomSigner.XMLNS, "content");
+        Node contentNode = TestUtil.getFirstElement(entry, AtomSigner.XMLNS_ATOM, "content");
         assertFalse("my second encrypted entry".equals(contentNode.getTextContent()));
 
         Element decryptedContent = util.decrypt(entry, encryptionKeys.getPrivate());
@@ -101,7 +101,7 @@ public class EncryptionUtilTest {
         }
         assertNull(content);
         // Just to be sure the content is still not decrypted
-        Element contentDom = (Element) TestUtil.getFirstElement(entry, AtomSigner.XMLNS, "content");
+        Element contentDom = (Element) TestUtil.getFirstElement(entry, AtomSigner.XMLNS_ATOM, "content");
         assertFalse("my third encrypted entry".equals(contentDom.getTextContent()));
     }
 

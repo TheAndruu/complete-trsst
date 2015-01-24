@@ -42,7 +42,7 @@ public class AtomParserTest {
 
 		assertTrue(removedEntries.size() == 1);
 		Element entry = (Element) removedEntries.get(0);
-		Node titleNode = entry.getElementsByTagNameNS(AtomSigner.XMLNS, "title").item(0);
+		Node titleNode = entry.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "title").item(0);
 		assertEquals(ENTRY_TITLE, titleNode.getTextContent());
 	}
 
@@ -72,7 +72,7 @@ public class AtomParserTest {
 	}
 
 	private org.jdom2.Element createJdomEntry(String text) {
-		org.jdom2.Element entry = new org.jdom2.Element("entry", AtomSigner.XMLNS);
+		org.jdom2.Element entry = new org.jdom2.Element("entry", AtomSigner.XMLNS_ATOM);
 		entry.addContent(new org.jdom2.Text(text));
 		return entry;
 	}

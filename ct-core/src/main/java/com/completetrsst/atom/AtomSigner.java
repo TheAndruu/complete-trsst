@@ -1,19 +1,23 @@
 package com.completetrsst.atom;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
+import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import com.completetrsst.crypto.Common;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.crypto.xml.SignatureUtil;
 import com.completetrsst.xml.XmlUtil;
@@ -30,8 +34,11 @@ import com.rometools.rome.io.impl.Atom10Generator;
  */
 public class AtomSigner {
     private static final Logger log = LoggerFactory.getLogger(AtomSigner.class);
-    public static final String XMLNS = "http://www.w3.org/2005/Atom";
+    public static final String XMLNS_ATOM = "http://www.w3.org/2005/Atom";
     public static final String ENTRY_ID_PREFIX = "urn:uuid:";
+
+    public static final String XMLNS_TRSST = "http://trsst.com/spec/0.1";
+    private static final Namespace TRSST_NS = Namespace.getNamespace("trsst", XMLNS_TRSST);
 
     /**
      * Creates a new signed Atom entry with given title, wrapped inside an individually-signed Atom feed element.
@@ -86,7 +93,21 @@ public class AtomSigner {
         Feed feed = new Feed("atom_1.0");
         feed.setUpdated(new Date());
         feed.setId(getFeedId(publicKey));
+        // Set the Trsst-specific content here
+        feed.setForeignMarkup(createTrsstFeedMarkup(publicKey));
         return feed;
+    }
+
+    private List<org.jdom2.Element> createTrsstFeedMarkup(PublicKey publicKey) {
+        org.jdom2.Element signedElement = new org.jdom2.Element("sign", TRSST_NS);
+        try {
+            String publicAsX509 = Common.toX509FromPublicKey(publicKey);
+            signedElement.setText(publicAsX509);
+        } catch (GeneralSecurityException e) {
+            log.error("Error converting PublicKey to x509");
+            throw new RuntimeException("Error converting PublicKey to x509");
+        }
+        return Collections.singletonList(signedElement);
     }
 
     /** Returns unsigned entry not attached to any feed */

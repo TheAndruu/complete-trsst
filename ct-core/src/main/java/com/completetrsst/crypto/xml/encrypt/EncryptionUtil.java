@@ -77,7 +77,7 @@ public class EncryptionUtil {
     }
 
     private Node getContentNode(Element domEntryElement) {
-        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS, "content");
+        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "content");
         Node contentNode = nodeList.item(0);
         return contentNode;
     }

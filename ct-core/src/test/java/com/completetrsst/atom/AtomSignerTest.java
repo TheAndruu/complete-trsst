@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
@@ -37,7 +38,8 @@ public class AtomSignerTest {
     @Test
     public void createEntryAsDom() throws Exception {
         Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
-
+        System.out.println("Chck this out");
+System.out.println(TestUtil.format(XmlUtil.serializeDom(signedFeedAndEntry)));
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
@@ -67,7 +69,7 @@ public class AtomSignerTest {
         Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
-        Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS, "entry").item(0);
+        Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "entry").item(0);
         entryNode.appendChild(newText);
 
         AtomVerifier verifier = new AtomVerifier();

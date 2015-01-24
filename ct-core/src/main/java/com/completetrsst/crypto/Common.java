@@ -36,6 +36,14 @@ public class Common {
         byte[] data = Base64.decodeBase64(stored);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(data);
         return factory.generatePublic(spec);
+    }
 
+    /**
+     * Converts an EC PublicKey to an X509-encoded string.
+     */
+    public static String toX509FromPublicKey(PublicKey publicKey) throws GeneralSecurityException {
+        KeyFactory factory = KeyFactory.getInstance("EC");
+        X509EncodedKeySpec spec = factory.getKeySpec(publicKey, X509EncodedKeySpec.class);
+        return new Base64(0, null, true).encodeToString(spec.getEncoded());
     }
 }

@@ -61,7 +61,7 @@ public class SignatureUtil {
         try {
             List<Transform> transforms = new ArrayList<Transform>(3);
             Map<String, String> namespaces = new HashMap<String, String>(1);
-            namespaces.put("atom", AtomSigner.XMLNS);
+            namespaces.put("atom", AtomSigner.XMLNS_ATOM);
             transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
             ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
 
