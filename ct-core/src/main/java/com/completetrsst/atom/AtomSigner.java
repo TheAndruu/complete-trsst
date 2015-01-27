@@ -41,6 +41,15 @@ public class AtomSigner {
     private static final Namespace TRSST_NS = Namespace.getNamespace("trsst", XMLNS_TRSST);
 
     /**
+     * TODO: Add 'predecessor' element
+     * <pre>
+     * <predecessor xmlns="http://trsst.com/spec/0.1">
+     *     ys+J0FryCApGD/juC20q9YrbVTIH5wQqmhgvuFmYZdBlhEVpIUg6XaFNbjc4eiAnxMs5r1qACp9n
+     *     NB1GrL7MuQ==</predecessor>
+     * </pre>
+     */
+
+    /**
      * Creates a new signed Atom entry with given title, wrapped inside an individually-signed Atom feed element.
      * 
      * @param entryTitle
@@ -85,7 +94,8 @@ public class AtomSigner {
 
     /**
      * Creates a new unsigned feed with updated date and ID matching public key's date.
-     * @param encryptingKeyPair 
+     * 
+     * @param encryptingKeyPair
      * 
      * @return unsigned feed with updated date
      */
