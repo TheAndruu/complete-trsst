@@ -77,7 +77,7 @@ Trsst uses elliptic curve keys, which provide the highest form of security known
 Trsst operates on the Atom protocol.  Messages are Atom Entry nodes to Feed elements.  Both Feed and Entries are signed for independent verification.
 
     AtomSigner signer = new AtomSigner();
-    String rawXml = signer.newEntry("Write your own message here!", keyPair);
+    String rawXml = signer.newEntry("Write your own message here!", signKeys, encryptKey);
 
 `rawXml` above will look like the contents of: <a href="https://github.com/TheAndruu/complete-trsst/blob/master/ct-core/src/test/resources/com/completetrsst/xml/feedValidEntryValid.xml">feedValidEntryValid.xml</a>.
 
@@ -99,16 +99,16 @@ They return true if the signatures are valid, false if the content is modified, 
 Trsst provides signed and encrypted private messages.  In addition to all the benefits of signed messages, these are virtually impossible to be decrypted by anyone not in possession of your private key, or the private keys of your recipients.
 
     AtomEncrypter encrypter = new AtomEncrypter();
-    String signedEncryptedPost = encrypter.createEncryptedEntry("another new title", encryptionKeys, recipientPublicKeys);
+    String signedEncryptedPost = encrypter.createEncryptedEntry("another new title", signKeys, encryptKeys, recipientPublicKeys);
 
-`signedEncryptedPost` will contain the Atom xml, with the given title encrypted as the Content of the Atom Entry, and will only be decryptable by the `encryptionKeys` keypair and the `recipientPublicKeys`
+`signedEncryptedPost` will contain the Atom xml, with the given title encrypted as the Content of the Atom Entry, and will only be decryptable by the `encrytKeys` keypair and the `recipientPublicKeys`
 
 ### Decrypt a signed, encrypted message
 
 To decrypt an encrypted message, one must have either the signer's private key, or a private key of one of the recipients.  With these, a message may be decrypted by:
 
     EncryptionUtil util = new EncryptionUtil();
-    String textContent = util.decryptText(signedEncryptedEntry, encryptionKeys.getPrivate());
+    String textContent = util.decryptText(signedEncryptedEntry, privateKey);
 
 #### Post a message
 
