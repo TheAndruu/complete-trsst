@@ -22,7 +22,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.atom.AtomEncrypter;
 import com.completetrsst.atom.AtomEncrypterTest;
 import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
@@ -38,7 +37,6 @@ public class EncryptionUtilTest {
     private static final List<PrivateKey> recipientPrivateKeys = new ArrayList<PrivateKey>();
 
     private static EncryptionUtil util;
-    private AtomEncrypter atom;
 
     static {
         // Add a few public keys to decrypt the messages
@@ -51,7 +49,6 @@ public class EncryptionUtilTest {
 
     @Before
     public void init() {
-        atom = new AtomEncrypter();
         util = new EncryptionUtil();
     }
 
