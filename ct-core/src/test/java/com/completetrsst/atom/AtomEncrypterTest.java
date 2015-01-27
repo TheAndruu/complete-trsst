@@ -165,7 +165,7 @@ public class AtomEncrypterTest {
     }
 
     @Test
-    public void encryptedEntryIsDecryptableByAuthor() throws Exception {
+    public void encryptedEntryIsDecryptableByAuthorEncryptKey() throws Exception {
         Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
 
         Element content = util.decrypt(entryNode, encryptionKeys.getPrivate());
@@ -173,6 +173,26 @@ public class AtomEncrypterTest {
         assertEquals("Titles rock", contentText);
     }
 
+
+    @Test
+    public void encryptedEntryIsNotDecryptableBySigningKey() throws Exception {
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles2 rock", signingKeys, encryptionKeys, recipientPublicKeys);
+
+        Element content = null;
+        try {
+            content = util.decrypt(entryNode, signingKeys.getPrivate());
+            fail("Should throw an exception as we can't decrypt with this key");
+        } catch (GeneralSecurityException e) {
+            // We hope to get here
+        }
+        assertNull(content);
+
+        // Just to be sure the content is still not decrypted
+        Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS_ATOM, "content");
+        assertFalse("Titles rock".equals(contentDom.getTextContent()));
+    }
+
+    
     @Test
     public void encryptedEntryIsNotDecryptableByRandomKey() throws Exception {
         Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
