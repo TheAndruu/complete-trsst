@@ -52,17 +52,17 @@ public class AtomEncrypter {
      *            The public keys of who shall decrypt the encrypted content
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public Element createEncryptedEntryAsDom(String entryTitle, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
+    public Element createEncryptedEntryAsDom(String entryTitle, KeyPair signingKeys, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
             GeneralSecurityException, XMLSignatureException {
         // Construct the feed and entry
         Element domEntry = signer.toDom(createEntryTitleInContent(entryTitle));
-        Element domFeed = signer.toDom(signer.createFeed(encryptionKeys.getPublic()));
+        Element domFeed = signer.toDom(signer.createFeed(signingKeys.getPublic(), encryptionKeys.getPublic()));
 
         // Encrypt entry prior to signing
         util.encrypt(domEntry, encryptionKeys, recipientKeys);
 
         // Sign and build feed
-        signer.signAndBuildFeed(encryptionKeys, domEntry, domFeed);
+        signer.signAndBuildFeed(signingKeys, domEntry, domFeed);
 
         return domFeed;
     }
@@ -79,8 +79,8 @@ public class AtomEncrypter {
      *            The public keys of who shall decrypt the encrypted content
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public String createEncryptedEntry(String entryTitle, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
+    public String createEncryptedEntry(String entryTitle, KeyPair signingKeys, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
             GeneralSecurityException, XMLSignatureException {
-        return XmlUtil.serializeDom(createEncryptedEntryAsDom(entryTitle, encryptionKeys, recipientKeys));
+        return XmlUtil.serializeDom(createEncryptedEntryAsDom(entryTitle, signingKeys, encryptionKeys, recipientKeys));
     }
 }

@@ -32,6 +32,7 @@ import com.rometools.rome.feed.atom.Entry;
 
 public class AtomEncrypterTest {
     private static final KeyCreator creator = new EllipticCurveKeyCreator();
+    private static final KeyPair signingKeys = creator.createKeyPair();
     private static final KeyPair encryptionKeys = creator.createKeyPair();
 
     private AtomEncrypter encrypter;
@@ -69,7 +70,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void createEncryptedEntryIsProperlySignedTestFeedFirst() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", signingKeys, encryptionKeys, recipientPublicKeys);
 
         // Assert the feed verifies
         AtomVerifier verifier = new AtomVerifier();
@@ -83,7 +84,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void createEncryptedEntryIsProperlySignedTestEntryFirst() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", signingKeys, encryptionKeys, recipientPublicKeys);
 
         AtomVerifier verifier = new AtomVerifier();
         // Assert the entry verifies
@@ -98,10 +99,10 @@ public class AtomEncrypterTest {
     @Test
     public void createEncryptedEntryDelegates() throws Exception {
         AtomEncrypter spy = spy(encrypter);
-        String rawXml = spy.createEncryptedEntry("another new title", encryptionKeys, recipientPublicKeys);
+        String rawXml = spy.createEncryptedEntry("another new title", signingKeys, encryptionKeys, recipientPublicKeys);
         
         // ensure we call the guy we want
-        verify(spy).createEncryptedEntryAsDom("another new title", encryptionKeys, recipientPublicKeys);
+        verify(spy).createEncryptedEntryAsDom("another new title", signingKeys, encryptionKeys, recipientPublicKeys);
         
         // Ensure it contains the encrypted text as expected
         assertTrue(rawXml.contains("Encrypted content"));
@@ -114,7 +115,7 @@ public class AtomEncrypterTest {
      */
     @Test
     public void createEncryptedEntryIsProperlySignedAfterSerialization() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("And yet another new title", signingKeys, encryptionKeys, recipientPublicKeys);
 
         entryNode = XmlUtil.toDom(XmlUtil.serializeDom(entryNode));
 
@@ -130,7 +131,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void createEncryptedEntryHasExpectedTitle() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
         AtomParser parser = new AtomParser();
         List<Node> entryNodes = parser.removeEntryNodes(entryNode);
         assertEquals(1, entryNodes.size());
@@ -141,7 +142,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void createEncryptedEntryHasEncryptedContent() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
 
         Element contentDom = (Element) TestUtil.getFirstElement(entryNode, AtomSigner.XMLNS_ATOM, "content");
         assertFalse("Titles rock".equals(contentDom.getTextContent()));
@@ -153,7 +154,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void encryptedEntryIsDecryptableByRecipients() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
 
         for (PrivateKey key : recipientPrivateKeys) {
             Element content = util.decrypt(entryNode, key);
@@ -165,7 +166,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void encryptedEntryIsDecryptableByAuthor() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
 
         Element content = util.decrypt(entryNode, encryptionKeys.getPrivate());
         String contentText = content.getTextContent();
@@ -174,7 +175,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void encryptedEntryIsNotDecryptableByRandomKey() throws Exception {
-        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", encryptionKeys, recipientPublicKeys);
+        Element entryNode = encrypter.createEncryptedEntryAsDom("Titles rock", signingKeys, encryptionKeys, recipientPublicKeys);
 
         Element content = null;
         try {

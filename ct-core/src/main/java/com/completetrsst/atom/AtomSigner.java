@@ -5,7 +5,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -47,8 +47,8 @@ public class AtomSigner {
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public String createEntry(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
-        return XmlUtil.serializeDom(createEntryAsDom(entryTitle, keyPair));
+    public String createEntry(String entryTitle, KeyPair signingKeyPair, PublicKey encryptingPublicKey) throws IOException, XMLSignatureException {
+        return XmlUtil.serializeDom(createEntryAsDom(entryTitle, signingKeyPair, encryptingPublicKey));
     }
 
     /**
@@ -58,25 +58,25 @@ public class AtomSigner {
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public Element createEntryAsDom(String entryTitle, KeyPair keyPair) throws IOException, XMLSignatureException {
+    public Element createEntryAsDom(String entryTitle, KeyPair signingKeyPair, PublicKey encryptKey) throws IOException, XMLSignatureException {
         // Construct the feed and entry
         Element domEntry = toDom(createEntry(entryTitle));
-        Element domFeed = toDom(createFeed(keyPair.getPublic()));
+        Element domFeed = toDom(createFeed(signingKeyPair.getPublic(), encryptKey));
 
-        signAndBuildFeed(keyPair, domEntry, domFeed);
+        signAndBuildFeed(signingKeyPair, domEntry, domFeed);
         return domFeed;
     }
 
     /** Signs the entry and feed elements separately, then attaches the entry element to the feed */
-    void signAndBuildFeed(KeyPair keyPair, Element domEntry, Element domFeed) throws XMLSignatureException {
+    void signAndBuildFeed(KeyPair signingPair, Element domEntry, Element domFeed) throws XMLSignatureException {
         // An important step, as it forces XMLNS declarations as they would appear to a recipient
         // after serialization-- MUST be done prior to digitally signing
         domEntry.getOwnerDocument().normalizeDocument();
         domFeed.getOwnerDocument().normalizeDocument();
 
         // Sign each separately
-        SignatureUtil.signElement(domEntry, keyPair);
-        SignatureUtil.signElement(domFeed, keyPair);
+        SignatureUtil.signElement(domEntry, signingPair);
+        SignatureUtil.signElement(domFeed, signingPair);
 
         // Add the entry to the feed
         domFeed.getOwnerDocument().adoptNode(domEntry);
@@ -85,29 +85,39 @@ public class AtomSigner {
 
     /**
      * Creates a new unsigned feed with updated date and ID matching public key's date.
+     * @param encryptingKeyPair 
      * 
      * @return unsigned feed with updated date
      */
-    protected Feed createFeed(PublicKey publicKey) {
+    protected Feed createFeed(PublicKey signingKeyPair, PublicKey encryptingKeyPair) {
         // Add title?
         Feed feed = new Feed("atom_1.0");
         feed.setUpdated(new Date());
-        feed.setId(getFeedId(publicKey));
+        feed.setId(getFeedId(signingKeyPair));
         // Set the Trsst-specific content here
-        feed.setForeignMarkup(createTrsstFeedMarkup(publicKey));
+        feed.setForeignMarkup(createTrsstFeedMarkup(signingKeyPair, encryptingKeyPair));
         return feed;
     }
 
-    private List<org.jdom2.Element> createTrsstFeedMarkup(PublicKey publicKey) {
-        org.jdom2.Element signedElement = new org.jdom2.Element("sign", TRSST_NS);
+    private List<org.jdom2.Element> createTrsstFeedMarkup(PublicKey signingKey, PublicKey encryptingKey) {
+        org.jdom2.Element signElement = new org.jdom2.Element("sign", TRSST_NS);
         try {
-            String publicAsX509 = Common.toX509FromPublicKey(publicKey);
-            signedElement.setText(publicAsX509);
+            String publicAsX509 = Common.toX509FromPublicKey(signingKey);
+            signElement.setText(publicAsX509);
         } catch (GeneralSecurityException e) {
             log.error("Error converting PublicKey to x509");
-            throw new RuntimeException("Error converting PublicKey to x509");
+            throw new RuntimeException("Error converting signing PublicKey to x509");
         }
-        return Collections.singletonList(signedElement);
+        org.jdom2.Element encryptElement = new org.jdom2.Element("encrypt", TRSST_NS);
+        try {
+            String publicAsX509 = Common.toX509FromPublicKey(encryptingKey);
+            encryptElement.setText(publicAsX509);
+        } catch (GeneralSecurityException e) {
+            log.error("Error converting PublicKey to x509");
+            throw new RuntimeException("Error converting encrypting PublicKey to x509");
+        }
+
+        return Arrays.asList(signElement, encryptElement);
     }
 
     /** Returns unsigned entry not attached to any feed */

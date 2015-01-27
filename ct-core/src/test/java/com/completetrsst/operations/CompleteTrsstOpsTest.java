@@ -11,6 +11,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -143,7 +145,9 @@ public class CompleteTrsstOpsTest {
 
     @Test
     public void testPublishSignedContent_PassesForValidInput() throws Exception {
-        String rawXml = new AtomSigner().createEntry("valid entry title", new EllipticCurveKeyCreator().createKeyPair());
+        KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
+        PublicKey encryptPublicKey = new EllipticCurveKeyCreator().createKeyPair().getPublic();
+        String rawXml = new AtomSigner().createEntry("valid entry title", signingPair, encryptPublicKey);
 
         Element domFeed = XmlUtil.toDom(rawXml);
         AtomParser parser = new AtomParser();

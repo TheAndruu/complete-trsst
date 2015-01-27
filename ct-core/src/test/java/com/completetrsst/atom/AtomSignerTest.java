@@ -9,6 +9,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +29,8 @@ import com.rometools.rome.feed.atom.Feed;
 
 public class AtomSignerTest {
 
-    private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
+    private static final KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
+    private static final PublicKey encryptPublicKey = new EllipticCurveKeyCreator().createKeyPair().getPublic();
     private AtomSigner signer;
 
     @Before
@@ -38,7 +40,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryAsDom() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
@@ -50,7 +52,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryAsDomTamperedFeed() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
@@ -65,7 +67,7 @@ public class AtomSignerTest {
     
     @Test
     public void createNewSignedEntryTamperedEntry() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "entry").item(0);
@@ -90,18 +92,24 @@ public class AtomSignerTest {
     
     @Test
     public void createEntryHasSignElementOnFeed() throws Exception {
-        Element feed = signer.createEntryAsDom("title with sign node", keyPair);
+        Element feed = signer.createEntryAsDom("title with sign node", signingPair, encryptPublicKey);
         Element signNode = (Element)TestUtil.getFirstElement(feed, AtomSigner.XMLNS_TRSST, "sign");
-        assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(keyPair.getPublic()));
-
+        assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(signingPair.getPublic()));
     }
 
+    @Test
+    public void createEntryHasEncryptElementOnFeed() throws Exception {
+        Element feed = signer.createEntryAsDom("title with encrypt node", signingPair, encryptPublicKey);
+        Element signNode = (Element)TestUtil.getFirstElement(feed, AtomSigner.XMLNS_TRSST, "encrypt");
+        assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(encryptPublicKey));
+    }
+    
     /** Assert that newEntry is really just using our other "create new signed entry" method */
     @Test
     public void createEntryDelegatesToCreateEntryAsDom() throws Exception {
         AtomSigner spy = spy(signer);
-        spy.createEntry("hi everybody!", keyPair);
-        verify(spy).createEntryAsDom("hi everybody!", keyPair);
+        spy.createEntry("hi everybody!", signingPair, encryptPublicKey);
+        verify(spy).createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
     }
 
     @Test
@@ -119,8 +127,8 @@ public class AtomSignerTest {
 
     @Test
     public void createFeed() {
-        Feed feed = signer.createFeed(keyPair.getPublic());
-        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
+        Feed feed = signer.createFeed(signingPair.getPublic(), encryptPublicKey);
+        String expectedId = toFeedUrn(toFeedId(signingPair.getPublic()));
         assertEquals(expectedId, feed.getId());
         assertEquals("atom_1.0", feed.getFeedType());
         assertTrue(feed.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
@@ -130,8 +138,8 @@ public class AtomSignerTest {
     @Test
     public void getFeedId() {
         // Equals expected
-        String expectedId = toFeedUrn(toFeedId(keyPair.getPublic()));
-        assertEquals(expectedId, signer.getFeedId(keyPair.getPublic()));
+        String expectedId = toFeedUrn(toFeedId(signingPair.getPublic()));
+        assertEquals(expectedId, signer.getFeedId(signingPair.getPublic()));
         // Doesn't equal some other key's ID
         KeyPair newKey = new EllipticCurveKeyCreator().createKeyPair();
         assertFalse(expectedId.equals(new AtomSigner().getFeedId(newKey.getPublic())));
@@ -143,7 +151,7 @@ public class AtomSignerTest {
      */
     @Test
     public void signatureVerifiesAfterSerialization() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("another new title!", keyPair);
+        Element signedFeedAndEntry = signer.createEntryAsDom("another new title!", signingPair, encryptPublicKey);
 
         signedFeedAndEntry = XmlUtil.toDom(XmlUtil.serializeDom(signedFeedAndEntry));
         

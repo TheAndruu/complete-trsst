@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.List;
 
 import org.junit.Before;
@@ -16,7 +17,9 @@ import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.xml.XmlUtil;
 
 public class AtomParserTest {
-	private static final KeyPair keyPair = new EllipticCurveKeyCreator().createKeyPair();
+	private static final KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
+    private static final PublicKey encryptKey = new EllipticCurveKeyCreator().createKeyPair().getPublic();
+    
 	private static final String ENTRY_TITLE = "foo bar entry title";
 
 	private AtomParser parser;
@@ -28,7 +31,7 @@ public class AtomParserTest {
 
 	@Test
 	public void testRemoveEntryNodes() throws Exception {
-		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, keyPair);
+		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, signingPair, encryptKey);
 
 		String rawXmlWithEntries = XmlUtil.serializeDom(signedFeedAndEntries);
 
@@ -48,7 +51,7 @@ public class AtomParserTest {
 
 	@Test
 	public void testAddEntryNodes() throws Exception {
-		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, keyPair);
+		Element signedFeedAndEntries = new AtomSigner().createEntryAsDom(ENTRY_TITLE, signingPair, encryptKey);
 		org.jdom2.Element jdomFeed = XmlUtil.toJdom(signedFeedAndEntries);
 		jdomFeed.addContent(createJdomEntry("first entry"));
 		jdomFeed.addContent(createJdomEntry("second entry"));
