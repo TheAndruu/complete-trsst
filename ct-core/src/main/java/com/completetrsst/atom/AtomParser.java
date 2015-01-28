@@ -86,8 +86,8 @@ public class AtomParser {
             log.error("Couldn't build new document, should never happen!", e);
             throw new RuntimeException(e);
         }
-        doc.adoptNode(domNode);
-        doc.appendChild(domNode);
+        Node adopted = doc.adoptNode(domNode);
+        doc.appendChild(adopted);
     }
 
     /** Returns the first child element with specified XMLNS / name match, or null if none exists */
