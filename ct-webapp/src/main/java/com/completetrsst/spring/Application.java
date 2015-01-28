@@ -6,7 +6,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +31,8 @@ public class Application extends SpringBootServletInitializer {
 	// TODO: Remove spring boot actuator since we have other ways of getting shutdowns to fire
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(Application.class);
-		ConfigurableApplicationContext context = app.run(args);
+		app.run(args);
+//		ConfigurableApplicationContext context = app.run(args);
 		// Once the GUI is running, can shut down with this line and remove
 		// spring boot actuator
 		// SpringApplication.exit(context);

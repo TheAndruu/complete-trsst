@@ -12,8 +12,6 @@ import com.rometools.rome.io.ModuleParser;
 
 public class TrsstSignatureParser implements ModuleParser {
 
-	private static final Namespace TRSST_NS = Namespace.getNamespace("trsst", TrsstModule.URI);
-
 	@Override
 	public String getNamespaceUri() {
 		return TrsstModule.URI;
