@@ -1,5 +1,9 @@
 package com.completetrsst.crypto.xml.encrypt;
 
+import static com.completetrsst.constants.Namespaces.ATOM_XMLNS;
+import static com.completetrsst.constants.Namespaces.ENCRYPT_XMLNS;
+import static com.completetrsst.constants.Nodes.ATOM_CONTENT;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -17,7 +21,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.Crypto;
 import com.completetrsst.xml.XmlUtil;
 
@@ -25,8 +28,6 @@ import com.completetrsst.xml.XmlUtil;
 public class EncryptionUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EncryptionUtil.class);
-
-    public static final String XMLNS_ENCRYPT = "http://www.w3.org/2001/04/xmlenc#";
 
     /**
      * Expects the Entry element in DOM form, with one content element on it. Encrypts the Content element, removes the unencrypted node, and replaces
@@ -77,7 +78,7 @@ public class EncryptionUtil {
     }
 
     private Node getContentNode(Element domEntryElement) {
-        NodeList nodeList = domEntryElement.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "content");
+        NodeList nodeList = domEntryElement.getElementsByTagNameNS(ATOM_XMLNS, ATOM_CONTENT);
         Node contentNode = nodeList.item(0);
         return contentNode;
     }
@@ -98,9 +99,9 @@ public class EncryptionUtil {
     private Element createEncryptedData(Element ownerElement, byte[] cipherValueData) {
         String encoded = new Base64(0, null, true).encodeToString(cipherValueData);
         Document doc = ownerElement.getOwnerDocument();
-        Element encryptedData = doc.createElementNS(XMLNS_ENCRYPT, "EncryptedData");
-        Element cipherData = doc.createElementNS(XMLNS_ENCRYPT, "CipherData");
-        Element cipherValue = doc.createElementNS(XMLNS_ENCRYPT, "CipherValue");
+        Element encryptedData = doc.createElementNS(ENCRYPT_XMLNS, "EncryptedData");
+        Element cipherData = doc.createElementNS(ENCRYPT_XMLNS, "CipherData");
+        Element cipherValue = doc.createElementNS(ENCRYPT_XMLNS, "CipherValue");
         cipherValue.setTextContent(encoded);
         cipherData.appendChild(cipherValue);
         encryptedData.appendChild(cipherData);
@@ -177,7 +178,7 @@ public class EncryptionUtil {
     }
 
     private byte[] getCipherValueText(Element encryptedData) {
-        Node cipherValue = encryptedData.getElementsByTagNameNS(XMLNS_ENCRYPT, "CipherValue").item(0);
+        Node cipherValue = encryptedData.getElementsByTagNameNS(ENCRYPT_XMLNS, "CipherValue").item(0);
         String cipherValueText = cipherValue.getTextContent();
         return new Base64().decode(cipherValueText);
     }

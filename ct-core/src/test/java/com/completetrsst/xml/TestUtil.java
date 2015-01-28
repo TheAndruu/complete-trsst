@@ -155,9 +155,4 @@ public class TestUtil {
         return nodes;
     }
 
-    /** Returns the first child element with specified XMLNS / name match, or null if none exists */
-    public static Node getFirstElement(Element node, String xmlns, String nodeName) {
-        NodeList nodeList = node.getElementsByTagNameNS(xmlns, nodeName);
-        return nodeList.item(0);
-    }
 }

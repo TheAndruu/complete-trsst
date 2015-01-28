@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.completetrsst.atom.AtomSigner;
+import com.completetrsst.constants.Namespaces;
 
 public class SignatureUtil {
     private final static Logger log = LoggerFactory.getLogger(SignatureUtil.class);
@@ -61,7 +61,7 @@ public class SignatureUtil {
         try {
             List<Transform> transforms = new ArrayList<Transform>(3);
             Map<String, String> namespaces = new HashMap<String, String>(1);
-            namespaces.put("atom", AtomSigner.XMLNS_ATOM);
+            namespaces.put("atom", Namespaces.ATOM_XMLNS);
             transforms.add(fac.newTransform(DOMTransform.ENVELOPED, (XMLStructure) null));
             ref = fac.newReference("", fac.newDigestMethod(DOMDigestMethod.SHA1, null), transforms, null, null);
 

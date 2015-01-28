@@ -72,14 +72,13 @@ public class CompleteTrsstOpsTest {
     public void testReadFeed_FeedExistsButNoEntries() {
         // Test feed doesn't exist
         when(storage.getFeed("123")).thenReturn("<feed></feed>");
-        when(storage.getLatestEntries("123")).thenReturn(Collections.<String>emptyList());
+        when(storage.getLatestEntries("123")).thenReturn(Collections.<String> emptyList());
 
         String result = ops.readFeed("123");
 
         assertEquals("<feed></feed>", result);
     }
 
-    
     @Test
     public void testPublishSignedContent_FailsIfGivenUnsignedContent() throws Exception {
         String plainEntry = TestUtil.readFile(TestUtil.PLAIN_ATOM_ENTRY);
@@ -147,7 +146,7 @@ public class CompleteTrsstOpsTest {
     public void testPublishSignedContent_PassesForValidInput() throws Exception {
         KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
         PublicKey encryptPublicKey = new EllipticCurveKeyCreator().createKeyPair().getPublic();
-        String rawXml = new AtomSigner().createEntry("valid entry title", signingPair, encryptPublicKey);
+        String rawXml = new AtomSigner().createEntry("valid entry title", "", signingPair, encryptPublicKey);
 
         Element domFeed = XmlUtil.toDom(rawXml);
         AtomParser parser = new AtomParser();
@@ -157,13 +156,13 @@ public class CompleteTrsstOpsTest {
         String onlyEntryXml = XmlUtil.serializeDom(entryNodes.get(0));
 
         String feedId = TrsstKeyFunctions.removeFeedUrnPrefix(parser.getId(domFeed));
-        
+
         String result = ops.publishSignedContent(rawXml);
-        
+
         verify(storage).storeFeed(feedId, onlyFeedXml);
         verify(storage).storeEntry(feedId, "valid entry title", onlyEntryXml);
 
-        assertEquals("Stored onto feed "+ feedId, result);
+        assertEquals("Stored onto feed " + feedId, result);
     }
 
     @Test

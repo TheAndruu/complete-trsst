@@ -1,5 +1,13 @@
 package com.completetrsst.atom;
 
+import static com.completetrsst.constants.Namespaces.ATOM_XMLNS;
+import static com.completetrsst.constants.Namespaces.TRSST_NAMESPACE;
+import static com.completetrsst.constants.Namespaces.TRSST_XMLNS;
+import static com.completetrsst.constants.Nodes.ATOM_ENTRY;
+import static com.completetrsst.constants.Nodes.ENTRY_ID_PREFIX;
+import static com.completetrsst.constants.Nodes.TRSST_ENCRYPT;
+import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
+import static com.completetrsst.constants.Nodes.TRSST_SIGN;
 import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedId;
 import static com.completetrsst.crypto.keys.TrsstKeyFunctions.toFeedUrn;
 import static org.junit.Assert.assertEquals;
@@ -22,7 +30,6 @@ import org.w3c.dom.Text;
 
 import com.completetrsst.crypto.Common;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
-import com.completetrsst.xml.TestUtil;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
@@ -32,6 +39,7 @@ public class AtomSignerTest {
     private static final KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
     private static final PublicKey encryptPublicKey = new EllipticCurveKeyCreator().createKeyPair().getPublic();
     private AtomSigner signer;
+    private static final AtomParser parser = new AtomParser();
 
     @Before
     public void init() {
@@ -40,7 +48,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryAsDom() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", "", signingPair, encryptPublicKey);
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
@@ -52,7 +60,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryAsDomTamperedFeed() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", "", signingPair, encryptPublicKey);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
         signedFeedAndEntry.appendChild(newText);
@@ -64,13 +72,13 @@ public class AtomSignerTest {
         // Entry should still pass validation
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
     }
-    
+
     @Test
     public void createNewSignedEntryTamperedEntry() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
+        Element signedFeedAndEntry = signer.createEntryAsDom("hi everybody!", "", signingPair, encryptPublicKey);
 
         Text newText = signedFeedAndEntry.getOwnerDocument().createTextNode("new node");
-        Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(AtomSigner.XMLNS_ATOM, "entry").item(0);
+        Node entryNode = signedFeedAndEntry.getElementsByTagNameNS(ATOM_XMLNS, ATOM_ENTRY).item(0);
         entryNode.appendChild(newText);
 
         AtomVerifier verifier = new AtomVerifier();
@@ -83,40 +91,80 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryHasFieldsProperlySet() {
-        Entry entry = signer.createEntry("new title");
+        Entry entry = signer.createEntry("new title", "");
         assertEquals("new title", entry.getTitle());
         assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
         assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
-        assertTrue(entry.getId().startsWith(AtomSigner.ENTRY_ID_PREFIX));
+        assertTrue(entry.getId().startsWith(ENTRY_ID_PREFIX));
     }
-    
+
+    @Test
+    public void createEntryHasPreviousSignatureProperlySet() {
+        Entry entry = signer.createEntry("new title", "prevSigValue");
+        assertTrue(entry.getId().startsWith(ENTRY_ID_PREFIX));
+
+        List<org.jdom2.Element> markup = entry.getForeignMarkup();
+        boolean hasSigValue = false;
+        for (org.jdom2.Element mark : markup) {
+            if (mark.getText().equals("prevSigValue")) {
+                assertTrue(mark.getName().equals(TRSST_PREDECESSOR));
+                assertTrue(mark.getNamespace().equals(TRSST_NAMESPACE));
+                hasSigValue = true;
+                break;
+            }
+        }
+        assertTrue(hasSigValue);
+    }
+
+    @Test
+    public void createEntryHasPredecessorOnFeed() throws Exception {
+        Element feed = signer.createEntryAsDom("title doesnt matter", "previous value of sig", signingPair, encryptPublicKey);
+        Element preNode = parser.getFirstPredecessorNode(feed);
+
+        assertEquals(preNode.getTextContent(), "previous value of sig");
+    }
+
     @Test
     public void createEntryHasSignElementOnFeed() throws Exception {
-        Element feed = signer.createEntryAsDom("title with sign node", signingPair, encryptPublicKey);
-        Element signNode = (Element)TestUtil.getFirstElement(feed, AtomSigner.XMLNS_TRSST, "sign");
+        Element feed = signer.createEntryAsDom("title with sign node", "", signingPair, encryptPublicKey);
+        Element signNode = (Element) parser.getFirstNode(feed, TRSST_XMLNS, TRSST_SIGN);
         assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(signingPair.getPublic()));
     }
 
     @Test
     public void createEntryHasEncryptElementOnFeed() throws Exception {
-        Element feed = signer.createEntryAsDom("title with encrypt node", signingPair, encryptPublicKey);
-        Element signNode = (Element)TestUtil.getFirstElement(feed, AtomSigner.XMLNS_TRSST, "encrypt");
+        Element feed = signer.createEntryAsDom("title with encrypt node", "", signingPair, encryptPublicKey);
+        Element signNode = (Element) parser.getFirstNode(feed, TRSST_XMLNS, TRSST_ENCRYPT);
         assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(encryptPublicKey));
     }
     
+    @Test
+    public void createEntrySupplyingAndExtractingPredecessor() throws Exception {
+        Element feed = signer.createEntryAsDom("title doesnt matter", "", signingPair, encryptPublicKey);
+        String firstSignedValue = parser.getEntrySignatureValue(feed);
+        
+        feed = signer.createEntryAsDom("second title doesnt matter", firstSignedValue, signingPair, encryptPublicKey);
+        
+        Element latestEntrysPredecessorValue = parser.getFirstPredecessorNode(feed);
+
+        // The latest Entry node's 'predecessor' value should be equal to the older entry's signature value
+        assertEquals(firstSignedValue, latestEntrysPredecessorValue.getTextContent());
+    }
+    
+
     /** Assert that newEntry is really just using our other "create new signed entry" method */
     @Test
     public void createEntryDelegatesToCreateEntryAsDom() throws Exception {
         AtomSigner spy = spy(signer);
-        spy.createEntry("hi everybody!", signingPair, encryptPublicKey);
-        verify(spy).createEntryAsDom("hi everybody!", signingPair, encryptPublicKey);
+        spy.createEntry("hi everybody!", "", signingPair, encryptPublicKey);
+        verify(spy).createEntryAsDom("hi everybody!", "", signingPair, encryptPublicKey);
     }
 
     @Test
     public void newEntryId() {
         String id = signer.newEntryId();
-        assertTrue(id.startsWith(AtomSigner.ENTRY_ID_PREFIX));
-        String justUuid = id.substring(AtomSigner.ENTRY_ID_PREFIX.length());
+        assertTrue(id.startsWith(ENTRY_ID_PREFIX));
+        String justUuid = id.substring(ENTRY_ID_PREFIX.length());
         // Type 4 UUID
         assertTrue(justUuid.substring(13, 15).equals("-4"));
         assertTrue(justUuid.substring(18, 19).equals("-"));
@@ -151,13 +199,13 @@ public class AtomSignerTest {
      */
     @Test
     public void signatureVerifiesAfterSerialization() throws Exception {
-        Element signedFeedAndEntry = signer.createEntryAsDom("another new title!", signingPair, encryptPublicKey);
+        Element signedFeedAndEntry = signer.createEntryAsDom("another new title!", "", signingPair, encryptPublicKey);
 
         signedFeedAndEntry = XmlUtil.toDom(XmlUtil.serializeDom(signedFeedAndEntry));
-        
+
         AtomVerifier verifier = new AtomVerifier();
         assertTrue(verifier.isFeedVerified(signedFeedAndEntry));
         assertTrue(verifier.areEntriesVerified(signedFeedAndEntry));
     }
-    
+
 }

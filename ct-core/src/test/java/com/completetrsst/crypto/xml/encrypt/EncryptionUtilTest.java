@@ -1,5 +1,7 @@
 package com.completetrsst.crypto.xml.encrypt;
 
+import static com.completetrsst.constants.Namespaces.ATOM_XMLNS;
+import static com.completetrsst.constants.Nodes.ATOM_CONTENT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -23,10 +25,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.completetrsst.atom.AtomEncrypterTest;
-import com.completetrsst.atom.AtomSigner;
+import com.completetrsst.atom.AtomParser;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.KeyCreator;
-import com.completetrsst.xml.TestUtil;
 
 public class EncryptionUtilTest {
 
@@ -35,6 +36,8 @@ public class EncryptionUtilTest {
 
     private static final List<PublicKey> recipientPublicKeys = new ArrayList<PublicKey>();
     private static final List<PrivateKey> recipientPrivateKeys = new ArrayList<PrivateKey>();
+
+    private static final AtomParser parser = new AtomParser();
 
     private static EncryptionUtil util;
 
@@ -56,7 +59,7 @@ public class EncryptionUtilTest {
     public void testEncrypt() throws Exception {
         Element unencryptedEntry = AtomEncrypterTest.createUnencryptedEntryWithContent("New titles rock");
 
-        Node contentNode = TestUtil.getFirstElement(unencryptedEntry, AtomSigner.XMLNS_ATOM, "content");
+        Node contentNode = parser.getFirstNode(unencryptedEntry, ATOM_XMLNS, ATOM_CONTENT);
         assertEquals("New titles rock", contentNode.getTextContent());
         assertEquals(1, contentNode.getChildNodes().getLength());
 
@@ -74,7 +77,7 @@ public class EncryptionUtilTest {
 
         util.encrypt(entry, encryptionKeys, recipientPublicKeys);
 
-        Node contentNode = TestUtil.getFirstElement(entry, AtomSigner.XMLNS_ATOM, "content");
+        Node contentNode = parser.getFirstNode(entry, ATOM_XMLNS, ATOM_CONTENT);
         assertFalse("my second encrypted entry".equals(contentNode.getTextContent()));
 
         Element decryptedContent = util.decrypt(entry, encryptionKeys.getPrivate());
@@ -98,7 +101,7 @@ public class EncryptionUtilTest {
         }
         assertNull(content);
         // Just to be sure the content is still not decrypted
-        Element contentDom = (Element) TestUtil.getFirstElement(entry, AtomSigner.XMLNS_ATOM, "content");
+        Element contentDom = (Element) parser.getFirstNode(entry, ATOM_XMLNS, ATOM_CONTENT);
         assertFalse("my third encrypted entry".equals(contentDom.getTextContent()));
     }
 
@@ -113,12 +116,12 @@ public class EncryptionUtilTest {
             assertEquals("my fourth encrypted entry", contentText);
         }
     }
-    
+
     @Test
     public void decryptTextDelegatesToDecrypt() throws Exception {
         Element entry = AtomEncrypterTest.createUnencryptedEntryWithContent("my fifth encrypted entry");
         util.encrypt(entry, encryptionKeys, recipientPublicKeys);
-        
+
         EncryptionUtil spy = spy(util);
         String result = spy.decryptText(entry, encryptionKeys.getPrivate());
         verify(spy).decrypt(entry, encryptionKeys.getPrivate());

@@ -1,22 +1,28 @@
 package com.completetrsst.atom;
 
+import static com.completetrsst.constants.Nodes.ENTRY_ID_PREFIX;
+import static com.completetrsst.constants.Nodes.TRSST_ENCRYPT;
+import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
+import static com.completetrsst.constants.Nodes.TRSST_SIGN;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
-import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
+import com.completetrsst.constants.Namespaces;
 import com.completetrsst.crypto.Common;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.crypto.xml.SignatureUtil;
@@ -34,20 +40,6 @@ import com.rometools.rome.io.impl.Atom10Generator;
  */
 public class AtomSigner {
     private static final Logger log = LoggerFactory.getLogger(AtomSigner.class);
-    public static final String XMLNS_ATOM = "http://www.w3.org/2005/Atom";
-    public static final String ENTRY_ID_PREFIX = "urn:uuid:";
-
-    public static final String XMLNS_TRSST = "http://trsst.com/spec/0.1";
-    private static final Namespace TRSST_NS = Namespace.getNamespace("trsst", XMLNS_TRSST);
-
-    /**
-     * TODO: Add 'predecessor' element
-     * <pre>
-     * <predecessor xmlns="http://trsst.com/spec/0.1">
-     *     ys+J0FryCApGD/juC20q9YrbVTIH5wQqmhgvuFmYZdBlhEVpIUg6XaFNbjc4eiAnxMs5r1qACp9n
-     *     NB1GrL7MuQ==</predecessor>
-     * </pre>
-     */
 
     /**
      * Creates a new signed Atom entry with given title, wrapped inside an individually-signed Atom feed element.
@@ -56,8 +48,9 @@ public class AtomSigner {
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public String createEntry(String entryTitle, KeyPair signingKeyPair, PublicKey encryptingPublicKey) throws IOException, XMLSignatureException {
-        return XmlUtil.serializeDom(createEntryAsDom(entryTitle, signingKeyPair, encryptingPublicKey));
+    public String createEntry(String entryTitle, String prevEntrySigValue, KeyPair signingKeyPair, PublicKey encryptingPublicKey) throws IOException,
+            XMLSignatureException {
+        return XmlUtil.serializeDom(createEntryAsDom(entryTitle, prevEntrySigValue, signingKeyPair, encryptingPublicKey));
     }
 
     /**
@@ -67,9 +60,10 @@ public class AtomSigner {
      *            Title for the entry
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public Element createEntryAsDom(String entryTitle, KeyPair signingKeyPair, PublicKey encryptKey) throws IOException, XMLSignatureException {
+    public Element createEntryAsDom(String entryTitle, String prevEntrySigValue, KeyPair signingKeyPair, PublicKey encryptKey) throws IOException,
+            XMLSignatureException {
         // Construct the feed and entry
-        Element domEntry = toDom(createEntry(entryTitle));
+        Element domEntry = toDom(createEntry(entryTitle, prevEntrySigValue));
         Element domFeed = toDom(createFeed(signingKeyPair.getPublic(), encryptKey));
 
         signAndBuildFeed(signingKeyPair, domEntry, domFeed);
@@ -110,7 +104,7 @@ public class AtomSigner {
     }
 
     private List<org.jdom2.Element> createTrsstFeedMarkup(PublicKey signingKey, PublicKey encryptingKey) {
-        org.jdom2.Element signElement = new org.jdom2.Element("sign", TRSST_NS);
+        org.jdom2.Element signElement = new org.jdom2.Element(TRSST_SIGN, Namespaces.TRSST_NAMESPACE);
         try {
             String publicAsX509 = Common.toX509FromPublicKey(signingKey);
             signElement.setText(publicAsX509);
@@ -118,7 +112,7 @@ public class AtomSigner {
             log.error("Error converting PublicKey to x509");
             throw new RuntimeException("Error converting signing PublicKey to x509");
         }
-        org.jdom2.Element encryptElement = new org.jdom2.Element("encrypt", TRSST_NS);
+        org.jdom2.Element encryptElement = new org.jdom2.Element(TRSST_ENCRYPT, Namespaces.TRSST_NAMESPACE);
         try {
             String publicAsX509 = Common.toX509FromPublicKey(encryptingKey);
             encryptElement.setText(publicAsX509);
@@ -130,12 +124,21 @@ public class AtomSigner {
         return Arrays.asList(signElement, encryptElement);
     }
 
+    private List<org.jdom2.Element> createTrsstEntryMarkup(String previousEntrySignatureValue) {
+        org.jdom2.Element signElement = new org.jdom2.Element(TRSST_PREDECESSOR, Namespaces.TRSST_NAMESPACE);
+        signElement.setText(previousEntrySignatureValue);
+
+        return Collections.singletonList(signElement);
+    }
+
     /** Returns unsigned entry not attached to any feed */
-    protected Entry createEntry(String title) {
+    protected Entry createEntry(String title, String prevEntrySignValue) {
         Entry entry = new Entry();
         entry.setTitle(title);
         entry.setUpdated(new Date());
         entry.setId(newEntryId());
+        List<org.jdom2.Element> markup = createTrsstEntryMarkup(prevEntrySignValue);
+        entry.setForeignMarkup(markup);
         return entry;
     }
 

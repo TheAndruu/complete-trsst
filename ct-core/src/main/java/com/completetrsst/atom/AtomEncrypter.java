@@ -1,5 +1,7 @@
 package com.completetrsst.atom;
 
+import static com.completetrsst.constants.Nodes.ENCRYPTED_TITLE;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -18,8 +20,6 @@ import com.rometools.rome.feed.atom.Entry;
 
 public class AtomEncrypter {
 
-    public static final String ENCRYPTED_TITLE = "Encrypted content";
-
     private final static EncryptionUtil util = new EncryptionUtil();
 
     private final static AtomSigner signer = new AtomSigner();
@@ -28,9 +28,9 @@ public class AtomEncrypter {
      * Creates an entry which sets the title to the literal words "Encrypted content" and adds the given titleas a plaintext Content entry for later
      * encryption
      */
-    Entry createEntryTitleInContent(String entryTitle) {
+    Entry createEntryTitleInContent(String entryTitle, String prevEntrySigValue) {
         // default scope for testing
-        Entry entry = signer.createEntry(entryTitle);
+        Entry entry = signer.createEntry(entryTitle, prevEntrySigValue);
         entry.setTitle(ENCRYPTED_TITLE);
         Content content = new Content();
         // Set as plain text here, during encryption it will change to application/xenc+xml
@@ -52,10 +52,10 @@ public class AtomEncrypter {
      *            The public keys of who shall decrypt the encrypted content
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public Element createEncryptedEntryAsDom(String entryTitle, KeyPair signingKeys, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
-            GeneralSecurityException, XMLSignatureException {
+    public Element createEncryptedEntryAsDom(String entryTitle, String prevEntrySigValue, KeyPair signingKeys, KeyPair encryptionKeys,
+            List<PublicKey> recipientKeys) throws IOException, GeneralSecurityException, XMLSignatureException {
         // Construct the feed and entry
-        Element domEntry = signer.toDom(createEntryTitleInContent(entryTitle));
+        Element domEntry = signer.toDom(createEntryTitleInContent(entryTitle, prevEntrySigValue));
         Element domFeed = signer.toDom(signer.createFeed(signingKeys.getPublic(), encryptionKeys.getPublic()));
 
         // Encrypt entry prior to signing
@@ -79,8 +79,8 @@ public class AtomEncrypter {
      *            The public keys of who shall decrypt the encrypted content
      * @return DOM element containing a signed Feed node and independently-signed Entry node
      */
-    public String createEncryptedEntry(String entryTitle, KeyPair signingKeys, KeyPair encryptionKeys, List<PublicKey> recipientKeys) throws IOException,
-            GeneralSecurityException, XMLSignatureException {
-        return XmlUtil.serializeDom(createEncryptedEntryAsDom(entryTitle, signingKeys, encryptionKeys, recipientKeys));
+    public String createEncryptedEntry(String entryTitle, String prevEntrySigValue, KeyPair signingKeys, KeyPair encryptionKeys,
+            List<PublicKey> recipientKeys) throws IOException, GeneralSecurityException, XMLSignatureException {
+        return XmlUtil.serializeDom(createEncryptedEntryAsDom(entryTitle, prevEntrySigValue, signingKeys, encryptionKeys, recipientKeys));
     }
 }
