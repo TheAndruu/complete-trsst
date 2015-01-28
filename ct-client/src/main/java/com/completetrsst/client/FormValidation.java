@@ -226,7 +226,7 @@ public class FormValidation extends Application {
             }
         }); // addListener()
         // begin loading...
-        webEngine.load("http://localhost:8080/feed/8TxKTU9YELxsq5tzADU6Y5zqm44fkNJhy");
+        webEngine.load("http://localhost:8080/feed/9SjMCLCk8pqSkX15S4fp8HJna3EL8yFW");
 
         // sample feed
         // http://localhost:8080/feed/8TxKTU9YELxsq5tzADU6Y5zqm44fkNJhy
