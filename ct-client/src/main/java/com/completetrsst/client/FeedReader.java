@@ -84,7 +84,7 @@ public class FeedReader extends Application {
 
         try {
             loadFeedForUrl("http://localhost:8080/feed/8v3kpFNWYRc7tafUPjmqdPoiwnfsUmhAd");
-            // loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
+            loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -155,12 +155,12 @@ public class FeedReader extends Application {
         return row;
     }
 
+    // TODO: See also Task, FutureTask, etc
     public void loadFeedForUrl(final String url) throws IOException {
-        Platform.runLater(() -> {
+        new Thread(() -> {
             SyndFeed feed = null;
             InputStream is = null;
             try {
-
                 URLConnection openConnection = new URL(url).openConnection();
                 is = new URL(url).openConnection().getInputStream();
                 if ("gzip".equals(openConnection.getContentEncoding())) {
@@ -171,20 +171,22 @@ public class FeedReader extends Application {
                 feed = input.build(source);
 
                 feed.getModules().forEach(module -> {
-                    System.out.println("Module: " + module.getInterface());
-                    if (module.getInterface().equals(FeedModule.class)) {
+
+                    if (module instanceof FeedModule) {
                         FeedModule trsst = (FeedModule) module;
                         System.out.println("Sign: " + trsst.getSignKey());
                         System.out.println("Encrypt: " + trsst.getEncryptKey());
                     }
                 });
                 feed.getEntries().forEach(entry -> {
-                    Text text = createTextBox(entry.getTitle());
-                    feedPanel.getChildren().add(text);
+                    Platform.runLater(() -> {
+                        Text text = createTextBox(entry.getTitle());
+                        feedPanel.getChildren().add(text);
+                    });
                     List<Module> modules = entry.getModules();
                     modules.forEach(module -> {
                         System.out.println("Module: " + module.getInterface());
-                        if (module.getInterface().equals(EntryModule.class)) {
+                        if (module instanceof EntryModule) {
                             EntryModule trsst = (EntryModule) module;
                             System.out.println("Predecessor: " + trsst.getPredecessorValue());
                         }
@@ -204,8 +206,8 @@ public class FeedReader extends Application {
                     }
                 }
             }
+        }).start();
 
-        });
     }
 
     private Text createTextBox(String text) {
