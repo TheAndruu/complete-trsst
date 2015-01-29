@@ -1,6 +1,8 @@
 complete-trsst
 =============
 
+[![Build Status](https://travis-ci.org/TheAndruu/complete-trsst.svg?branch=master)](https://travis-ci.org/TheAndruu/complete-trsst)
+
 Implementation of the Trsst protocol
 
 System Requirements
