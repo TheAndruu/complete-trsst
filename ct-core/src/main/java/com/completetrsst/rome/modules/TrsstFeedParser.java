@@ -2,7 +2,8 @@ package com.completetrsst.rome.modules;
 
 import static com.completetrsst.constants.Namespaces.TRSST_NAMESPACE;
 import static com.completetrsst.constants.Nodes.TRSST_ENCRYPT;
-import static com.completetrsst.constants.Nodes.TRSST_SIGN;
+import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
+import static com.completetrsst.constants.Nodes.*;
 
 import java.util.Locale;
 
@@ -28,7 +29,7 @@ public class TrsstFeedParser implements ModuleParser {
         String encryptKey = extractEncryptKey(dcRoot);
 
         // If feed had either a trsst sign or trsst encrypt node, consider it a trsst feed
-        if (signKey != null || encryptKey != null) {
+        if (!signKey.isEmpty() || !encryptKey.isEmpty()) {
             log.debug("Found Trsst feed element using TrsstFeedParser");
             FeedModule fm = new TrsstFeedModule();
             fm.setSignKey(signKey);
@@ -41,11 +42,11 @@ public class TrsstFeedParser implements ModuleParser {
 
     private String extractSignKey(Element dcRoot) {
         Element signNode = dcRoot.getChild(TRSST_SIGN, TRSST_NAMESPACE);
-        return signNode == null ? null : signNode.getText();
+        return signNode == null ? "" : signNode.getText();
     }
 
     private String extractEncryptKey(Element dcRoot) {
         Element encryptNode = dcRoot.getChild(TRSST_ENCRYPT, TRSST_NAMESPACE);
-        return encryptNode == null ? null : encryptNode.getText();
+        return encryptNode == null ? "" : encryptNode.getText();
     }
 }

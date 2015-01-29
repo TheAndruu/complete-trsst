@@ -77,7 +77,7 @@ public class RestControllerIntegrationTest {
         rest.postForEntity("http://localhost:8080/publish", signer.createEntry("Second entry title!", "", signingPair, encryptPair.getPublic()),
                 String.class);
         Thread.sleep(1);
-        rest.postForEntity("http://localhost:8080/publish", encrypter.createEncryptedEntry("Third time's the charm!", "", signingPair, encryptPair, Collections.singletonList(encryptPair.getPublic())),
+        rest.postForEntity("http://localhost:8080/publish", encrypter.createEncryptedEntry("Third time's the charm!", "predecessor value", signingPair, encryptPair, Collections.singletonList(encryptPair.getPublic())),
                 String.class);
 
         // Now read the feed

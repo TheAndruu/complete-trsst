@@ -7,8 +7,8 @@ public class TrsstFeedModule extends ModuleImpl implements FeedModule {
 
     private static final long serialVersionUID = -5045125952451910984L;
 
-    private String signKey = null;
-    private String encryptKey = null;
+    private String signKey = "";
+    private String encryptKey = "";
 
     public TrsstFeedModule() {
         super(TrsstFeedModule.class, FeedModule.URI);

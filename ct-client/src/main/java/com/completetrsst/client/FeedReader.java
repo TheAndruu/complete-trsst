@@ -36,6 +36,7 @@ import com.completetrsst.atom.AtomParser;
 import com.completetrsst.constants.Namespaces;
 import com.completetrsst.constants.Nodes;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
+import com.completetrsst.rome.modules.EntryModule;
 import com.completetrsst.rome.modules.FeedModule;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
@@ -53,9 +54,8 @@ public class FeedReader extends Application {
     private static final Color foregroundColor = Color.rgb(255, 255, 255, .9);
     private static final Color backgroundColor = Color.rgb(0, 0, 0, .55);
 
-    
     private static final VBox feedPanel = new VBox(4);
-    
+
     @Override
     public void start(Stage primaryStage) {
         // create a transparent stage
@@ -73,7 +73,7 @@ public class FeedReader extends Application {
         background.setStrokeWidth(1.5);
         background.setStroke(foregroundColor);
 
-//        VBox formLayout = createRow3Dom(primaryStage);
+        // VBox formLayout = createRow3Dom(primaryStage);
         VBox formLayout = feedPanel;
         formLayout.prefWidthProperty().bind(primaryStage.widthProperty().subtract(45));
 
@@ -81,10 +81,10 @@ public class FeedReader extends Application {
         formLayout.setLayoutY(12);
         root.getChildren().addAll(background, formLayout);
         primaryStage.show();
-        
+
         try {
-            loadFeedForUrl("http://localhost:8080/feed/5rzqHx8bmyuKjHNXbeQcAFGpHfArjnjCX");
-            loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
+            loadFeedForUrl("http://localhost:8080/feed/8v3kpFNWYRc7tafUPjmqdPoiwnfsUmhAd");
+            // loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -169,20 +169,27 @@ public class FeedReader extends Application {
                 InputSource source = new InputSource(is);
                 SyndFeedInput input = new SyndFeedInput();
                 feed = input.build(source);
-                
+
+                feed.getModules().forEach(module -> {
+                    System.out.println("Module: " + module.getInterface());
+                    if (module.getInterface().equals(FeedModule.class)) {
+                        FeedModule trsst = (FeedModule) module;
+                        System.out.println("Sign: " + trsst.getSignKey());
+                        System.out.println("Encrypt: " + trsst.getEncryptKey());
+                    }
+                });
                 feed.getEntries().forEach(entry -> {
                     Text text = createTextBox(entry.getTitle());
                     feedPanel.getChildren().add(text);
                     List<Module> modules = entry.getModules();
                     modules.forEach(module -> {
-                        if (module.getInterface().equals(FeedModule.class)) {
-                            FeedModule trsst = (FeedModule)module;
-                            System.out.println("Content type: " + entry.getContents().get(0).getType());
-                            System.out.println("Content value: " + entry.getContents().get(0).getValue());
+                        System.out.println("Module: " + module.getInterface());
+                        if (module.getInterface().equals(EntryModule.class)) {
+                            EntryModule trsst = (EntryModule) module;
+                            System.out.println("Predecessor: " + trsst.getPredecessorValue());
                         }
                     });
                 });
-                
 
             } catch (Exception e) {
                 log.error("Exception occured when building the feed object out of the url", e);

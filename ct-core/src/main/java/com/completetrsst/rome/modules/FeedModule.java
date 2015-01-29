@@ -10,18 +10,13 @@ public interface FeedModule extends Module, CopyFrom {
 	public static final String URI = TRSST_XMLNS;
 	
 	public String getSignKey();
-	public void setSignKey(String signKeyX509);
+    public void setSignKey(String signKeyX509);
 
     public String getEncryptKey();
     public void setEncryptKey(String encryptKeyX509);
-	
-	//	public boolean isSignatureVerified();
-//	public void setIsSignatureVerified(boolean isVerified);
-	
-//	public boolean isEncrypted();
-//	public void setIsEncrypted();
-	
-//	public boolean isSigned();
-//	public void setIsSigned(boolean isSigned);
+    
+   
+	// TODO: Add is encrypted, get encrypted content
+	// add is signed, 
 
 }
