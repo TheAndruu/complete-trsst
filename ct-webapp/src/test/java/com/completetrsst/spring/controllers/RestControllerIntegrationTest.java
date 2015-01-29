@@ -8,6 +8,7 @@ import static org.junit.Assume.assumeNoException;
 
 import java.net.ConnectException;
 import java.security.KeyPair;
+import java.util.Collections;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.completetrsst.atom.AtomEncrypter;
 import com.completetrsst.atom.AtomSigner;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
@@ -27,6 +29,7 @@ public class RestControllerIntegrationTest {
     private static final KeyPair signingPair = new EllipticCurveKeyCreator().createKeyPair();
     private static final KeyPair encryptPair = new EllipticCurveKeyCreator().createKeyPair();
     private static final AtomSigner signer = new AtomSigner();
+    private static final AtomEncrypter encrypter = new AtomEncrypter();
 
     @BeforeClass
     /** Only run integration tests if the server is running */
@@ -74,7 +77,7 @@ public class RestControllerIntegrationTest {
         rest.postForEntity("http://localhost:8080/publish", signer.createEntry("Second entry title!", "", signingPair, encryptPair.getPublic()),
                 String.class);
         Thread.sleep(1);
-        rest.postForEntity("http://localhost:8080/publish", signer.createEntry("Third time's the charm!", "", signingPair, encryptPair.getPublic()),
+        rest.postForEntity("http://localhost:8080/publish", encrypter.createEncryptedEntry("Third time's the charm!", "", signingPair, encryptPair, Collections.singletonList(encryptPair.getPublic())),
                 String.class);
 
         // Now read the feed
@@ -84,8 +87,8 @@ public class RestControllerIntegrationTest {
         String responseBody = response.getBody();
         assertTrue(responseBody.contains("First new post!"));
         assertTrue(responseBody.contains("Second entry title!"));
-        assertTrue(responseBody.contains("Third time's the charm!"));
-        int expectedTop = responseBody.indexOf("Third time's the charm");
+        assertTrue(responseBody.contains("Encrypted content")); // b/c this post was encrypted
+        int expectedTop = responseBody.indexOf("Encrypted content");
         int expectedMid = responseBody.indexOf("Second entry title!");
         int expectedLast = responseBody.indexOf("First new post!");
         assertTrue(expectedTop != 0);
