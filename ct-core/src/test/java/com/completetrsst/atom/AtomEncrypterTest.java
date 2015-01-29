@@ -63,7 +63,7 @@ public class AtomEncrypterTest {
 
     @Test
     public void createEntryTitleInContent() throws Exception {
-        Entry entry = encrypter.createEntryTitleInContent("your title goes here", "");
+        Entry entry = encrypter.createEntryTitleInContent("your title goes here", signingKeys.getPublic(), "");
         assertEquals(ENCRYPTED_TITLE, entry.getTitle());
 
         List<Content> contents = entry.getContents();
@@ -225,7 +225,7 @@ public class AtomEncrypterTest {
 
     // For help with some other test classes
     public static Element createUnencryptedEntryWithContent(String title) throws IOException {
-        Entry entry = new AtomEncrypter().createEntryTitleInContent(title, "");
+        Entry entry = new AtomEncrypter().createEntryTitleInContent(title, signingKeys.getPublic(), "");
         return new AtomSigner().toDom(entry);
     }
 }

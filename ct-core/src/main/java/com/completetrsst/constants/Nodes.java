@@ -16,6 +16,6 @@ public class Nodes {
 
     /** Title of encrypted elements */
     public static final String ENCRYPTED_TITLE = "Encrypted content";
-    public static final String ENTRY_ID_PREFIX = "urn:uuid:";
+    public static final String ENTRY_ID_PREFIX = "urn:entry:";
 
 }

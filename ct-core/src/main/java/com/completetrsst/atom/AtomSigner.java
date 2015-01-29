@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import javax.xml.crypto.dsig.XMLSignatureException;
 
@@ -63,7 +62,7 @@ public class AtomSigner {
     public Element createEntryAsDom(String entryTitle, String prevEntrySigValue, KeyPair signingKeyPair, PublicKey encryptKey) throws IOException,
             XMLSignatureException {
         // Construct the feed and entry
-        Element domEntry = toDom(createEntry(entryTitle, prevEntrySigValue));
+        Element domEntry = toDom(createEntry(entryTitle, signingKeyPair.getPublic(), prevEntrySigValue));
         Element domFeed = toDom(createFeed(signingKeyPair.getPublic(), encryptKey));
 
         signAndBuildFeed(signingKeyPair, domEntry, domFeed);
@@ -131,20 +130,28 @@ public class AtomSigner {
         return Collections.singletonList(signElement);
     }
 
-    /** Returns unsigned entry not attached to any feed */
-    protected Entry createEntry(String title, String prevEntrySignValue) {
+    /**
+     * Returns unsigned entry not attached to any feed
+     * 
+     * @param publicKey
+     */
+    protected Entry createEntry(String title, PublicKey publicKey, String prevEntrySignValue) {
         Entry entry = new Entry();
         entry.setTitle(title);
         entry.setUpdated(new Date());
-        entry.setId(newEntryId());
+        entry.setId(newEntryId(publicKey));
         List<org.jdom2.Element> markup = createTrsstEntryMarkup(prevEntrySignValue);
         entry.setForeignMarkup(markup);
         return entry;
     }
 
-    /** New random, globally unique id for an entry */
-    protected String newEntryId() {
-        return ENTRY_ID_PREFIX + UUID.randomUUID().toString();
+    /**
+     * New random, globally unique id for an entry
+     * 
+     * @param publicKey
+     */
+    protected String newEntryId(PublicKey publicKey) {
+        return ENTRY_ID_PREFIX + TrsstKeyFunctions.toFeedId(publicKey) + ":" + System.currentTimeMillis();
     }
 
     /** Returns Feed ID to go with the associated public key from the KeyPair */

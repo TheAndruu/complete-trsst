@@ -30,6 +30,7 @@ import org.w3c.dom.Text;
 
 import com.completetrsst.crypto.Common;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
+import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.atom.Entry;
 import com.rometools.rome.feed.atom.Feed;
@@ -91,7 +92,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryHasFieldsProperlySet() {
-        Entry entry = signer.createEntry("new title", "");
+        Entry entry = signer.createEntry("new title", signingPair.getPublic(), "");
         assertEquals("new title", entry.getTitle());
         assertTrue(entry.getUpdated().toInstant().isBefore(new Date().toInstant().plusMillis(1L)));
         assertTrue(entry.getUpdated().toInstant().isAfter(new Date().toInstant().plusSeconds(-60L)));
@@ -100,7 +101,7 @@ public class AtomSignerTest {
 
     @Test
     public void createEntryHasPreviousSignatureProperlySet() {
-        Entry entry = signer.createEntry("new title", "prevSigValue");
+        Entry entry = signer.createEntry("new title", signingPair.getPublic(), "prevSigValue");
         assertTrue(entry.getId().startsWith(ENTRY_ID_PREFIX));
 
         List<org.jdom2.Element> markup = entry.getForeignMarkup();
@@ -137,20 +138,19 @@ public class AtomSignerTest {
         Element signNode = (Element) parser.getFirstNode(feed, TRSST_XMLNS, TRSST_ENCRYPT);
         assertEquals(signNode.getTextContent(), Common.toX509FromPublicKey(encryptPublicKey));
     }
-    
+
     @Test
     public void createEntrySupplyingAndExtractingPredecessor() throws Exception {
         Element feed = signer.createEntryAsDom("title doesnt matter", "", signingPair, encryptPublicKey);
         String firstSignedValue = parser.getEntrySignatureValue(feed);
-        
+
         feed = signer.createEntryAsDom("second title doesnt matter", firstSignedValue, signingPair, encryptPublicKey);
-        
+
         Element latestEntrysPredecessorValue = parser.getFirstPredecessorNode(feed);
 
         // The latest Entry node's 'predecessor' value should be equal to the older entry's signature value
         assertEquals(firstSignedValue, latestEntrysPredecessorValue.getTextContent());
     }
-    
 
     /** Assert that newEntry is really just using our other "create new signed entry" method */
     @Test
@@ -162,15 +162,20 @@ public class AtomSignerTest {
 
     @Test
     public void newEntryId() {
-        String id = signer.newEntryId();
+        String id = signer.newEntryId(signingPair.getPublic());
+        String expectedFeedPart = TrsstKeyFunctions.toFeedId(signingPair.getPublic());
+
+        String[] splitId = id.split(":");
         assertTrue(id.startsWith(ENTRY_ID_PREFIX));
-        String justUuid = id.substring(ENTRY_ID_PREFIX.length());
-        // Type 4 UUID
-        assertTrue(justUuid.substring(13, 15).equals("-4"));
-        assertTrue(justUuid.substring(18, 19).equals("-"));
-        String y = justUuid.substring(19, 20);
-        List<String> allowedY = Arrays.asList("8", "9", "A", "B", "a", "b");
-        assertTrue(allowedY.contains(y));
+        String [] splitPrefix = ENTRY_ID_PREFIX.split(":");
+        assertEquals(splitPrefix[0], splitId[0]);
+        assertEquals(splitPrefix[1], splitId[1]);
+        assertEquals(expectedFeedPart, splitId[2]);
+        long timePart = Long.parseLong(splitId[3]);
+
+        long now = System.currentTimeMillis();
+        assertTrue(timePart > now - 2000);
+        assertTrue(timePart <= now);
     }
 
     @Test

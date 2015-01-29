@@ -27,10 +27,12 @@ public class AtomEncrypter {
     /**
      * Creates an entry which sets the title to the literal words "Encrypted content" and adds the given titleas a plaintext Content entry for later
      * encryption
+     * 
+     * @param publicKey
      */
-    Entry createEntryTitleInContent(String entryTitle, String prevEntrySigValue) {
+    Entry createEntryTitleInContent(String entryTitle, PublicKey publicKey, String prevEntrySigValue) {
         // default scope for testing
-        Entry entry = signer.createEntry(entryTitle, prevEntrySigValue);
+        Entry entry = signer.createEntry(entryTitle, publicKey, prevEntrySigValue);
         entry.setTitle(ENCRYPTED_TITLE);
         Content content = new Content();
         // Set as plain text here, during encryption it will change to application/xenc+xml
@@ -55,7 +57,7 @@ public class AtomEncrypter {
     public Element createEncryptedEntryAsDom(String entryTitle, String prevEntrySigValue, KeyPair signingKeys, KeyPair encryptionKeys,
             List<PublicKey> recipientKeys) throws IOException, GeneralSecurityException, XMLSignatureException {
         // Construct the feed and entry
-        Element domEntry = signer.toDom(createEntryTitleInContent(entryTitle, prevEntrySigValue));
+        Element domEntry = signer.toDom(createEntryTitleInContent(entryTitle, signingKeys.getPublic(), prevEntrySigValue));
         Element domFeed = signer.toDom(signer.createFeed(signingKeys.getPublic(), encryptionKeys.getPublic()));
 
         // Encrypt entry prior to signing
