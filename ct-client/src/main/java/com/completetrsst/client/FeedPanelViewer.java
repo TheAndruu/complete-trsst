@@ -25,7 +25,6 @@ public class FeedPanelViewer extends Application {
     @Override
     public void start(Stage stage) {
 
-       
         ListView<String> listView = new ListView<String>(names);
         stage.setScene(new Scene(listView));
         stage.show();
@@ -46,6 +45,7 @@ public class FeedPanelViewer extends Application {
             Platform.runLater(() -> {
                 System.out.println("Got here");
                 names.add(greeting);
+                names.add(greeting);
                 names.add("andrew");
             });
         }).start();
@@ -60,9 +60,13 @@ public class FeedPanelViewer extends Application {
         protected void updateItem(String item, boolean empty) {
             super.updateItem(item, empty);
             System.out.println("Num items: " + names.size());
-            if (item != null) {
+            System.out.println("Item: " + item);
+            System.out.println("Is empty: " + empty);
+            if (empty) {
+                setText(null);
+                setGraphic(null);
+            } else if (item != null) {
                 if (item.contains("<p>")) {
-                    Platform.runLater(() -> {
                         WebView web = new WebView();
                         WebEngine engine = web.getEngine();
                         engine.loadContent(item);
@@ -70,15 +74,15 @@ public class FeedPanelViewer extends Application {
                         web.setPrefWidth(300);
                         web.autosize();
                         web.setBlendMode(BlendMode.MULTIPLY);
-                        setText("");
+                        setText(null);
                         setGraphic(web);
-                    });
                 } else {
                     setText(item == null ? "" : "-" + item);
                     setTextFill(Color.BLUE);
                     if (isSelected()) {
                         setTextFill(Color.GREEN);
                     }
+                    setGraphic(null);
                 }
 
             }
