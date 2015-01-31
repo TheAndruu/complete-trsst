@@ -1,8 +1,10 @@
 package com.completetrsst.rome.modules;
 
-import static com.completetrsst.constants.Namespaces.*;
+import static com.completetrsst.constants.Namespaces.ENCRYPT_NAMESPACE;
+import static com.completetrsst.constants.Namespaces.SIGNATURE_NAMESPACE;
 import static com.completetrsst.constants.Namespaces.TRSST_NAMESPACE;
-import static com.completetrsst.constants.Nodes.*;
+import static com.completetrsst.constants.Nodes.ENCRYPTED_DATA;
+import static com.completetrsst.constants.Nodes.SIGNATURE;
 import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
 
 import java.util.Locale;

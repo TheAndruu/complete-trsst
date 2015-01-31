@@ -1,12 +1,9 @@
 package com.completetrsst.rome.modules;
 
-import static com.completetrsst.constants.Namespaces.ENCRYPT_NAMESPACE;
 import static com.completetrsst.constants.Namespaces.SIGNATURE_NAMESPACE;
 import static com.completetrsst.constants.Namespaces.TRSST_NAMESPACE;
-import static com.completetrsst.constants.Nodes.ENCRYPTED_DATA;
 import static com.completetrsst.constants.Nodes.SIGNATURE;
 import static com.completetrsst.constants.Nodes.TRSST_ENCRYPT;
-import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
 import static com.completetrsst.constants.Nodes.TRSST_SIGN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,7 +16,6 @@ import static org.mockito.Mockito.when;
 import java.util.Locale;
 
 import org.jdom2.Element;
-import org.jdom2.Text;
 import org.junit.Before;
 import org.junit.Test;
 

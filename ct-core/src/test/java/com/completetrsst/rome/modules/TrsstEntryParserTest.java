@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 import java.util.Locale;
 
 import org.jdom2.Element;
-import org.jdom2.Text;
 import org.junit.Before;
 import org.junit.Test;
 

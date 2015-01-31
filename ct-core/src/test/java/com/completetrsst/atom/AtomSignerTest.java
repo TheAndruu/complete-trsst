@@ -18,7 +18,6 @@ import static org.mockito.Mockito.verify;
 
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
