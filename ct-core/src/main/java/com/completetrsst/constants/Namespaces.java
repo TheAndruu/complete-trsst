@@ -7,6 +7,8 @@ import org.jdom2.Namespace;
 public class Namespaces {
 
     public static final String ENCRYPT_XMLNS = "http://www.w3.org/2001/04/xmlenc#";
+    public static final Namespace ENCRYPT_NAMESPACE = Namespace.getNamespace(ENCRYPT_XMLNS);
+    
     public static final String SIGNATURE_XMLNS = XMLSignature.XMLNS;
     public static final Namespace SIGNATURE_NAMESPACE = Namespace.getNamespace(XMLSignature.XMLNS);
     

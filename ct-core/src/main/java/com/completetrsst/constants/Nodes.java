@@ -13,7 +13,10 @@ public class Nodes {
     
     /** Not trsst-specific */
     public static final String SIGNATURE_VALUE = "SignatureValue";
+    public static final String SIGNATURE = "Signature";
 
+    public static final String ENCRYPTED_DATA = "EncryptedData";
+    
     /** Title of encrypted elements */
     public static final String ENCRYPTED_TITLE = "Encrypted content";
     public static final String ENTRY_ID_PREFIX = "urn:entry:";
