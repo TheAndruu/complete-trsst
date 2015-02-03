@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+/** This will be the main application for our Trsst Client */
 public class TrsstViewer extends Application {
 
     private static final double WINDOW_WIDTH = 700;
