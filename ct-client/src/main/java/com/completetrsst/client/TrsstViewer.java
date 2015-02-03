@@ -1,5 +1,7 @@
 package com.completetrsst.client;
 
+import java.io.File;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -11,23 +13,31 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+
+import com.completetrsst.crypto.keys.FileSystemKeyManager;
+import com.completetrsst.crypto.keys.KeyManager;
 
 /** This will be the main application for our Trsst Client */
 public class TrsstViewer extends Application {
 
     private static final double WINDOW_WIDTH = 700;
     private static final double WINDOW_HEIGHT = 500;
-    
+
     private static final double LEFT_PANE_WIDTH = 200;
     private static final double RIGHT_PANE_WIDTH = WINDOW_WIDTH - LEFT_PANE_WIDTH;
-    
+
     public static void main(String[] args) {
         launch(args);
     }
 
+    private Stage primaryStage;
+
     @Override
     public void start(Stage stage) {
+        primaryStage = stage;
 
         // Left pane
         BorderPane leftPane = createLeftPane();
@@ -46,17 +56,17 @@ public class TrsstViewer extends Application {
         Group rootGroup = new Group();
         rootGroup.getChildren().add(splitPane);
         Scene scene = new Scene(rootGroup, WINDOW_WIDTH, WINDOW_HEIGHT, Color.WHITE);
+        stage.setScene(scene);
 
         // Property size bindings
         rightPane.prefWidthProperty().bind(stage.widthProperty());// .subtract(leftPane.widthProperty()));
         rightPane.prefHeightProperty().bind(stage.heightProperty());
 
-        configureAndShowStage(stage, scene);
+        configureAndShowStage(stage);
     }
 
-    private void configureAndShowStage(Stage stage, Scene scene) {
+    private void configureAndShowStage(Stage stage) {
         stage.setTitle("Trsst Viewer");
-        stage.setScene(scene);
         stage.sizeToScene();
         stage.show();
     }
@@ -76,7 +86,31 @@ public class TrsstViewer extends Application {
 
     private Button createSignInButton() {
         Button signInButton = new Button("Sign in");
+        signInButton.setOnAction((event) -> {
+            showSignInModal(signInButton.getScene());
+        });
         return signInButton;
+    }
+
+    private void showSignInModal(Scene scene) {
+//        final Stage dialog = new Stage();
+//        dialog.initModality(Modality.WINDOW_MODAL);
+//        dialog.initOwner(primaryStage);
+        
+        KeyManager keyManager = new FileSystemKeyManager();
+        FileChooser fileChooser = new FileChooser();
+        
+//        fileChooser.setInitialDirectory(keyManager.getKeyStoreHome().toFile());
+        fileChooser.setTitle("Load private keys");
+        fileChooser.getExtensionFilters().addAll(
+                new ExtensionFilter("Key Files", "*.pkcs", "*.jks", "*.p12"),
+                new ExtensionFilter("All Files", "*.*"));
+        File selectedFile = fileChooser.showOpenDialog(primaryStage);
+       
+        // TODO: Load file as key
+        
+        
+
     }
 
     private Pane createRightPane() {

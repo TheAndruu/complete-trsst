@@ -3,6 +3,7 @@ package com.completetrsst.crypto.keys;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyPair;
+import java.security.KeyStore;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ public class FileSystemKeyManager implements KeyManager {
     private KeyCreator keyCreator;
 
     static {
+        // TODO: Make this match the new db paths when put in place
         KEY_HOME = Paths.get("").toAbsolutePath().getParent();
         log.info("KEY_HOME path: " + KEY_HOME.toString());
     }
@@ -39,4 +41,28 @@ public class FileSystemKeyManager implements KeyManager {
         this.keyCreator = keyGenerator;
     }
 
+    @Override
+    public KeyStore loadSignKey(String password) {
+//        TrsstKeyFunctions.readSigningKeyPair(id, file, password);
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public KeyStore loadEncryptKey(String password) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void saveSignKey(String password) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void saveEncryptKey(String password) {
+        // TODO Auto-generated method stub
+        
+    }
 }
