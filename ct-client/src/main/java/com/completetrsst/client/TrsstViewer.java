@@ -15,6 +15,12 @@ import javafx.stage.Stage;
 
 public class TrsstViewer extends Application {
 
+    private static final double WINDOW_WIDTH = 700;
+    private static final double WINDOW_HEIGHT = 500;
+    
+    private static final double LEFT_PANE_WIDTH = 200;
+    private static final double RIGHT_PANE_WIDTH = WINDOW_WIDTH - LEFT_PANE_WIDTH;
+    
     public static void main(String[] args) {
         launch(args);
     }
@@ -38,7 +44,7 @@ public class TrsstViewer extends Application {
         // Main scene
         Group rootGroup = new Group();
         rootGroup.getChildren().add(splitPane);
-        Scene scene = new Scene(rootGroup, 700, 500, Color.WHITE);
+        Scene scene = new Scene(rootGroup, WINDOW_WIDTH, WINDOW_HEIGHT, Color.WHITE);
 
         // Property size bindings
         rightPane.prefWidthProperty().bind(stage.widthProperty());// .subtract(leftPane.widthProperty()));
@@ -57,13 +63,13 @@ public class TrsstViewer extends Application {
     private SplitPane createSplitPane() {
         SplitPane splitPane = new SplitPane();
         splitPane.setOrientation(Orientation.HORIZONTAL);
-        Platform.runLater(() -> splitPane.setDividerPosition(0, 200 / 700d));
+        Platform.runLater(() -> splitPane.setDividerPosition(0, LEFT_PANE_WIDTH / WINDOW_WIDTH));
         return splitPane;
     }
 
     private BorderPane createLeftPane() {
         BorderPane leftPane = new BorderPane();
-        leftPane.setPrefWidth(200);
+        leftPane.setPrefWidth(LEFT_PANE_WIDTH);
         return leftPane;
     }
 
@@ -74,21 +80,9 @@ public class TrsstViewer extends Application {
 
     private Pane createRightPane() {
         Pane rightPane = new Pane();
-        rightPane.setPrefWidth(300);
+        rightPane.setPrefWidth(RIGHT_PANE_WIDTH);
         rightPane.getChildren().add(new Label("Feed goes here eventually"));
         return rightPane;
     }
 
-    private void addOnNewThread() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            Platform.runLater(() -> {
-                System.out.println("Got here");
-            });
-        }).start();
-    }
 }
