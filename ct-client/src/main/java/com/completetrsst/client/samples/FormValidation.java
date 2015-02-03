@@ -1,4 +1,4 @@
-package com.completetrsst.client;
+package com.completetrsst.client.samples;
 
 import java.util.ArrayList;
 import java.util.List;

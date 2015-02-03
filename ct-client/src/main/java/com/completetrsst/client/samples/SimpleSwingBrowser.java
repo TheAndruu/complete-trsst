@@ -1,4 +1,4 @@
-package com.completetrsst.client;
+package com.completetrsst.client.samples;
 
 
 import javafx.application.Platform;
