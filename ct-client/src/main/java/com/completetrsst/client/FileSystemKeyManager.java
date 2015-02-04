@@ -1,7 +1,7 @@
 package com.completetrsst.client;
 
 import java.io.File;
-import java.security.KeyStore;
+import java.security.KeyPair;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +9,21 @@ import org.slf4j.LoggerFactory;
 import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
 import com.completetrsst.crypto.keys.KeyCreator;
 import com.completetrsst.crypto.keys.KeyManager;
+import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 
 public class FileSystemKeyManager implements KeyManager {
 
     private static final Logger log = LoggerFactory.getLogger(FileSystemKeyManager.class);
 
     private static final String KEY_HOME;
+    private static final String KEY_FILE_EXTENSION = ".p12";
 
-    private KeyCreator keyCreator = new EllipticCurveKeyCreator();
+    private KeyCreator creator = null;
+
+    /** ID is the satoshi hash of the signing key */
+    private String id;
+    private KeyPair signKey;
+    private KeyPair encryptKey;
 
     static {
         log.info("Static init block");
@@ -36,27 +43,58 @@ public class FileSystemKeyManager implements KeyManager {
     }
 
     @Override
-    public KeyStore loadSignKey(String password) {
-//        TrsstKeyFunctions.readSigningKeyPair(id, file, password);
-        // TODO Auto-generated method stub
-        return null;
+    public void loadKeys(String id, String password) {
+        char[] passChars = password.toCharArray();
+        this.id = id;
+        File keyFile = createFile();
+
+        signKey = TrsstKeyFunctions.readSigningKeyPair(id, keyFile, passChars);
+        if (signKey == null) {
+            log.debug("Couldn't load sign key for given id and password");
+        }
+
+        encryptKey = TrsstKeyFunctions.readEncryptionKeyPair(id, keyFile, passChars);
+        if (encryptKey == null) {
+            log.debug("Couldn't load encrypt key for given id and password");
+        }
     }
 
     @Override
-    public KeyStore loadEncryptKey(String password) {
-        // TODO Auto-generated method stub
-        return null;
+    public void saveKeys(String password) {
+        char[] passChars = password.toCharArray();
+        File keyFile = createFile();
+
+        TrsstKeyFunctions.writeSigningKeyPair(signKey, id, keyFile, passChars);
+        TrsstKeyFunctions.writeEncryptionKeyPair(encryptKey, id, keyFile, passChars);
     }
 
     @Override
-    public void saveSignKey(String password) {
-        // TODO Auto-generated method stub
-        
+    public void createKeys(String password) {
+        signKey = getKeyCreator().createKeyPair();
+        id = TrsstKeyFunctions.toFeedId(signKey.getPublic());
+        encryptKey = getKeyCreator().createKeyPair();
+    }
+
+    private KeyCreator getKeyCreator() {
+        return creator == null ? new EllipticCurveKeyCreator() : creator;
     }
 
     @Override
-    public void saveEncryptKey(String password) {
-        // TODO Auto-generated method stub
-        
+    public KeyPair getSignKey() {
+        return signKey;
+    }
+
+    @Override
+    public KeyPair getEncryptKey() {
+        return encryptKey;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    private File createFile() {
+        return new File(KEY_HOME, id + KEY_FILE_EXTENSION);
     }
 }

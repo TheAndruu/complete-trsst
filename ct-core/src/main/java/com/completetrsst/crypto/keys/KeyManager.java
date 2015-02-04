@@ -1,14 +1,18 @@
 package com.completetrsst.crypto.keys;
 
-import java.security.KeyStore;
+import java.security.KeyPair;
 
 public interface KeyManager {
 
-    public KeyStore loadSignKey(String password);
+    public void loadKeys(String id, String password);
 
-    public KeyStore loadEncryptKey(String password);
+    public void saveKeys(String password);
 
-    public void saveSignKey(String password);
+    public void createKeys(String password);
 
-    public void saveEncryptKey(String password);
+    public KeyPair getSignKey();
+
+    public KeyPair getEncryptKey();
+
+    public String getId();
 }
