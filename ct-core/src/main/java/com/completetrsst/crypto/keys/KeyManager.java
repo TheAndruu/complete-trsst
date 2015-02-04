@@ -1,6 +1,7 @@
 package com.completetrsst.crypto.keys;
 
 import java.security.KeyPair;
+import java.util.List;
 
 public interface KeyManager {
 
@@ -15,4 +16,6 @@ public interface KeyManager {
     public KeyPair getEncryptKey();
 
     public String getId();
+
+    public List<String> getAvailableFeedIds();
 }

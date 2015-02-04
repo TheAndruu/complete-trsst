@@ -2,7 +2,10 @@ package com.completetrsst.client;
 
 import java.io.File;
 import java.security.KeyPair;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,6 +95,25 @@ public class FileSystemKeyManager implements KeyManager {
     @Override
     public String getId() {
         return id;
+    }
+
+    /** Returns feeds for which we have a keystore. */
+    @Override
+    public List<String> getAvailableFeedIds() {
+        List<String> results = new LinkedList<String>();
+
+        File[] files = new File(KEY_HOME).listFiles();
+        if (files == null) {
+            return results;
+        }
+
+        for (File f : files) {
+            int i = f.getName().indexOf(KEY_FILE_EXTENSION);
+            if (i != -1) {
+                results.add(StringEscapeUtils.unescapeHtml3(f.getName().substring(0, i)));
+            }
+        }
+        return results;
     }
 
     private File createFile() {
