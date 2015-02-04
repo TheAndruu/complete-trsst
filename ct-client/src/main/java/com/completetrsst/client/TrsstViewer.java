@@ -17,7 +17,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
-import com.completetrsst.crypto.keys.FileSystemKeyManager;
 import com.completetrsst.crypto.keys.KeyManager;
 
 /** This will be the main application for our Trsst Client */
@@ -37,6 +36,9 @@ public class TrsstViewer extends Application {
 
     @Override
     public void start(Stage stage) {
+        FileSystemKeyManager f = new FileSystemKeyManager();
+        f.loadEncryptKey("sd");
+       
         primaryStage = stage;
 
         // Left pane

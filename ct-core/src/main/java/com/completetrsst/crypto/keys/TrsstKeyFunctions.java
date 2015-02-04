@@ -12,6 +12,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Security;
 import java.security.SignatureException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -19,6 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +37,22 @@ public class TrsstKeyFunctions {
     public static final String FEED_URN_PREFIX = "urn:feed:";
     private static final char[] b58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
     private static final int[] r58 = new int[256];
+    
+    
     static {
         for (int i = 0; i < 256; ++i) {
             r58[i] = -1;
         }
         for (int i = 0; i < b58.length; ++i) {
             r58[b58[i]] = i;
+        }
+        
+        try {
+            int result = Security.addProvider(new BouncyCastleProvider());
+            log.info("Result of BC registration: " + result);
+        } catch (Exception e) {
+            log.error("Could not initialize security provider: " + e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -135,6 +147,7 @@ public class TrsstKeyFunctions {
         }
     }
 
+    // TODO: Refactor to avoid deprecated api
     @SuppressWarnings("deprecation")
     private static final X509Certificate createCertificate(KeyPair keyPair, String algorithm) {
         org.bouncycastle.x509.X509V3CertificateGenerator certGen = new org.bouncycastle.x509.X509V3CertificateGenerator();

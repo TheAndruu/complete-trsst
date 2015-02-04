@@ -28,7 +28,6 @@ repositories {
 
 jar {
     baseName = 'complete-trsst'
-//    version =  '0.1.0'
 }
 
 
@@ -36,7 +35,7 @@ dependencies {
     // for embedded orient db 
     compile 'com.orientechnologies:orientdb-enterprise:2.0-M3'
     compile 'com.orientechnologies:orientdb-server:2.0-M3'
-    // for orient java db
+    // for orient db java api
     compile 'com.orientechnologies:orientdb-core:2.0-M3'
     compile 'com.orientechnologies:orient-commons:2.0-M1'
     // for orient lucene
@@ -49,7 +48,6 @@ dependencies {
     // for graceful shutdown via http://localhost:8080/shutdown
     // TODO: Do without the actuator component for graceful shutdown?
     compile 'org.springframework.boot:spring-boot-starter-actuator'
-    // TODO: Can remove if we don't use the StoryFeedView w/ atom parsing
-    compile 'com.rometools:rome:1.5.0'
+
     compile project(':ct-core')
 }
