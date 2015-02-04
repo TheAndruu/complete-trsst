@@ -36,9 +36,6 @@ public class TrsstViewer extends Application {
 
     @Override
     public void start(Stage stage) {
-        FileSystemKeyManager f = new FileSystemKeyManager();
-        f.loadEncryptKey("sd");
-       
         primaryStage = stage;
 
         // Left pane
