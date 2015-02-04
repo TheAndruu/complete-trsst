@@ -14,6 +14,8 @@ public class FileSystemKeyManager implements KeyManager {
 
     private static final Path KEY_HOME;
 
+    // TODO: move this to the client, leaving the interface in the core, or at least, have the client 
+    // be the one to configure the location of the root directory
     private KeyCreator keyCreator;
 
     static {

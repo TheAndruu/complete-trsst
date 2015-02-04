@@ -10,9 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.completetrsst.crypto.keys.EllipticCurveKeyCreator;
-import com.completetrsst.crypto.keys.FileSystemKeyManager;
-import com.completetrsst.crypto.keys.KeyManager;
 import com.completetrsst.operations.CompleteTrsstOps;
 import com.completetrsst.operations.TrsstOperations;
 import com.completetrsst.spring.store.OrientStore;
@@ -52,15 +49,6 @@ public class Application extends SpringBootServletInitializer {
 		CompleteTrsstOps operations = new CompleteTrsstOps();
 		operations.setStorage(getStorage());
 		return operations;
-	}
-
-	// TODO: Remove the key manager-- should only be relevant on the client
-	@Bean
-	public KeyManager keyManager() {
-		KeyManager manager = new FileSystemKeyManager();
-		manager.setKeyGenerator(new EllipticCurveKeyCreator());
-		log.info("Key home: " + manager.getKeyStoreHome().toString());
-		return manager;
 	}
 
 	// Used when deploying to a standalone servlet container, i.e. tomcat

@@ -28,12 +28,12 @@ public class TrsstViewer extends Application {
 
     private static final double LEFT_PANE_WIDTH = 200;
     private static final double RIGHT_PANE_WIDTH = WINDOW_WIDTH - LEFT_PANE_WIDTH;
+    
+    private Stage primaryStage;
 
     public static void main(String[] args) {
         launch(args);
     }
-
-    private Stage primaryStage;
 
     @Override
     public void start(Stage stage) {

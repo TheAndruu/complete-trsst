@@ -1,6 +1,8 @@
 package com.completetrsst.spring.store;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -173,15 +175,47 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
     public void afterPropertiesSet() throws Exception {
         log.info("Starting up orient server");
 
-        if (dbUrl.equalsIgnoreCase("default")) {
-            dbUrl = "plocal:" + System.getProperty("user.home") + File.separator + "trsst-db";
-        }
+        initDatabaseUrl();
         log.info("Using db url: " + dbUrl);
 
+        connectToOrientServer();
+
+        createDatabaseIfDoesntExit();
+
+        pool = new OPartitionedDatabasePool(dbUrl, dbUsername, dbPassword);
+    }
+
+    private void connectToOrientServer() throws Exception, InstantiationException, IllegalAccessException, ClassNotFoundException,
+            InvocationTargetException, NoSuchMethodException, IOException {
         server = OServerMain.create();
         server.startup(getClass().getResourceAsStream(databaseConfigFile));
         server.activate();
+    }
 
+    private void initDatabaseUrl() {
+        if (dbUrl.equalsIgnoreCase("default")) {
+            log.debug("Using default database URL");
+            String trsstDbPath = createTrsstDbIfDoesntExist();
+            dbUrl = "plocal:" + trsstDbPath;
+        }
+    }
+
+    private String createTrsstDbIfDoesntExist() {
+        String trsstHome = System.getProperty("user.home") + File.separator + ".trsst";
+        String defaultDbUrl = trsstHome + File.separator + "trsst-db";
+        File trsstDbHome = new File(defaultDbUrl);
+        boolean wasCreated = false;
+        if (!trsstDbHome.exists()) {
+            log.info("Creating database home directory at: " + defaultDbUrl);
+            wasCreated = trsstDbHome.mkdirs();
+            if (!wasCreated) {
+                log.error("Can't create trsst storage in default location");
+            }
+        }
+        return defaultDbUrl;
+    }
+
+    private void createDatabaseIfDoesntExit() {
         ODatabaseDocumentTx tx = new ODatabaseDocumentTx(dbUrl);
         try {
             if (!tx.exists()) {
@@ -205,8 +239,6 @@ public class OrientStore implements Storage, InitializingBean, DisposableBean {
         } finally {
             tx.close();
         }
-
-        pool = new OPartitionedDatabasePool(dbUrl, dbUsername, dbPassword);
     }
 
     @Override
