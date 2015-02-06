@@ -1,15 +1,23 @@
 @CHARSET "UTF-8";
 
-.login-menu-button {
+.login-menu-item {
 	-fx-font: 12px "Sans Serif";
 	-fx-padding: 10;
 	-fx-background-color: cyan;
 }
 
-.login-password-input {
+.login-password-box {
 	-fx-text-fill: black;
 	-fx-prompt-text-fill: gray;
 	-fx-highlight-text-fill: black;
 	-fx-highlight-fill: gray;
 	-fx-background-color: rgba(255, 255, 255, .80);
+}
+
+.login-password-label {
+    -fx-text-fill: black;
+    -fx-prompt-text-fill: purple;
+    -fx-highlight-text-fill: orange;
+    -fx-highlight-fill: gray;
+    -fx-background-color: rgba(255, 255, 255, .80);
 }

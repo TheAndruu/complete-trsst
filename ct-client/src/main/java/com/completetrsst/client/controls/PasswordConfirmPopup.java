@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,6 +31,9 @@ public class PasswordConfirmPopup {
     private final PasswordField passwordTwo = new PasswordField();
 
     private final Text statusBox = new Text();
+
+    private static final String TEXTBOX_CLASS = "login-password-box";
+    private static final String LABEL_CLASS = "login-password-label";
 
     private final double WIDTH = 320;
     private final double HEIGHT = 312;
@@ -69,16 +73,16 @@ public class PasswordConfirmPopup {
         stage.hide();
     }
 
-    private void setConfirmedPassword(String password) {
-        this.confirmedPassword = password;
-    }
-    
     public void setPasswordEnteredHandler(EventHandler<ActionEvent> handler) {
         this.passwordEnteredHandler = handler;
     }
 
     public void setPasswordCanceledHandler(EventHandler<ActionEvent> handler) {
         this.passwordCanceledHandler = handler;
+    }
+
+    private void setConfirmedPassword(String password) {
+        this.confirmedPassword = password;
     }
 
     public String getConfirmedPassword() {
@@ -94,20 +98,16 @@ public class PasswordConfirmPopup {
 
         SVGPath padLock = createLockIcon();
 
+        Label headerLabel = new Label("Enter a password for the account:");
+        headerLabel.getStyleClass().add(LABEL_CLASS);
+
         HBox inputRow = new HBox();
         inputRow.getChildren().addAll(passwordOne, padLock);
         VBox boxBlock = new VBox();
-        boxBlock.getChildren().addAll(inputRow, passwordTwo);
-        
+        boxBlock.getChildren().addAll(headerLabel, inputRow, passwordTwo);
+
         Button enterButton = new Button("Sign in");
-        enterButton.setOnAction((event) -> {
-            String validationResult = validatePasswords();
-            if (validationResult.length() == 0) {
-                firePasswordConfirmed(event);
-            } else {
-                statusBox.setText(validationResult);
-            }
-        });
+        enterButton.setOnAction((event) -> firePasswordConfirmed(event));
         Button cancelButton = new Button("Cancel");
         cancelButton.setOnAction((event) -> passwordCanceledHandler.handle(event));
 
@@ -123,8 +123,13 @@ public class PasswordConfirmPopup {
     }
 
     private void firePasswordConfirmed(ActionEvent event) {
-        setConfirmedPassword(passwordOne.getText());
-        passwordEnteredHandler.handle(event);
+        String validationResult = validatePasswords();
+        if (validationResult.length() == 0) {
+            setConfirmedPassword(passwordOne.getText());
+            passwordEnteredHandler.handle(event);
+        } else {
+            statusBox.setText(validationResult);
+        }
     }
 
     private String validatePasswords() {
@@ -140,8 +145,8 @@ public class PasswordConfirmPopup {
         if (!p1.equals(p2)) {
             return "The passwords must match";
         }
-        if (p2.length() < 10) {
-            return "Passwords must be at least 10 characters long";
+        if (p2.length() < 12) {
+            return "Passwords must be at least 12 characters long";
         }
 
         return "";
@@ -155,17 +160,17 @@ public class PasswordConfirmPopup {
     }
 
     private void initPasswordInputs() {
-        
+
         passwordOne.setFont(Font.font("SanSerif", 20));
         passwordOne.setPromptText("Enter Password");
-        passwordOne.getStyleClass().add("login-password-input");
+        passwordOne.getStyleClass().add(TEXTBOX_CLASS);
         passwordOne.prefWidthProperty().bind(stage.widthProperty().subtract(55));
         // user hits the enter key
         passwordOne.setOnAction(actionEvent -> firePasswordConfirmed(actionEvent));
-        
+
         passwordTwo.setFont(Font.font("SanSerif", 20));
         passwordTwo.setPromptText("Confirm Password");
-        passwordTwo.getStyleClass().add("login-password-input");
+        passwordTwo.getStyleClass().add(TEXTBOX_CLASS);
         passwordTwo.prefWidthProperty().bind(stage.widthProperty().subtract(55));
         // user hits the enter key
         passwordTwo.setOnAction(actionEvent -> firePasswordConfirmed(actionEvent));

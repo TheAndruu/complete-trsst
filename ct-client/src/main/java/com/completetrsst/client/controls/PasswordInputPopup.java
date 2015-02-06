@@ -32,6 +32,8 @@ public class PasswordInputPopup {
 
     private String accountId;
 
+    private static final String TEXTBOX_CLASS = "login-password-box";
+    
     private final double WIDTH = 320;
     private final double HEIGHT = 312;
 
@@ -124,7 +126,7 @@ public class PasswordInputPopup {
     private void createPasswordInput() {
         passwordField.setFont(Font.font("SanSerif", 20));
         passwordField.setPromptText("Enter Password");
-        passwordField.getStyleClass().add("login-password-input");
+        passwordField.getStyleClass().add(TEXTBOX_CLASS);
         passwordField.prefWidthProperty().bind(stage.widthProperty().subtract(55));
 
         // user hits the enter key

@@ -17,7 +17,7 @@ import com.completetrsst.crypto.keys.KeyManager;
 
 public class SignInControl extends HBox {
 
-    private static final String LOGIN_BUTTON_CLASS = "login-menu-button";
+    private static final String MENU_CLASS = "login-menu-item";
 
     private KeyManager keyManager;
 
@@ -31,13 +31,13 @@ public class SignInControl extends HBox {
     }
 
     private void constructControl() {
-        createButton.getStyleClass().add(LOGIN_BUTTON_CLASS);
+        createButton.getStyleClass().add(MENU_CLASS);
         createButton.setOnMouseClicked((event) -> {
             showCreatePopUp();
 
         });
         
-        signInButton.getStyleClass().add(LOGIN_BUTTON_CLASS);
+        signInButton.getStyleClass().add(MENU_CLASS);
         signInButton.setOnMouseClicked((event) -> {
             showSignInPopUp();
         });
@@ -96,8 +96,10 @@ public class SignInControl extends HBox {
             return Collections.singletonList(emptyLabel);
         }
 
+        
         // For ids that were found
-        List<Control> signInMenu = new ArrayList<Control>(availableIds.size());
+        List<Control> signInMenu = new ArrayList<Control>(availableIds.size() + 1);
+        signInMenu.add(createSignInMenuItem("Choose an account to log in:"));
         availableIds.forEach((id) -> {
             Control item = createSignInMenuItem(id);
             item.setOnMouseClicked((mouseEvent) -> {
@@ -133,7 +135,7 @@ public class SignInControl extends HBox {
 
     private Control createSignInMenuItem(String text) {
         Label item = new Label(text);
-        item.getStyleClass().add(LOGIN_BUTTON_CLASS);
+        item.getStyleClass().add(MENU_CLASS);
         return item;
     }
 
