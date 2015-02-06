@@ -119,4 +119,11 @@ public class FileSystemKeyManager implements KeyManager {
     private File createFile() {
         return new File(KEY_HOME, id + KEY_FILE_EXTENSION);
     }
+
+    @Override
+    public void clearKeys() {
+        this.id = null;
+        this.signKey = null;
+        this.encryptKey = null;
+    }
 }

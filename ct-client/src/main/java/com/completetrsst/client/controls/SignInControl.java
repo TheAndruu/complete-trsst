@@ -10,40 +10,65 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
 import com.completetrsst.crypto.keys.KeyManager;
 
-public class SignInControl extends HBox {
+public class SignInControl extends Pane {
 
     private static final String MENU_CLASS = "login-menu-item";
 
     private KeyManager keyManager;
 
-    private Control signInButton = new Button("Sign in");
-    private Control createButton = new Button("Create account");
+    private Button signInButton = new Button("Sign in");
+    private Button createButton = new Button("Create account");
+    private Button logOutButton = new Button("Logout");
 
-    // private PasswordInputPopup passwordPopup = new PasswordInputPopup();
-
+    private HBox signInControls = new HBox();
+    private HBox loggedInControls = new HBox();
+    
     public SignInControl() {
         constructControl();
     }
 
     private void constructControl() {
         createButton.getStyleClass().add(MENU_CLASS);
-        createButton.setOnMouseClicked((event) -> {
+        createButton.setOnAction((event) -> {
             showCreatePopUp();
-
         });
         
         signInButton.getStyleClass().add(MENU_CLASS);
-        signInButton.setOnMouseClicked((event) -> {
+        signInButton.setOnAction((event) -> {
             showSignInPopUp();
         });
+        
+        signInControls.getChildren().addAll(createButton, signInButton);
+        HBox.setHgrow(signInButton, Priority.ALWAYS);
+        
+        // Make signIn the visible options
+        getChildren().addAll(signInControls);
+        
+        // create the header for when one is logged in, leaving it not visible
+        
+        logOutButton.getStyleClass().add(MENU_CLASS);
+        logOutButton.setOnAction((event) -> logOut());
+        
+        HBox.setHgrow(logOutButton, Priority.ALWAYS);
+        
+        loggedInControls.getChildren().addAll(logOutButton);
+    }
 
-
-        getChildren().addAll(createButton, signInButton);
+    private void logOut() {
+        // clear the keys
+        keyManager.clearKeys();
+        
+        // update the status bar
+        logOutButton.setText("");
+        getChildren().clear();
+        getChildren().add(signInControls);
     }
 
     private void showCreatePopUp() {
@@ -63,13 +88,9 @@ public class SignInControl extends HBox {
     }
 
     private void showLogOut() {
-        
-        // TODO: Add menu showing account logged in as and logout button with action handlers
-        
-        // TODO: Also add 'clear keys' function to KeyManager
-        signInButton.setVisible(false);
-        createButton.setVisible(false);
-        getChildren().add(new Label("Log out"));
+        logOutButton.setText("Log out from " + keyManager.getId());
+        getChildren().clear();
+        getChildren().add(loggedInControls);
     }
 
     private void showSignInPopUp() {

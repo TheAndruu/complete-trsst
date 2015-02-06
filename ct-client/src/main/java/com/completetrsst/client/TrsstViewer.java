@@ -12,6 +12,7 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -42,7 +43,8 @@ public class TrsstViewer extends Application {
         primaryStage = stage;
 
         // Left pane
-        BorderPane leftPane = createLeftPane();
+        BorderPane leftPane = new BorderPane();
+        leftPane.setPrefWidth(LEFT_PANE_WIDTH);
         leftPane.setTop(createSignInBar());
 
         // Right pane
@@ -61,6 +63,8 @@ public class TrsstViewer extends Application {
         stage.setScene(scene);
 
         // Property size bindings
+//        leftPane.prefWidthProperty().bind(splitPane.get)
+        
         rightPane.prefWidthProperty().bind(stage.widthProperty());// .subtract(leftPane.widthProperty()));
         rightPane.prefHeightProperty().bind(stage.heightProperty());
 
@@ -80,11 +84,6 @@ public class TrsstViewer extends Application {
         return splitPane;
     }
 
-    private BorderPane createLeftPane() {
-        BorderPane leftPane = new BorderPane();
-        leftPane.setPrefWidth(LEFT_PANE_WIDTH);
-        return leftPane;
-    }
 
     private Pane createSignInBar() {
         SignInControl signIn = new SignInControl();

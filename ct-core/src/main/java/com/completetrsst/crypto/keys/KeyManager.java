@@ -10,6 +10,8 @@ public interface KeyManager {
     public void saveKeys(String password);
 
     public void createKeys(String password);
+    
+    public void clearKeys();
 
     public KeyPair getSignKey();
 
@@ -18,4 +20,5 @@ public interface KeyManager {
     public String getId();
 
     public List<String> getAvailableFeedIds();
+    
 }
