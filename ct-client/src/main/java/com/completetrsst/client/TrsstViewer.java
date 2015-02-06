@@ -9,11 +9,12 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -45,7 +46,9 @@ public class TrsstViewer extends Application {
         // Left pane
         BorderPane leftPane = new BorderPane();
         leftPane.setPrefWidth(LEFT_PANE_WIDTH);
-        leftPane.setTop(createSignInBar());
+        Pane signInBar = createSignInBar();
+        signInBar.setPrefWidth(LEFT_PANE_WIDTH);
+        leftPane.setTop(signInBar);
 
         // Right pane
         Pane rightPane = createRightPane();
@@ -63,11 +66,12 @@ public class TrsstViewer extends Application {
         stage.setScene(scene);
 
         // Property size bindings
-//        leftPane.prefWidthProperty().bind(splitPane.get)
-        
-        rightPane.prefWidthProperty().bind(stage.widthProperty());// .subtract(leftPane.widthProperty()));
+        rightPane.prefWidthProperty().bind(stage.widthProperty());//.subtract(leftPane.widthProperty()));
         rightPane.prefHeightProperty().bind(stage.heightProperty());
 
+//        leftPane.prefWidthProperty().bind(stage.widthProperty().subtract(rightPane.widthProperty()));
+        leftPane.prefHeightProperty().bind(stage.heightProperty());
+        
         configureAndShowStage(stage);
     }
 

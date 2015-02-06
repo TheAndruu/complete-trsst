@@ -46,7 +46,6 @@ public class SignInControl extends Pane {
         });
         
         signInControls.getChildren().addAll(createButton, signInButton);
-        HBox.setHgrow(signInButton, Priority.ALWAYS);
         
         // Make signIn the visible options
         getChildren().addAll(signInControls);
@@ -56,9 +55,8 @@ public class SignInControl extends Pane {
         logOutButton.getStyleClass().add(MENU_CLASS);
         logOutButton.setOnAction((event) -> logOut());
         
-        HBox.setHgrow(logOutButton, Priority.ALWAYS);
-        
         loggedInControls.getChildren().addAll(logOutButton);
+        HBox.setHgrow(logOutButton, Priority.ALWAYS);
     }
 
     private void logOut() {
