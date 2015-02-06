@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.List;
 
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
 import com.completetrsst.crypto.keys.KeyManager;
@@ -76,8 +76,10 @@ public class SignInControl extends HBox {
         final Popup popUp = new Popup();
         popUp.setAutoFix(true);
         popUp.setAutoHide(true);
-        Collection<? extends Node> signInOptions = createSignInMenuItems(popUp);
-        popUp.getContent().addAll(signInOptions);
+        Collection<Control> signInOptions = createSignInMenuItems(popUp);
+        VBox vBox = new VBox();
+        vBox.getChildren().addAll(signInOptions);
+        popUp.getContent().addAll(vBox);
         
         Point2D buttonPosition = signInButton.localToScreen(signInButton.getLayoutX(), signInButton.getLayoutY());
         double screenX = buttonPosition.getX() - signInButton.getWidth();
@@ -85,7 +87,7 @@ public class SignInControl extends HBox {
         popUp.show(signInButton, screenX, screenY);
     }
 
-    private Collection<? extends Node> createSignInMenuItems(Popup popUp) {
+    private Collection<Control> createSignInMenuItems(Popup popUp) {
         List<String> availableIds = keyManager.getAvailableFeedIds();
         // No id's found locally
         if (availableIds.size() == 0) {
