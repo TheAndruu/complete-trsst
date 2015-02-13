@@ -17,6 +17,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
 import com.completetrsst.client.FileSystemKeyManager;
+import com.completetrsst.client.controls.events.AuthenticationEvent;
+import com.completetrsst.client.controls.events.AuthenticationHandler;
 import com.completetrsst.client.controls.popup.PasswordConfirmPopup;
 import com.completetrsst.client.controls.popup.PasswordInputPopup;
 import com.completetrsst.crypto.keys.KeyManager;
@@ -43,6 +45,9 @@ public class SignInController {
     @FXML
     private HBox loggedInControls;
 
+    private List<AuthenticationHandler> loggedInHandlers = new ArrayList<AuthenticationHandler>();
+    private List<AuthenticationHandler> loggedOutHandlers = new ArrayList<AuthenticationHandler>();
+
     /** Invoked by FXML when loading fxml content */
     public void initialize() throws Exception {
         // Show the logIn controls
@@ -51,6 +56,7 @@ public class SignInController {
 
     @FXML
     private void logOut() {
+        final String id = keyManager.getId();
         // clear the keys
         keyManager.clearKeys();
 
@@ -58,6 +64,8 @@ public class SignInController {
         logOutButton.setText("");
         container.getChildren().clear();
         container.getChildren().add(signInControls);
+
+        loggedOutHandlers.forEach((handler) -> handler.handleEvent(new AuthenticationEvent().setAccountId(id).setAuthenticated(false)));
     }
 
     @FXML
@@ -133,14 +141,15 @@ public class SignInController {
     }
 
     private void login(PasswordInputPopup passwordPopup) {
-        String password = passwordPopup.getPasswordEntered();
-        String id = passwordPopup.getAccountId();
+        final String password = passwordPopup.getPasswordEntered();
+        final String id = passwordPopup.getAccountId();
         keyManager.loadKeys(id, password);
         if (keyManager.getSignKey() == null) {
             passwordPopup.setStatusText("Password couldn't unlock account " + id);
         } else {
             passwordPopup.hide();
             showLogOut();
+            loggedInHandlers.forEach((handler) -> handler.handleEvent(new AuthenticationEvent().setAccountId(id).setAuthenticated(true)));
         }
     }
 
@@ -150,4 +159,11 @@ public class SignInController {
         return item;
     }
 
+    public void addLoggedInHandler(AuthenticationHandler handler) {
+        loggedInHandlers.add(handler);
+    }
+
+    public void addLoggedOutHandler(AuthenticationHandler handler) {
+        loggedOutHandlers.add(handler);
+    }
 }

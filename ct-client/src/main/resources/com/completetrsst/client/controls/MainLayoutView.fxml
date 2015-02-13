@@ -18,7 +18,7 @@
  </left>
 
  <center>
-  <Pane prefWidth="500">
+  <Pane fx:id="feedPane" prefWidth="500">
    <Label text="Display goes here eventually"></Label>
   </Pane>
  </center>
