@@ -3,6 +3,7 @@ package com.completetrsst.client;
 import java.io.IOException;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -74,14 +75,16 @@ public class TrsstViewer extends Application {
     }
 
     private void showPublishingPane() {
-        try {
-            FXMLLoader loader = loadView("/com/completetrsst/client/controls/PublishingView.fxml");
-            BorderPane publishingView = loader.load();
-            mainLayoutController.setFeedBottom(publishingView);
-        } catch (IOException e) {
-            log.error("Couldn't load Publishing View", e);
-            return;
-        }
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = loadView("/com/completetrsst/client/controls/PublishingView.fxml");
+                BorderPane publishingView = loader.load();
+                mainLayoutController.setFeedBottom(publishingView);
+            } catch (IOException e) {
+                log.error("Couldn't load Publishing View", e);
+                return;
+            }
+        });
     }
 
     public AuthenticationHandler loggedOutHandler() {

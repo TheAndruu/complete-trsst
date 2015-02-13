@@ -10,8 +10,6 @@
   <center>
     <TextArea fx:id="postInput"></TextArea>
   </center>
-  <!-- <bottom> <HBox> <RadioButton fx:id="optionPublic" text="Public"></RadioButton> <RadioButton fx:id="optionPrivate" 
-    text="Private"></RadioButton> </HBox> </bottom> -->
   <right>
     <VBox>
       <Button fx:id="postButton" onAction="#handlePostButton">Post</Button>

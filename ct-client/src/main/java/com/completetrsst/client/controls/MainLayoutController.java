@@ -25,6 +25,7 @@ public class MainLayoutController {
     }
 
     public void showFeed(String accountId) {
+        Platform.runLater(()-> {
         if (accountId == null || accountId.length() < 1) {
             Pane pane = new Pane();
             pane.getChildren().add(new Label("Feed goes here"));
@@ -34,9 +35,10 @@ public class MainLayoutController {
 
         WebView view = new WebView();
         WebEngine engine = view.getEngine();
-//        engine.load("http://localhost:8080/feed/" + accountId);
-        engine.load("http://www.google.com");
+        engine.load("http://localhost:8080/feed/" + accountId);
+//        engine.load("http://www.google.com");
         feedPane.setCenter(view);
+        });
     }
 
     public void setFeedBottom(BorderPane pane) {
