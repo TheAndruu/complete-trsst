@@ -166,4 +166,8 @@ public class SignInController {
     public void addLoggedOutHandler(AuthenticationHandler handler) {
         loggedOutHandlers.add(handler);
     }
+
+    public KeyManager getKeyManager() {
+        return keyManager;
+    }
 }

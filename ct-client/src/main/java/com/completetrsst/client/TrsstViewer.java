@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.completetrsst.client.controls.MainLayoutController;
+import com.completetrsst.client.controls.PublishingController;
 import com.completetrsst.client.controls.SignInController;
 import com.completetrsst.client.controls.events.AuthenticationHandler;
 
@@ -79,6 +80,8 @@ public class TrsstViewer extends Application {
             try {
                 FXMLLoader loader = loadView("/com/completetrsst/client/controls/PublishingView.fxml");
                 BorderPane publishingView = loader.load();
+                PublishingController controller = loader.getController();
+                controller.setKeyManager(signInController.getKeyManager());
                 mainLayoutController.setFeedBottom(publishingView);
             } catch (IOException e) {
                 log.error("Couldn't load Publishing View", e);
