@@ -68,13 +68,32 @@ public class TrsstViewer extends Application {
 
     public AuthenticationHandler loggedInHandler() {
         return (event) -> {
-            mainLayoutController.showFeed("4m8rwAMagVgik7q81HQLcNvb1XKNv84fW");
+            showPublishingPane();
+            mainLayoutController.showFeed("6cVDNuHqpviE47ReY3gfidyLPoJ3hFBGK");
+        };
+    }
+
+    private void showPublishingPane() {
+        try {
+            FXMLLoader loader = loadView("/com/completetrsst/client/controls/PublishingView.fxml");
+            BorderPane publishingView = loader.load();
+            mainLayoutController.setFeedBottom(publishingView);
+        } catch (IOException e) {
+            log.error("Couldn't load Publishing View", e);
+            return;
+        }
+    }
+
+    public AuthenticationHandler loggedOutHandler() {
+        return (event) -> {
+            mainLayoutController.clearFeedBottom();
+            mainLayoutController.showFeed("");
         };
     }
 
     private void addAuthHandlers() {
         signInController.addLoggedInHandler(loggedInHandler());
-        signInController.addLoggedOutHandler((event) -> mainLayoutController.showFeed(""));
+        signInController.addLoggedOutHandler(loggedOutHandler());
     }
 
 }
