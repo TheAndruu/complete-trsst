@@ -16,11 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 
-import com.completetrsst.client.FileSystemKeyManager;
 import com.completetrsst.client.controls.events.AuthenticationEvent;
 import com.completetrsst.client.controls.events.AuthenticationHandler;
 import com.completetrsst.client.controls.popup.PasswordConfirmPopup;
 import com.completetrsst.client.controls.popup.PasswordInputPopup;
+import com.completetrsst.client.managers.FileSystemKeyManager;
 import com.completetrsst.crypto.keys.KeyManager;
 
 public class SignInController {

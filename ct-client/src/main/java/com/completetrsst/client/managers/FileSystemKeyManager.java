@@ -1,4 +1,4 @@
-package com.completetrsst.client;
+package com.completetrsst.client.managers;
 
 import java.io.File;
 import java.security.KeyPair;
@@ -16,6 +16,7 @@ import com.completetrsst.crypto.keys.TrsstKeyFunctions;
 
 public class FileSystemKeyManager implements KeyManager {
 
+    // TODO: Move this to core?
     private static final Logger log = LoggerFactory.getLogger(FileSystemKeyManager.class);
 
     private static final String KEY_HOME;
