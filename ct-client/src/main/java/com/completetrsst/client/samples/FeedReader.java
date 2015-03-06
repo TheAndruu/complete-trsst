@@ -36,8 +36,6 @@ import com.completetrsst.atom.AtomParser;
 import com.completetrsst.constants.Namespaces;
 import com.completetrsst.constants.Nodes;
 import com.completetrsst.crypto.keys.TrsstKeyFunctions;
-import com.completetrsst.rome.modules.EntryModule;
-import com.completetrsst.rome.modules.FeedModule;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -82,13 +80,13 @@ public class FeedReader extends Application {
         root.getChildren().addAll(background, formLayout);
         primaryStage.show();
 
-        try {
-            loadFeedForUrl("http://localhost:8080/feed/8v3kpFNWYRc7tafUPjmqdPoiwnfsUmhAd");
-            loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e);
-        }
+//        try {
+////            loadFeedForUrl("http://localhost:8080/feed/8v3kpFNWYRc7tafUPjmqdPoiwnfsUmhAd");
+////            loadFeedForUrl("http://www.theregister.co.uk/software/apps/headlines.atom");
+//        } catch (IOException e) {
+//            log.error(e.getMessage(), e);
+//            throw new RuntimeException(e);
+//        }
     }
 
     private VBox createRow3Dom(Stage parentStage) {
@@ -156,59 +154,59 @@ public class FeedReader extends Application {
     }
 
     // TODO: See also Task, FutureTask, etc
-    public void loadFeedForUrl(final String url) throws IOException {
-        new Thread(() -> {
-            SyndFeed feed = null;
-            InputStream is = null;
-            try {
-                URLConnection openConnection = new URL(url).openConnection();
-                is = new URL(url).openConnection().getInputStream();
-                if ("gzip".equals(openConnection.getContentEncoding())) {
-                    is = new GZIPInputStream(is);
-                }
-                InputSource source = new InputSource(is);
-                SyndFeedInput input = new SyndFeedInput();
-                feed = input.build(source);
-
-                feed.getModules().forEach(module -> {
-
-                    if (module instanceof FeedModule) {
-                        FeedModule trsst = (FeedModule) module;
-                        System.out.println("Sign: " + trsst.getSignKey());
-                        System.out.println("Encrypt: " + trsst.getEncryptKey());
-                    }
-                });
-                feed.getEntries().forEach(entry -> {
-                    Platform.runLater(() -> {
-                        Text text = createTextBox(entry.getTitle());
-                        feedPanel.getChildren().add(text);
-                    });
-                    List<Module> modules = entry.getModules();
-                    modules.forEach(module -> {
-                        System.out.println("Module: " + module.getInterface());
-                        if (module instanceof EntryModule) {
-                            EntryModule trsst = (EntryModule) module;
-                            System.out.println("Predecessor: " + trsst.getPredecessorValue());
-                        }
-                    });
-                });
-
-            } catch (Exception e) {
-                log.error("Exception occured when building the feed object out of the url", e);
-                throw new RuntimeException(e);
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }).start();
-
-    }
+//    public void loadFeedForUrl(final String url) throws IOException {
+//        new Thread(() -> {
+//            SyndFeed feed = null;
+//            InputStream is = null;
+//            try {
+//                URLConnection openConnection = new URL(url).openConnection();
+//                is = new URL(url).openConnection().getInputStream();
+//                if ("gzip".equals(openConnection.getContentEncoding())) {
+//                    is = new GZIPInputStream(is);
+//                }
+//                InputSource source = new InputSource(is);
+//                SyndFeedInput input = new SyndFeedInput();
+//                feed = input.build(source);
+//
+//                feed.getModules().forEach(module -> {
+//
+//                    if (module instanceof FeedModule) {
+//                        FeedModule trsst = (FeedModule) module;
+//                        System.out.println("Sign: " + trsst.getSignKey());
+//                        System.out.println("Encrypt: " + trsst.getEncryptKey());
+//                    }
+//                });
+//                feed.getEntries().forEach(entry -> {
+//                    Platform.runLater(() -> {
+//                        Text text = createTextBox(entry.getTitle());
+//                        feedPanel.getChildren().add(text);
+//                    });
+//                    List<Module> modules = entry.getModules();
+//                    modules.forEach(module -> {
+//                        System.out.println("Module: " + module.getInterface());
+//                        if (module instanceof EntryModule) {
+//                            EntryModule trsst = (EntryModule) module;
+//                            System.out.println("Predecessor: " + trsst.getPredecessorValue());
+//                        }
+//                    });
+//                });
+//
+//            } catch (Exception e) {
+//                log.error("Exception occured when building the feed object out of the url", e);
+//                throw new RuntimeException(e);
+//            } finally {
+//                if (is != null) {
+//                    try {
+//                        is.close();
+//                    } catch (Exception e) {
+//                        log.error(e.getMessage(), e);
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//            }
+//        }).start();
+//
+//    }
 
     private Text createTextBox(String text) {
         Text textBox = new Text();

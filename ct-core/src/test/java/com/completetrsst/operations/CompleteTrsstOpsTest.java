@@ -65,7 +65,7 @@ public class CompleteTrsstOpsTest {
 
         String result = ops.readFeed("123");
 
-        assertEquals("<feed><entry1/><entry2/></feed>", result);
+        assertEquals("<feed><entry1 /><entry2 /></feed>", result);
     }
 
     @Test

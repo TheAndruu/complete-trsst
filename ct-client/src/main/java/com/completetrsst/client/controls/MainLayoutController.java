@@ -34,8 +34,6 @@ import org.xml.sax.InputSource;
 
 import com.completetrsst.atom.AtomParser;
 import com.completetrsst.crypto.xml.SignatureUtil;
-import com.completetrsst.rome.modules.EntryModule;
-import com.completetrsst.rome.modules.FeedModule;
 import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -130,71 +128,6 @@ public class MainLayoutController {
         }
     }
     
-    public void loadFeedForUrl(final String url) {
-        new Thread(() -> {
-            SyndFeed feed = null;
-            InputStream is = null;
-            try {
-                URLConnection openConnection = new URL(url).openConnection();
-                is = new URL(url).openConnection().getInputStream();
-                if ("gzip".equals(openConnection.getContentEncoding())) {
-                    is = new GZIPInputStream(is);
-                }
-                InputSource source = new InputSource(is);
-                SyndFeedInput input = new SyndFeedInput();
-                feed = input.build(source);
-
-                feed.getModules().forEach(module -> {
-                    if (module instanceof FeedModule) {
-                        FeedModule trsst = (FeedModule) module;
-                        // TODO: Publishing of feed needs sign and encrypt key set on the Feed element
-                        // even if only publishing Signed feed with AtomSigner
-                        log.info("Sign: " + trsst.getSignKey());
-                        log.info("Encrypt: " + trsst.getEncryptKey());
-                    }
-                });
-                feed.getEntries().forEach(entry -> {
-                    StringBuilder entryContent = new StringBuilder();
-                    entryContent.append(entry.getTitle());
-                    log.info("Entry found: " + entryContent);
-                    
-                    List<Module> modules = entry.getModules();
-                    modules.forEach(module -> {
-                        if (module instanceof EntryModule) {
-                            EntryModule trsst = (EntryModule) module;
-                            log.info("...Predecessor: " + trsst.getPredecessorValue());
-                            log.info("...Signed entry: " + trsst.isSigned());
-                            log.info("...Encryped entry: " + trsst.isEncrypted());
-                            // TODO: Check for encrypted here 
-                            // TODO: Check for signature valid
-                            if (trsst.isSigned()) {
-                                entryContent.append("Signature valid: " + trsst.isSignatureValid());
-                            }
-                        }
-                    });
-                    
-                    Platform.runLater(() -> {
-                        entries.add(entryContent.toString());
-                    });
-                });
-
-            } catch (Exception e) {
-                log.warn("Feed could not be parsed");
-                log.warn(e.getMessage());
-            } finally {
-                if (is != null) {
-                    try {
-                        is.close();
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-        }).start();
-
-    }
-
     public void setBottomPane(BorderPane pane) {
         feedPane.setBottom(pane);
     }
