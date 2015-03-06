@@ -47,18 +47,17 @@ public class CompleteTrsstOps implements TrsstOperations {
             return rawFeed;
         }
 
-        Element feedDom;
+        org.jdom2.Element feedDom;
         try {
-            feedDom = XmlUtil.toDom(rawFeed);
+            feedDom = XmlUtil.toJdom(rawFeed);
 
             for (String entry : rawEntries) {
-                Element domEntry = XmlUtil.toDom(entry);
-                feedDom.getOwnerDocument().adoptNode(domEntry);
-                feedDom.appendChild(domEntry);
+                org.jdom2.Element domEntry = XmlUtil.toJdom(entry);
+                feedDom.addContent(domEntry);
             }
 
             log.debug("Successfully got serialized feed");
-            return XmlUtil.serializeDom(feedDom);
+            return XmlUtil.serializeJdom(feedDom);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new RuntimeException(e);

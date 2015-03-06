@@ -9,7 +9,7 @@ public class TrsstFeedModule extends ModuleImpl implements FeedModule {
 
     private String signKey = "";
     private String encryptKey = "";
-    private boolean isSigned;
+    private Boolean isSigned = false;
 
     public TrsstFeedModule() {
         super(TrsstFeedModule.class, FeedModule.URI);
@@ -50,13 +50,19 @@ public class TrsstFeedModule extends ModuleImpl implements FeedModule {
     }
 
     @Override
-    public boolean isSigned() {
+    public Boolean isSigned() {
         return isSigned;
     }
 
     @Override
-    public void setIsSigned(boolean isSigned) {
+    public void setIsSigned(Boolean isSigned) {
         this.isSigned = isSigned;
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        CopyFrom module = (CopyFrom)super.clone();
+        module.copyFrom(this);
+        return module;
+    }
 }

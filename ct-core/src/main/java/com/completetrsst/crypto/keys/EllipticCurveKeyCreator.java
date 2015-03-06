@@ -24,7 +24,7 @@ public class EllipticCurveKeyCreator implements KeyCreator {
     static {
         try {
             int result = Security.addProvider(new BouncyCastleProvider());
-            log.info("Result of BC registration: " + result);
+            log.debug("Result of BC registration: " + result);
         } catch (Exception e) {
             log.error("Could not initialize security provider: " + e.getMessage(), e);
             throw new RuntimeException(e);

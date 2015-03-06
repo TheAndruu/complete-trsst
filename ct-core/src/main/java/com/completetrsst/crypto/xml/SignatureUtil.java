@@ -5,6 +5,7 @@ import java.security.KeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import org.apache.jcp.xml.dsig.internal.dom.DOMDigestMethod;
 import org.apache.jcp.xml.dsig.internal.dom.DOMTransform;
 import org.apache.jcp.xml.dsig.internal.dom.DOMXMLSignatureFactory;
 import org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -43,6 +45,13 @@ public class SignatureUtil {
     static final String ECDSA_SHA1 = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
 
     static {
+        try {
+            int result = Security.addProvider(new BouncyCastleProvider());
+            log.debug("Result of BC registration: " + result);
+        } catch (Exception e) {
+            log.error("Could not initialize security provider: " + e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
         org.apache.xml.security.Init.init();
     }
 
@@ -110,8 +119,8 @@ public class SignatureUtil {
         try {
             signature = factory.unmarshalXMLSignature(valContext);
         } catch (MarshalException e) {
-            log.debug("Could not unmarshall XML Signature");
-            throw new XMLSignatureException("Could not unmarshall XML Signature");
+            log.debug("Could not unmarshall XML Signature " + e.getMessage());
+            throw new XMLSignatureException("Could not unmarshall XML Signature: " + e.getMessage());
         }
         return signature;
     }

@@ -24,8 +24,8 @@ public class TrsstViewer extends Application {
     private static final Logger log = LoggerFactory.getLogger(TrsstViewer.class);
 
     private SignInController signInController;
-
     private MainLayoutController mainLayoutController;
+    private PublishingController publishController;
 
     public static void main(String[] args) {
         launch(args);
@@ -62,6 +62,11 @@ public class TrsstViewer extends Application {
         return mainLayout;
     }
 
+    private void addPublishingHandler() {
+        // Do a full refresh of the feed for now. Can optimize it later.
+        publishController.addPublishHandler((event) -> mainLayoutController.showFeed(event.getAccountId()));
+    }
+
     private FXMLLoader loadView(String viewLocation) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(viewLocation));
@@ -71,7 +76,7 @@ public class TrsstViewer extends Application {
     public AuthenticationHandler loggedInHandler() {
         return (event) -> {
             showPublishingPane();
-            mainLayoutController.showFeed("6cVDNuHqpviE47ReY3gfidyLPoJ3hFBGK");
+            mainLayoutController.showFeed(signInController.getKeyManager().getId());
         };
     }
 
@@ -80,9 +85,11 @@ public class TrsstViewer extends Application {
             try {
                 FXMLLoader loader = loadView("/com/completetrsst/client/controls/PublishingView.fxml");
                 BorderPane publishingView = loader.load();
-                PublishingController controller = loader.getController();
-                controller.setKeyManager(signInController.getKeyManager());
-                mainLayoutController.setFeedBottom(publishingView);
+                publishController = loader.getController();
+                publishController.setKeyManager(signInController.getKeyManager());
+                addPublishingHandler();
+                mainLayoutController.setBottomPane(publishingView);
+                
             } catch (IOException e) {
                 log.error("Couldn't load Publishing View", e);
                 return;
@@ -92,7 +99,7 @@ public class TrsstViewer extends Application {
 
     public AuthenticationHandler loggedOutHandler() {
         return (event) -> {
-            mainLayoutController.clearFeedBottom();
+            mainLayoutController.clearBottomPane();
             mainLayoutController.showFeed("");
         };
     }

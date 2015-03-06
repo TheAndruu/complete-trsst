@@ -18,9 +18,9 @@ public interface FeedModule extends Module, CopyFrom {
     public void setEncryptKey(String encryptKeyX509);
 
     /** Doesn't specify if the element's signature is verified, only specifies that a signature is present */
-    public void setIsSigned(boolean isSigned);
+    public void setIsSigned(Boolean isSigned);
 
     /** Doesn't specify if the element's signature is verified, only specifies that a signature is present */
-    public boolean isSigned();
+    public Boolean isSigned();
 
 }

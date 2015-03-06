@@ -13,13 +13,20 @@ public interface EntryModule extends Module, CopyFrom {
 
     public void setPredecessorValue(String predecessor);
 
-    public void setIsEncrypted(boolean isEncrypted);
+    public void setIsEncrypted(Boolean isEncrypted);
 
-    public boolean isEncrypted();
-
-    /** Doesn't specify if the element's signature is verified, only specifies that a signature is present */
-    public void setIsSigned(boolean isSigned);
+    public Boolean isEncrypted();
 
     /** Doesn't specify if the element's signature is verified, only specifies that a signature is present */
-    public boolean isSigned();
+    public void setIsSigned(Boolean isSigned);
+
+    /** Doesn't specify if the element's signature is verified, only specifies that a signature is present */
+    public Boolean isSigned();
+    
+    /** Whether a signature is valid */
+    public void setSignatureValid(Boolean isSigned);
+
+    /** Whether the signature is valid */
+    public Boolean isSignatureValid();
+
 }

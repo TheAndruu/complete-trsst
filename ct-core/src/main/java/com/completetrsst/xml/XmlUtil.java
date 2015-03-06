@@ -9,7 +9,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.input.DOMBuilder;
+import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.XMLOutputter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,19 @@ public class XmlUtil {
         DOMBuilder builder = new DOMBuilder();
         org.jdom2.Element jdomElem = builder.build(e);
         return jdomElem;
+    }
+    
+    public static org.jdom2.Element toJdom(String rawXml) {
+        final Element element;
+        try {
+            org.jdom2.Document parsedDoc = new SAXBuilder().build(new StringReader(rawXml));
+            element = parsedDoc.getRootElement();
+        } catch (JDOMException | IOException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+        element.detach();
+        return element;
     }
 
     public static org.w3c.dom.Element toDom(org.jdom2.Element element) throws IOException {

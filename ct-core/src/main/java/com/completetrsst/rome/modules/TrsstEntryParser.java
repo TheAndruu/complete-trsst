@@ -7,12 +7,19 @@ import static com.completetrsst.constants.Nodes.ENCRYPTED_DATA;
 import static com.completetrsst.constants.Nodes.SIGNATURE;
 import static com.completetrsst.constants.Nodes.TRSST_PREDECESSOR;
 
+import java.io.IOException;
 import java.util.Locale;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
+
 import org.jdom2.Element;
+import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.completetrsst.constants.Namespaces;
+import com.completetrsst.crypto.xml.SignatureUtil;
+import com.completetrsst.xml.XmlUtil;
 import com.rometools.rome.feed.module.Module;
 import com.rometools.rome.io.ModuleParser;
 
@@ -38,6 +45,16 @@ public class TrsstEntryParser implements ModuleParser {
             EntryModule fm = new TrsstEntryModule();
             fm.setPredecessorValue(predecessorValue);
             fm.setIsSigned(isSigned);
+            if (isSigned) {
+                try {
+                    org.w3c.dom.Element domEntry = XmlUtil.toDom(dcRoot);
+                    boolean isValid = SignatureUtil.verifySignature(domEntry);
+                    fm.setSignatureValid(isValid);
+                } catch (XMLSignatureException | IOException e) {
+                    log.warn("Signed entry couldn't be verified: " + e.getMessage());
+                }    
+            }
+            
             fm.setIsEncrypted(isEncrypted);
             return fm;
         }

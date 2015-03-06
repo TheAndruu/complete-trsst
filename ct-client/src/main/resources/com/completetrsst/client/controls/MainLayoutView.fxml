@@ -4,22 +4,27 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.ListView?>
 
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.completetrsst.client.controls.MainLayoutController"
-  prefWidth="700" prefHeight="500" fx:id="rootLayout">
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+ fx:controller="com.completetrsst.client.controls.MainLayoutController"
+ prefWidth="700" prefHeight="500" fx:id="rootLayout">
 
-  <left>
-    <FlowPane prefWidth="200">
-      <Label text="This is where the feed lists go">
-      </Label>
-    </FlowPane>
-  </left>
+ <left>
+  <FlowPane prefWidth="200">
+   <Label text="This is where the feed lists go">
+   </Label>
+  </FlowPane>
+ </left>
 
-  <center>
-    <BorderPane prefWidth="500" fx:id="feedPane">
-    </BorderPane>
-  </center>
+ <center>
+  <BorderPane fx:id="feedPane">
+   <center>
+    <ListView fx:id="entryListView"></ListView>
+   </center>
+  </BorderPane>
+ </center>
 
 </BorderPane>
 

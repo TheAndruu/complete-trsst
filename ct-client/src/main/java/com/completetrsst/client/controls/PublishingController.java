@@ -1,13 +1,11 @@
 package com.completetrsst.client.controls;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.Charset;
-
-import javax.xml.crypto.dsig.XMLSignatureException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,11 +14,21 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleGroup;
 
-import org.apache.commons.io.IOUtils;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.xml.crypto.dsig.XMLSignatureException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.completetrsst.atom.AtomEncrypter;
 import com.completetrsst.atom.AtomSigner;
+import com.completetrsst.client.controls.events.PublishEvent;
+import com.completetrsst.client.controls.events.PublishHandler;
 import com.completetrsst.crypto.keys.KeyManager;
 
 public class PublishingController {
@@ -41,9 +49,11 @@ public class PublishingController {
 
     // TODO: Better way to pass around or share this key manager
     private KeyManager keyManager;
-    
+
     @FXML
     private Button postButton;
+
+    private List<PublishHandler> publishHandlers = new ArrayList<PublishHandler>();
 
     public PublishingController() {
     }
@@ -62,73 +72,61 @@ public class PublishingController {
 
     @FXML
     public void handlePostButton(ActionEvent event) {
-        log.info("Is public post? : " + !(isPrivate));
+        log.info("Is private post? : " + isPrivate);
+
+        String rawXml = isPrivate ? createEncryptedPost() : createPublicPost();
+
+        System.err.println("Raw xml to be posted: " + rawXml);
         
-        AtomSigner signer = new AtomSigner();
-        String rawXml = "";
-        try {
-            rawXml = signer.createEntry(postInput.getText(), "", keyManager.getSignKey(), keyManager.getEncryptKey().getPublic());
-        } catch (IOException | XMLSignatureException e1) {
-            log.error(e1.getMessage(), e1);
-            throw new RuntimeException(e1);
-        }
-        
-        try {
-            postToUrl("http://localhost:8080/publish/" + keyManager.getId(),rawXml);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-        }
+        postWithJaxRs("http://localhost:8080/publish", rawXml);
+
+        publishHandlers.forEach((handler) -> handler.handleEvent(new PublishEvent().setAccountId(keyManager.getId())));
 
     }
 
-    private void postToUrl(String urlPath, String data) throws IOException {
-        URL url = new URL(urlPath);
+    private String createEncryptedPost() {
+        AtomEncrypter signer = new AtomEncrypter();
+        String textToEncrypt = postInput.getText();
+        // TODO: Need previous entry's post value -- pull from API
+        String prevEntrySigValue = "";
 
-        String result = "";
-        HttpURLConnection connection = null;
+        // TODO: Need public keys of recipients!
+        List<PublicKey> recipientKeys = Collections.EMPTY_LIST;
+
+        // TODO: Just use our own keys for now
         try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setDoInput(true);
-            connection.setInstanceFollowRedirects(false);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", " application/xml");
-            connection.setRequestProperty("charset", "UTF-8");
-            connection.setRequestProperty("Content-Length", "" + data.getBytes().length);
-            connection.setUseCaches(false);
-            byte[] bytes = data.getBytes(Charset.forName("UTF-8"));
-            DataOutputStream outStream = null;
-            try {
-                outStream = new DataOutputStream(connection.getOutputStream());
-                outStream.write(bytes);
-            } finally {
-                if (outStream != null) {
-                    outStream.flush();
-                    outStream.close();
-                }
-            }
-
-            InputStream inStream = null;
-            try {
-                inStream = connection.getInputStream();
-                result = IOUtils.toString(inStream, "UTF-8");
-            } finally {
-                if (inStream != null) {
-                    inStream.close();
-                }
-            }
-
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
+            return signer.createEncryptedEntry(textToEncrypt, prevEntrySigValue, keyManager.getSignKey(), keyManager.getEncryptKey(), recipientKeys);
+        } catch (IOException | GeneralSecurityException | XMLSignatureException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
+    }
 
-        log.info("Message returned: " + result);
+    private String createPublicPost() {
+        AtomSigner signer = new AtomSigner();
+        try {
+            return signer.createEntry(postInput.getText(), "", keyManager.getSignKey(), keyManager.getEncryptKey().getPublic());
+        } catch (IOException | XMLSignatureException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void postWithJaxRs(String urlPath, String data) {
+        Client client = ClientBuilder.newClient();
+        WebTarget target = client.target(urlPath);
+        Invocation.Builder builder = target.request();
+        String response = builder.post(Entity.entity(data, MediaType.APPLICATION_XML_TYPE), String.class);
+        client.close();
+
+        log.info("Got response: " + response);
     }
 
     public void setKeyManager(KeyManager keyManager) {
         this.keyManager = keyManager;
     }
 
+    public void addPublishHandler(PublishHandler handler) {
+        publishHandlers.add(handler);
+    }
 }
